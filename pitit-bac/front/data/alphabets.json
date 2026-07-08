@@ -1,0 +1,34 @@
+{
+  "International Alphabets": {
+    "description": "Complete alphabets from different writing systems.",
+    "alphabets": {
+      "Latin Alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "Greek Alphabet": "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ",
+      "Cyrillic Alphabet": "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ"
+    }
+  },
+  "Simplified Alphabets": {
+    "description": "Alphabets from different languages, but without the rarest letters.",
+    "alphabets": {
+      "German": "ABCDEFGHIKLMNOPRSTUVWZ",
+      "English": "ABCDEFGHIKLMNOPRSTUVW",
+      "Breton": "ABCDEFGHIKLMNOPRSTVY",
+      "Danish": "ABCDEFGHIJKLMNOPRSTUV",
+      "Spanish": "ABCDEFGHIJLMNOPRSTV",
+      "Esperanto": "ABCDEFGHIJKLMNOPRSTUV",
+      "Finnish": "ABDEFHIJKLMNOPRSTUVY",
+      "French": "ABCDEFGHIJLMNOPRSTUV",
+      "Greek": "\u0386\u0391\u0392\u0393\u0394\u0395\u0398\u0399\u039a\u039b\u039c\u039d\u039f\u03a0\u03a1\u03a3\u03a4\u03a5\u03a6\u03a7",
+      "Icelandic": "ABDEFGHJKLMNOPRSTUV\u00c1\u00d3\u00de",
+      "Italian": "ABCDEFGILMNOPRSTUV",
+      "Latin": "ABCDEFGHILMNOPRSTUV",
+      "Dutch": "ABCDEFGHIKLMNOPRSTUVWZ",
+      "Norwegian": "ABDEFGHIJKLMNOPRSTUV",
+      "Occitan": "ABCDEFGIJLMNOPRSTUV",
+      "Polish": "ABCDEFGHIJKLMNOPRSTUWZ",
+      "Portuguese": "ABCDEFGHILMNOPRSTV",
+      "Russian": "\u0410\u0411\u0412\u0413\u0414\u0417\u0418\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0427\u0428\u042d",
+      "Swedish": "ABCDEFGHIJKLMNOPRSTUV\u00d6"
+    }
+  }
+}
