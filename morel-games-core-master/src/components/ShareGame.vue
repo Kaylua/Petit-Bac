@@ -1,58 +1,47 @@
 <template>
   <section class="share-game">
     <header>
-      <!--
-        Contains the title of the share section.
-      -->
       <slot name="title">
-        <!-- `<h3>Share game</h3>` (localized) -->
         <h3>{{ $t("Share game") }}</h3>
       </slot>
-
-      <!--
-        Contains the lock button.
-      -->
       <slot name="lock">
-        <!-- A default lock button with right events and tooltips attached. -->
-        <b-tooltip :label="lock_tooltip" position="is-bottom" :type="type" :class="{'is-static': !master}">
-          <b-button
+        <o-tooltip :label="lock_tooltip" position="bottom" :variant="type" :class="{'is-static': !master}">
+          <o-button
             :icon-left="locked ? 'lock' : 'lock-open'"
             :loading="lock_loading"
             :disabled="!master"
             @click="toggle_lock"
-            type="is-text" />
-        </b-tooltip>
+            variant="text"
+          />
+        </o-tooltip>
       </slot>
     </header>
-    <b-field grouped size="is-small">
-      <b-input
-        :value="share_url"
-        size="is-small"
+
+    <o-field grouped size="small">
+      <o-input
+        :model-value="share_url"
+        size="small"
         readonly
         expanded
         id="share-url-field"
         @focus="$event.target.select()"
-      >
-      </b-input>
+      ></o-input>
       <p class="control copy-button">
-        <b-tooltip
+        <o-tooltip
           :label="copied ? $t('Copied!') : $t('Copy link to clipboard')"
-          position="is-bottom"
-          :type="type"
-          multilined
+          position="bottom"
+          :variant="type"
+          multiline
         >
-          <b-button class="button" :type="type" icon-left="clipboard" @click.stop.prevent="copy_url" :expanded="true">
+          <o-button :variant="type" icon-left="clipboard" @click.stop.prevent="copy_url" expanded>
             {{ $t("Copy game link") }}
-          </b-button>
-        </b-tooltip>
+          </o-button>
+        </o-tooltip>
       </p>
-    </b-field>
+    </o-field>
+
     <p class="share-invite">
-      <!--
-        The invite text, displayed at the bottom of the share component.
-      -->
       <slot name="invite">
-        <!-- A standard invite, localized. -->
         {{ $t("Invite other players to open this link in their browser to join this game.") }}
       </slot>
     </p>
@@ -60,32 +49,20 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState } from 'pinia'
+import { useMorelStore } from '../game/store.js'
 
-/**
- * `<morel-share-game />`
- *
- * A share box with an invite and a “copy link” button. Also includes the lock
- * game button.
- */
 export default {
   props: {
-    /**
-     * The button & tooltip types. Any Bulma color can be used here.
-     */
-    type: {
-      type: String,
-      // `is-light`
-      default: "is-light"
-    }
+    type: { type: String, default: 'light' }
   },
+
   data() {
-    return {
-      copied: false
-    };
+    return { copied: false }
   },
+
   computed: {
-    ...mapState('morel', {
+    ...mapState(useMorelStore, {
       share_url: state => `${window.location.origin}/${state.slug}`,
       locked: state => state.locked,
       lock_loading: state => state.lock_loading,
@@ -93,38 +70,35 @@ export default {
     }),
     lock_tooltip() {
       const $t = this.$t.bind(this)
-
       if (this.master) {
-        return this.locked ? $t("Unlock the game") : $t("Lock the game")
+        return this.locked ? $t('Unlock the game') : $t('Lock the game')
       } else {
-        return this.locked ? $t("Game locked") : $t("Game unlocked")
+        return this.locked ? $t('Game locked') : $t('Game unlocked')
       }
     }
   },
+
   methods: {
     copy_url() {
-      let share_url_field = document.getElementById("share-url-field");
-      share_url_field.select();
-
+      const share_url_field = document.getElementById('share-url-field')
+      share_url_field.select()
       try {
-        if (document.execCommand("copy")) {
-          this.copied = true;
-          setTimeout(() => (this.copied = false), 1600);
+        if (document.execCommand('copy')) {
+          this.copied = true
+          setTimeout(() => { this.copied = false }, 1600)
         }
       } catch (e) {
-        console.error("Unable to copy game URL", e);
+        console.error('Unable to copy game URL', e)
       }
-
-      share_url_field.blur();
+      share_url_field.blur()
     },
-
     toggle_lock() {
       if (this.master) {
-        this.$store.dispatch("morel/lock_game", !this.locked);
+        useMorelStore().lock_game(!this.locked)
       }
     }
   }
-};
+}
 </script>
 
 <style lang="sass">
@@ -140,18 +114,15 @@ export default {
 
     h3
       flex: 4
-
       position: relative
       left: 1px
-
       font-weight: bold
       margin: 1rem 0 .4rem
 
-    span.b-tooltip
+    span.o-tooltip
       button.button
         position: relative
         top: 5px
-
         font-size: .9em
         color: $grey
 
@@ -171,32 +142,28 @@ export default {
 
   .field.is-grouped
     position: relative
-
     margin-bottom: .4em
     align-items: center
 
     input
       border-color: $grey-light
       border-radius: 4px
-
       font-size: 0.9rem
 
       +mobile
         font-size: 0.95rem
 
-    // This element must remain “displayed”, else copy will not work.
     .control:not(.copy-button)
       position: absolute
       margin-left: -999999px
 
     .control.copy-button
-      &, & .b-tooltip
+      &, & .o-tooltip
         width: 100%
 
   .share-invite
     position: relative
     left: 1px
-
     font-size: .9em
     color: $grey-dark !important
 </style>

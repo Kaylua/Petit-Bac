@@ -1,15 +1,21 @@
+import ShareGame from './ShareGame.vue'
+import Players from './Players.vue'
+import PlayerAction from './PlayerAction.vue'
+import AskPseudonym from './AskPseudonym.vue'
+import LocaleSwitcher from './LocaleSwitcher.vue'
+
 const components = {
-  "share-game": require('./ShareGame.vue').default,
-  "players": require('./Players.vue').default,
-  "player-action": require('./PlayerAction.vue').default,
-  "ask-pseudonym": require('./AskPseudonym.vue').default,
-  "locale-switcher": require('./LocaleSwitcher.vue').default,
+  'share-game': ShareGame,
+  'players': Players,
+  'player-action': PlayerAction,
+  'ask-pseudonym': AskPseudonym,
+  'locale-switcher': LocaleSwitcher
 }
 
-exports.default = {
-  install(Vue, options) {
-    Object.keys(components).forEach(component_name => {
-      Vue.component(`morel-${component_name}`, components[component_name])
+export default {
+  install(app) {
+    Object.keys(components).forEach(name => {
+      app.component(`morel-${name}`, components[name])
     })
   }
 }

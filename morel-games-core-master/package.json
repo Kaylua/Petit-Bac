@@ -1,29 +1,25 @@
 {
   "name": "morel-games-core",
-  "version": "1.0.1",
+  "version": "2.0.0",
+  "type": "module",
   "description": "Common front-end components and logics for all Morel browser minigames.",
   "main": "src/index.js",
   "dependencies": {},
   "devDependencies": {
-    "@vuese/cli": "^2.14.3",
     "jsdoc": "^3.6.7"
   },
   "peerDependencies": {
-    "buefy": "^0.8.13",
-    "vue": "^2.6.11",
-    "vue-i18n": "^8.17.3",
-    "vuex": "^3.1.3"
+    "@oruga-ui/oruga-next": "^0.8.0",
+    "pinia": "^2.2.0",
+    "vue": "^3.4.0",
+    "vue-i18n": "^9.0.0"
   },
   "engines": {
-    "node": ">= 10.0.0",
-    "npm": ">= 6.0.0"
-  },
-  "esm": {
-    "mode": "all"
+    "node": ">= 16.0.0",
+    "npm": ">= 8.0.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "docs": " rm -rf docs/{js,vue} && jsdoc -d docs/js --readme README.md --package package.json -c jsdoc.config.json src/**/*.js src/*.js && vuese gen && mv website docs/vue"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Amaury Carrade <amaury@carrade.eu> (https://amaury.carrade.eu)",
   "license": "CECILL-B",
