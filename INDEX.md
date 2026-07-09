@@ -1,6 +1,6 @@
-# Index & référence rapide — Petit Bac
+# Index & référence rapide : Petit Bac
 
-> **Statut :** Phase 2 terminée ✅ — Vue 3 / Oruga / Pinia / ESM. App fonctionnelle.
+> **Statut :** Phase 2 terminée ✅, Vue 3 / Oruga / Pinia / ESM. App fonctionnelle.
 > Lire ce fichier EN PREMIER. Si bug : section "Pièges" avant tout.
 
 ## Fichiers racine notables
@@ -8,7 +8,7 @@
 | Fichier | Rôle |
 |---------|------|
 | `CLAUDE.md` | Instructions Claude Code (ordre de lecture, règles, hook bootstrap) |
-| `INDEX.md` | Ce fichier — carte du projet + pièges |
+| `INDEX.md` | Ce fichier : carte du projet + pièges |
 | `CHANTIER.md` | Stack, architecture, décisions, journal |
 | `project-setup-template.md` | Template one-shot pour répliquer ce système sur d'autres projets |
 
@@ -31,10 +31,10 @@ Les chemins `src/...` sont relatifs à `pitit-bac/front/`.
 | Vote sur les réponses | `src/components/GameVote.vue` |
 | Scores finaux | `src/components/GameEnd.vue` |
 | Timer circulaire CSS-driven (props: `value` 0–100, `label`) | `src/components/CircularProgress.vue` |
-| Motifs décoratifs SVG "summer vibes" (palmier, cocktail, soleil, confettis) — variants `hero`/`corner`, purement cosmétique | `src/components/SummerDecor.vue` |
+| Motifs décoratifs SVG "summer vibes" (palmier, cocktail, soleil, confettis), variants `hero`/`corner`, purement cosmétique | `src/components/SummerDecor.vue` |
 | Contrôle numérique +/- mobile-friendly (remplace les sliders Oruga pour Rounds/Time per category) | `src/components/NumberStepper.vue` |
 | Variables Bulma (couleurs, primary=#E64A19 orange été) | `src/assets/variables.scss` |
-| Overrides globaux composants UI (boutons, cartes, inputs, tags, panel, mobile) — partial Sass, importé par App.vue | `src/assets/design-system.sass` |
+| Overrides globaux composants UI (boutons, cartes, inputs, tags, panel, mobile), partial Sass, importé par App.vue | `src/assets/design-system.sass` |
 | Config Vite (`preserveSymlinks` pour `file:`, `loadPaths` SCSS → node_modules) | `vite.config.js` |
 | Entrypoint HTML Vite | `index.html` |
 | Variables d'env dev (`VITE_WS_URL=ws://{hostname}:62868`, `VITE_URL`) | `.env` |
@@ -63,11 +63,11 @@ Les chemins `src/...` sont relatifs à `pitit-bac/front/`.
 
 | Quoi | Fichier |
 |------|---------|
-| Point d'entrée Node — crée le serveur HTTP, écoute port `PITIT_BAC_WS_PORT` (défaut 62868) | `src/index.js` |
+| Point d'entrée Node, crée le serveur HTTP, écoute port `PITIT_BAC_WS_PORT` (défaut 62868) | `src/index.js` |
 | `GameServer` : WebSocket, auth UUID/secret, routing des actions, intégration Munin, stats JSON | `src/server.js` |
 | Logique de jeu (rounds, votes, scores, états) | `src/game.js` |
-| Utilitaires log (`log_info`, `log_err`, `log_debug` — `log_debug` silencieux en prod) | `src/logging.js` |
-| Shim d'entrée — juste `import './src/index.js'` | `index.js` |
+| Utilitaires log (`log_info`, `log_err`, `log_debug`, `log_debug` silencieux en prod) | `src/logging.js` |
+| Shim d'entrée, juste `import './src/index.js'` | `index.js` |
 
 ### Commons (`pitit-bac/commons/`)
 
@@ -75,9 +75,9 @@ Code partagé back + front. Référencé en `file:../commons` dans `back/package
 
 | Quoi | Fichier |
 |------|---------|
-| `is_answer_valid(letter, answer)` — vérifie la 1re lettre, accent-tolerant via slugify | `index.js` |
-| `is_answer_accepted(votes)` — accepte si >50 % votes positifs | `index.js` |
-| `compare_answers(a, b)` — égalité insensible à la casse, aux espaces | `index.js` |
+| `is_answer_valid(letter, answer)` : vérifie la 1re lettre, accent-tolerant via slugify | `index.js` |
+| `is_answer_accepted(votes)` : accepte si >50 % votes positifs | `index.js` |
+| `compare_answers(a, b)` : égalité insensible à la casse, aux espaces | `index.js` |
 | Tests Mocha des trois fonctions (lancé avec `npm test` dans `commons/`) | `tests.js` |
 
 ### Munin (`pitit-bac/munin/`)
@@ -86,12 +86,12 @@ Package npm local `munin-http`. Utilisé par `back/src/server.js` pour exposer d
 
 | Quoi | Fichier |
 |------|---------|
-| Classe `Munin` — se branche sur un `http.Server`, expose `/munin/{source}` en texte | `index.js` |
+| Classe `Munin` : se branche sur un `http.Server`, expose `/munin/{source}` en texte | `index.js` |
 | Plugin Python pour le démon Munin (collecte les métriques HTTP) | `plugin/node_http.py` |
 
 ### Production (`pitit-bac/production/`)
 
-Fichiers de déploiement — ne pas modifier sans raison.
+Fichiers de déploiement, ne pas modifier sans raison.
 
 | Quoi | Fichier |
 |------|---------|
@@ -103,8 +103,8 @@ Fichiers de déploiement — ne pas modifier sans raison.
 
 | Quoi | Chemin |
 |------|--------|
-| Alphabets présets (FR, EN, etc.) — utilisé par GameConfiguration.vue | `pitit-bac/front/data/alphabets.json` |
-| Stats runtime (parties jouées, etc.) — **gitignored, doit exister** | `pitit-bac/back/data/statistics.json` |
+| Alphabets présets (FR, EN, etc.), utilisé par GameConfiguration.vue | `pitit-bac/front/data/alphabets.json` |
+| Stats runtime (parties jouées, etc.), **gitignored, doit exister** | `pitit-bac/back/data/statistics.json` |
 
 ### Racine `pitit-bac/`
 
@@ -138,7 +138,7 @@ cd pitit-bac/front && npm run serve       # Front → http://localhost:5173
 ### Diagnostic n°1 : ouvrir la console navigateur (F12)
 Les `[Vue warn]: Failed to resolve component: xxx` donnent la cause racine immédiatement.
 
-### ⚠️ Oruga — `createOruga()` n'enregistre PAS les composants
+### ⚠️ Oruga : `createOruga()` n'enregistre PAS les composants
 ```js
 // ❌ o-field, o-input etc. rendus comme HTML inconnu → rien ne s'affiche
 app.use(createOruga({ ...bulmaConfig }))
@@ -148,39 +148,54 @@ import { createOruga, OrugaComponentPlugins } from '@oruga-ui/oruga-next'
 app.use(createOruga({ ...bulmaConfig }, OrugaComponentPlugins))
 ```
 
-### Oruga — remapping icônes FA (automatique dans Oruga 0.13)
+### Oruga : remapping icônes FA (automatique dans Oruga 0.13)
 `chevron-*` → `angle-*` en interne. Enregistrer `faAngleRight`, pas `faChevronRight`.
 
-### Oruga — props sans préfixe `is-`
+### Oruga : props sans préfixe `is-`
 ```js
 // ❌  size="is-large"   variant="is-primary"
 // ✅  size="large"      variant="primary"
 ```
 
-### ⚠️ Oruga `o-input icon="..."` — icône mal positionnée
-La config Oruga globale dans `main.js` (`input: { rootClass: 'control', inputClass: 'input' }`) écrase la logique du thème Bulma qui ajoute `has-icons-left`/`has-icons-right` sur `.control` quand un icon est présent. Sans cette classe, `.icon.is-left` reste en flux normal au lieu d'être positionné en absolu sur l'input. Repositionner à la main en CSS (`.control { position: relative } .icon.is-left { position: absolute; left: ... }`) plutôt que de compter sur cette classe. Aussi : passer `class="x"` directement sur `<o-input>` atterrit sur le `<input>` natif, pas sur un wrapper — utiliser un `<div>` englobant si un style doit cibler le champ dans son ensemble (ex: `position: sticky`).
+### ⚠️ Oruga `o-input icon="..."` : icône mal positionnée
+La config Oruga globale dans `main.js` (`input: { rootClass: 'control', inputClass: 'input' }`) écrase la logique du thème Bulma qui ajoute `has-icons-left`/`has-icons-right` sur `.control` quand un icon est présent. Sans cette classe, `.icon.is-left` reste en flux normal au lieu d'être positionné en absolu sur l'input. Repositionner à la main en CSS (`.control { position: relative } .icon.is-left { position: absolute; left: ... }`) plutôt que de compter sur cette classe. Aussi : passer `class="x"` directement sur `<o-input>` atterrit sur le `<input>` natif, pas sur un wrapper, utiliser un `<div>` englobant si un style doit cibler le champ dans son ensemble (ex: `position: sticky`).
 
 ### ⚠️ Cache Vite stale après modification de morel-games-core
 Vite pre-bundle `morel-games-core` dans `node_modules/.vite/deps/` au premier démarrage. Modifier un fichier dans `morel-games-core-master/` APRÈS ce démarrage → le bundle servi est stale → erreurs runtime inexplicables (`X is not a function`).  
 **Remède :** tuer tous les serveurs Vite, supprimer `pitit-bac/front/node_modules/.vite/`, relancer.
 
-### morel-games-core — éditer les sources, pas node_modules
+### morel-games-core : éditer les sources, pas node_modules
 Dépendance locale `file:../../morel-games-core-master`. Modifier directement les fichiers dans `morel-games-core-master/src/`.
 
-### CSS — Bulma 1.x vs 0.9.4 coexistent
+### CSS : Bulma 1.x vs 0.9.4 coexistent
 `@oruga-ui/theme-bulma/style.css` embarque Bulma 1.0.4. `App.vue` importe Bulma 0.9.4 via SCSS. Pas de conflit bloquant (0.9.4 gagne pour les classes communes), mais peut causer des glitches de style.
 
 ### ⚠️ `require()` dans le front → page blanche silencieuse
 Tout `require(...)` dans le code front est un survivant webpack. Dans Vite/ESM, `require` n'existe pas côté navigateur → erreur JS au montage du composant → page blanche sans warning Vue. Remplacer par un import statique ESM en haut du fichier. Voir CHANTIER.md pour le fix appliqué à `GameConfiguration.vue`.
 
-### ⚠️ `back/data/statistics.json` — fichier gitignored à créer manuellement
+### ⚠️ `back/data/statistics.json` : fichier gitignored à créer manuellement
 Le back écrit ses stats dans `pitit-bac/back/data/statistics.json`. Ce fichier est gitignored et le dossier `data/` n'existe pas dans un clone frais → erreur `ENOENT` au lancement (non bloquante, la partie tourne quand même). Créer manuellement : `mkdir pitit-bac/back/data && echo {} > pitit-bac/back/data/statistics.json`.
 
-### Port WS — variable d'env `PITIT_BAC_WS_PORT`
+### Port WS : variable d'env `PITIT_BAC_WS_PORT`
 Le back écoute sur le port défini par `PITIT_BAC_WS_PORT` (défaut : 62868). Le front lit `VITE_WS_URL` dans `.env` / `.env.production`. Les deux doivent être cohérents.
 
-### `commons/tests.js` — CJS uniquement
+### `commons/tests.js` : CJS uniquement
 Les tests commons utilisent `require()` (CJS/Mocha legacy). Ne pas les convertir en ESM sans adapter le test runner.
 
-### ⚠️ vue-i18n `legacy: true` — `i18n.global.locale` est une string, pas un ref
-Avec `createI18n({ legacy: true })` (utilisé ici), `i18n.global.locale` est une chaîne simple. `i18n.global.locale.value = x` est un no-op silencieux (assignation sur un primitif, aucune erreur). Toujours écrire `i18n.global.locale = x` directement. Piège qui a rendu le sélecteur de langue totalement inopérant pendant longtemps sans qu'aucune erreur ne le signale — voir `morel-games-core-master/src/game/i18n.js`.
+### ⚠️ `o-modal` mal positionnée sur mobile : `transform` persistant sur un ancêtre + `teleport: false`
+Un ancêtre avec une `animation`/`transition` sur `transform` et un fill-mode `both`/`forwards` (ex: `.game-configuration { animation: fadeInUp 0.4s ease both }` dans `App.vue`, keyframe final `transform: translateY(0)`) reste avec ce `transform` **appliqué en permanence** après la fin de l'animation. Tout `transform` non-`none` crée un containing block pour ses descendants en `position: fixed`. Comme `o-modal` a `teleport: false` par défaut (reste dans le DOM local au lieu d'être monté sur `<body>`), toute modale ouverte dans un tel ancêtre se comporte comme du `position: absolute` relatif à cet ancêtre au lieu d'être fixée à la fenêtre, invisible si on scroll avant de l'ouvrir (décalage = montant du scroll). **Remède :** toujours mettre `teleport` (`true`) sur `<o-modal>`. Voir CHANTIER.md (2026-07-09) pour le diagnostic complet.
+
+### ⚠️ `o-tooltip` débordant/coupé sur mobile : même piège `teleport`, en pire
+`o-tooltip` a aussi `teleport: false` par défaut, mais ici sans `teleport` Oruga ne calcule **aucune position dynamique du tout** (la fonction interne fait un `return` immédiat), juste du CSS statique centré sur le déclencheur, sans détection de bord d'écran ni échappement des ancêtres `overflow:hidden`. **Remède :** toujours `teleport` + `position="auto"` (pas `"bottom"` figé) sur `<o-tooltip>`. Second piège lié : le wrapper rend en `div.tooltip` (`display:inline-flex`, *shrink-to-fit*), un bouton `expanded` à l'intérieur ne remplit pas la largeur du champ sans `div.tooltip { width: 100% }` en override (à vérifier à chaque nouveau tooltip enveloppant un bouton `expanded`). Voir CHANTIER.md (2026-07-09) pour le détail complet et les fichiers concernés.
+
+### ⚠️ `o-tooltip` sans `variant` : bascule en dark mode système (texte gris sur fond noir)
+`theme.css` (Bulma 1.x) embarque un `@media (prefers-color-scheme: dark)` qui réassigne les CSS vars de scheme (`--bulma-scheme-main-bis-*`, `--bulma-text-*`) globalement. Un `o-tooltip` sans prop `variant` explicite hérite de ces vars → texte gris sur fond quasi noir chez un visiteur en dark mode système, alors que le reste du site (couleurs en dur dans `design-system.sass`) n'a aucun mode sombre. **Remède :** toujours mettre un `variant` explicite sur `o-tooltip`, ou cibler `background-color`/`color` en dur (pas les CSS custom properties du thème, Bulma les reconstruit depuis des sous-variables `-h`/`-s`/`-l` séparées, écraser la variable "finale" n'a aucun effet visuel). Voir CHANTIER.md (2026-07-09) pour le détail.
+
+### ⚠️ Sélecteurs CSS ciblant les classes Oruga sans préfixe `o-` : vérifier le DOM réel avant d'écrire une règle
+Piège récurrent dans ce projet (slider `.o-slide*` → `.slider*`, switch `.o-switch` → `.switch.control`, tooltip `.o-tooltip` → `.tooltip`) : les noms de props/composants Vue (`o-tooltip`, `o-slider`...) ne correspondent **pas** aux classes CSS réellement rendues par le thème Bulma d'Oruga (sans le préfixe `o-`). Une règle CSS écrite contre le mauvais nom ne lève aucune erreur, elle ne matche simplement jamais, silencieusement, parfois pendant des mois. **Remède :** toujours vérifier via DevTools/`outerHTML` le nom de classe réel avant d'écrire une règle ciblant un composant Oruga.
+
+### ⚠️ Animer un `o-modal` (ou tout composant Oruga piloté par `v-show`) : la classe "active" n'est PAS soumise au délai de `<Transition>`
+`.modal.is-active { display: flex }` est la seule règle qui sort la modale de son `display: none` de base. Cette classe `is-active` est pilotée par le même booléen réactif que `v-show`, mais `<Transition>` ne retarde QUE `v-show`, pas les classes CSS ordinaires liées à la même variable. Au clic de fermeture, `is-active` disparaît instantanément → `display: none` reprend la main immédiatement → l'élément (invisible) ne peut plus rien transitionner visuellement, même si les classes `*-leave-active` restent posées la bonne durée (le minutage Vue est correct, seul le rendu est coupé net). **Remède :** forcer `display: flex !important` tant qu'une classe `*-enter-active`/`*-leave-active` est présente, indépendamment de `is-active`. **Piège de diagnostic :** un `getComputedStyle` ponctuel ne révèle pas ce bug (les classes ET la propriété semblent correctes à un instant T), il faut échantillonner image par image (`requestAnimationFrame` + `getComputedStyle` en boucle) pour voir le saut instantané au lieu d'une interpolation. Voir CHANTIER.md (2026-07-10).
+
+### ⚠️ vue-i18n `legacy: true` : `i18n.global.locale` est une string, pas un ref
+Avec `createI18n({ legacy: true })` (utilisé ici), `i18n.global.locale` est une chaîne simple. `i18n.global.locale.value = x` est un no-op silencieux (assignation sur un primitif, aucune erreur). Toujours écrire `i18n.global.locale = x` directement. Piège qui a rendu le sélecteur de langue totalement inopérant pendant longtemps sans qu'aucune erreur ne le signale, voir `morel-games-core-master/src/game/i18n.js`.

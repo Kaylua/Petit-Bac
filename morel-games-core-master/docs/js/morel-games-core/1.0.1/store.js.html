@@ -100,7 +100,7 @@ const MorelStore = function(client, i18n) {
       players: {},
 
       /**
-       * This object does not have a rigid structure—put anything relevant in
+       * This object does not have a rigid structure, put anything relevant in
        * here. It will be sent / received by the configuration standard messages.
        */
       configuration: {},
@@ -534,7 +534,7 @@ const MorelStore = function(client, i18n) {
           context.commit("set_loading", {
             title: $t("Reconnecting…"),
             description:
-              $t("The connection was lost, but we're trying to fix this problem.") + "&lt;br />" + $t("&lt;strong>If it doesn't work after a few seconds, try to reload the page&lt;/strong>—you won't lose your progress in the game.")
+              $t("The connection was lost, but we're trying to fix this problem.") + "&lt;br />" + $t("&lt;strong>If it doesn't work after a few seconds, try to reload the page&lt;/strong>, you won't lose your progress in the game.")
           });
         }
       },

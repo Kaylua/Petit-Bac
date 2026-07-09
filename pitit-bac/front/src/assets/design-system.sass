@@ -3,7 +3,7 @@
 // ============================================================
 // Ce fichier est un partial Sass : il s'attend à être importé APRÈS
 // bulma/sass/utilities/_all et assets/variables (fournis par App.vue).
-// Ne pas ajouter d'@import ici — les variables $primary, +mobile, etc.
+// Ne pas ajouter d'@import ici, les variables $primary, +mobile, etc.
 // viennent du contexte d'import.
 
 :root
@@ -14,7 +14,7 @@
   --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1)
 
   // ---- Bulma 1.x CSS vars override (theme-bulma embarque Bulma 1.0.4) ----
-  // La couleur primaire Bulma 1.0 est turquoise (#00d1b2) — on la remplace
+  // La couleur primaire Bulma 1.0 est turquoise (#00d1b2), on la remplace
   // par notre coral sunset #FF6B35 pour que tous les composants Oruga soient cohérents.
   --bulma-primary-h: 16deg
   --bulma-primary-s: 100%
@@ -23,7 +23,7 @@
   --bulma-primary-rgb: 255, 107, 53
   --bulma-primary-invert-l: 100%
   --bulma-primary-on-scheme-l: 21%
-  // Computed shades (repris du patron Bulma 1.0 — mêmes échelons de lightness)
+  // Computed shades (repris du patron Bulma 1.0, mêmes échelons de lightness)
   --bulma-primary-00-l: 1%
   --bulma-primary-05-l: 6%
   --bulma-primary-10-l: 11%
@@ -74,7 +74,7 @@
       box-shadow: 0 3px 10px rgba($primary, 0.30)
 
 // ============================================================
-// CARTES — .message
+// CARTES : .message
 // ============================================================
 
 .message
@@ -111,7 +111,7 @@
   background: linear-gradient(135deg, $primary 0%, $primary-dark 100%) !important
 
 // ============================================================
-// CARTES — .box
+// CARTES : .box
 // ============================================================
 
 .box
@@ -167,8 +167,24 @@
   border-radius: 12px
   background: rgba(255, 253, 249, 0.9) !important
   border-color: $border !important
+  // Le thème pose `padding: 0` sur ce conteneur et `margin: 0 0.25em` sur
+  // chaque `.tag` (aucun espace vertical entre lignes qui wrappent), les
+  // chips se retrouvaient collées les unes aux autres et contre la bordure
+  // du champ. `gap` sur le flex container gère un espacement uniforme
+  // horizontal + vertical d'un coup, `.tag { margin: 0 }` évite le cumul.
+  padding: 0.65rem 0.75rem !important
+  gap: 0.5rem
 
-  // Chips de catégories — warm peach
+  // Le champ "Ajouter une catégorie…" (`flex: 1` dans le thème) se contente
+  // de la place restante sur la dernière ligne de chips, qui peut être
+  // minuscule voire nulle une fois beaucoup de catégories ajoutées.
+  // `flex-basis: 100%` force cet élément flex sur sa propre ligne à chaque
+  // fois, quel que soit le nombre de chips déjà présentes, toujours de la
+  // place pour écrire.
+  .autocomplete
+    flex-basis: 100%
+
+  // Chips de catégories, warm peach
   .tag
     --bulma-tag-h: 14deg
     --bulma-tag-s: 65%
@@ -178,6 +194,24 @@
     border-radius: 20px
     font-weight: 600
     gap: 0.25rem
+    margin: 0 !important
+
+    // Oruga ne garde pas d'identité DOM stable par tag (tout le conteneur de
+    // chips est reconstruit à chaque ajout/retrait, vérifié : un marqueur
+    // posé sur un tag non concerné disparaît quand même après une
+    // suppression ailleurs dans la liste). Impossible donc d'animer
+    // proprement "juste le tag qui bouge" façon TransitionGroup. À la place :
+    // une animation d'apparition rejouée par tous les chips à chaque
+    // changement, avec un léger décalage en cascade (lecture "la liste se
+    // remet en place" plutôt qu'un vrai enter/leave par élément), mais donne
+    // un retour animé fluide à chaque ajout/retrait sans dépendre d'un
+    // comportement que le composant n'expose pas.
+    @media (prefers-reduced-motion: no-preference)
+      animation: tagPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both
+
+      @for $i from 1 through 20
+        &:nth-child(#{$i})
+          animation-delay: #{($i - 1) * 22}ms
 
     // Bouton supprimer (×)
     // Piège triple :
@@ -256,6 +290,106 @@
   --bulma-switch-active-background-color: #{$primary}
 
 // ============================================================
+// MODALS : fond flouté façon verre dépoli (toutes les o-modal de l'app)
+// + animation d'ouverture/fermeture "modal-pop" (prop `animation="modal-pop"`
+// sur chaque <o-modal>). Le thème Bulma ne définit qu'un fade de sortie
+// (`.zoom-out-leave-active`) et rien à l'ouverture, d'où ce nom dédié avec
+// ses propres classes de transition Vue plutôt que de compléter le nom
+// "zoom-out" du thème.
+// ============================================================
+
+.modal-background
+  backdrop-filter: blur(6px)
+  -webkit-backdrop-filter: blur(6px)
+
+// Vue applique les classes d'état de transition sur l'élément racine du
+// <o-modal> (celui en v-show, un simple conteneur flex qui englobe à la fois
+// `.modal-background` et `.modal-card`) et détecte la fin de la transition
+// via `transitionend` sur CET élément précis, pas sur ses enfants. Piège :
+// une première version ne mettait `transition`/le changement de valeur que
+// sur les descendants (`.modal-background`, `.modal-card`) ; comme la racine
+// elle-même n'avait aucune propriété qui changeait réellement de valeur,
+// aucun `transitionend` n'était émis dessus, et Vue considérait la
+// transition terminée quasi instantanément (~1 tick), coupant net l'effet
+// pourtant bien programmé sur les enfants. Fix : la racine porte elle-même
+// un vrai fondu d'opacité (qui pilote le minutage détecté par Vue) ; le
+// `.modal-card` a son propre fondu + scale synchronisés sur la même durée.
+// Piège n°2, plus vicieux : `.modal.is-active { display: flex }` est la SEULE
+// règle qui sort la modale de son `display: none` de base (thème Bulma). Cette
+// classe `is-active` est pilotée par le même booléen réactif que `v-show`,
+// mais SEULEMENT `v-show` est mis en pause par <Transition> le temps de la
+// sortie, la classe `is-active`, elle, disparaît instantanément au clic. Le
+// `display: none` de base reprend donc la main immédiatement, AVANT que le
+// fondu/scale n'ait eu la moindre chance de s'afficher (confirmé en mesurant
+// `getComputedStyle().opacity` image par image via `requestAnimationFrame` :
+// elle saute directement de 1 à 0 dès la 2e frame, sans aucune valeur
+// intermédiaire, alors que les classes `modal-pop-leave-*` restent posées
+// ~220ms comme prévu, la temporisation de Vue est correcte, c'est le rendu
+// visuel qui est coupé net par ce `display: none` prématuré). Fix : forcer
+// `display: flex` tant qu'une classe de transition (`enter-active`/
+// `leave-active`) est présente, peu importe l'état de `is-active`, seul le
+// `display: none` appliqué par `v-show` en toute fin de transition (une fois
+// les classes retirées) reprend alors la main.
+.modal.modal-pop-enter-active,
+.modal.modal-pop-leave-active
+  display: flex !important
+  transition: opacity 0.22s ease
+
+.modal.modal-pop-enter-from,
+.modal.modal-pop-leave-to
+  opacity: 0
+
+@media (prefers-reduced-motion: no-preference)
+  .modal.modal-pop-enter-active .modal-card,
+  .modal.modal-pop-leave-active .modal-card
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease
+
+  .modal.modal-pop-enter-from .modal-card,
+  .modal.modal-pop-leave-to .modal-card
+    transform: scale(0.92) translateY(10px)
+
+// ============================================================
+// TOOLTIPS (o-tooltip) : toujours utilisés avec `teleport` + `position="auto"`
+// (obligatoire : sans `teleport`, Oruga ne calcule AUCUNE position et
+// affiche la bulle en CSS statique centrée sur le déclencheur, sans
+// détection de bord, elle déborde de l'écran ou se fait couper par le
+// premier ancêtre `overflow: hidden` rencontré, ex: .message). `max-width`
+// ci-dessous est un filet de sécurité supplémentaire sur mobile.
+// ============================================================
+
+.tooltip-content
+  max-width: calc(100vw - 1.5rem)
+  border-radius: 10px !important
+  box-shadow: 0 6px 20px rgba(150, 45, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08) !important
+  padding: 0.45rem 0.85rem !important
+  font-weight: 500
+
+  // Le thème Bulma calcule le fond/texte des tooltips sans `variant` explicite
+  // via des CSS vars H/S/L dérivées du scheme (--bulma-scheme-main-bis-*,
+  // --bulma-text-*), qui basculent automatiquement en sombre via
+  // `@media (prefers-color-scheme: dark)` dans theme.css. Écraser le seul
+  // custom property `--tooltip-bg`/`--tooltip-color` ne suffit PAS : la
+  // couleur réelle est reconstruite par Bulma depuis des sous-variables
+  // -h/-s/-l séparées, pas depuis cette valeur globale, d'où l'usage direct
+  // de `background-color`/`color` en dur ci-dessous plutôt que les CSS vars.
+  // Le reste du site n'a aucun mode sombre (thème "summer vibes" fixe) : sans
+  // ce fix, un visiteur en dark mode système voit du texte gris sur fond
+  // quasi noir sur les tooltips sans variant (ex: "Démarrer la partie"),
+  // détonnant avec le reste de l'UI toujours clair.
+  &:not(.is-dark):not(.is-light):not(.is-primary):not(.is-link):not(.is-info):not(.is-success):not(.is-warning):not(.is-danger)
+    background-color: #FFFBF5 !important
+    color: #2D1B00 !important
+
+    &::before
+      border-top-color: #FFFBF5 !important
+      border-bottom-color: #FFFBF5 !important
+      border-left-color: #FFFBF5 !important
+      border-right-color: #FFFBF5 !important
+
+  &.is-multiline
+    width: min(300px, calc(100vw - 1.5rem)) !important
+
+// ============================================================
 // PANEL (liste joueurs)
 // ============================================================
 
@@ -275,7 +409,7 @@
     border-color: var(--card-border) !important
 
 // ============================================================
-// MOBILE — suppression border-radius + anti-zoom iOS
+// MOBILE : suppression border-radius + anti-zoom iOS
 // ============================================================
 
 +mobile

@@ -44,7 +44,7 @@ munin.add_source("data_source_name", {
 
 That's it! Your server now exposes the metrics to `/munin/data_source_name`, with config in `/munin/data_source_name?config`. If you add multiple sources, they would have their own URL too.
 
-The values in `config` are [documented in the “Global attributes” section of this page of the Munin's documentation](http://guide.munin-monitoring.org/en/latest/reference/plugin.html#global-attributes). These in `data.xxx` are [documented on the same page, but under “Data source attributes”](http://guide.munin-monitoring.org/en/latest/reference/plugin.html#data-source-attributes). For these, you should not include the `{fieldname}.` part—as above.
+The values in `config` are [documented in the “Global attributes” section of this page of the Munin's documentation](http://guide.munin-monitoring.org/en/latest/reference/plugin.html#global-attributes). These in `data.xxx` are [documented on the same page, but under “Data source attributes”](http://guide.munin-monitoring.org/en/latest/reference/plugin.html#data-source-attributes). For these, you should not include the `{fieldname}.` part, as above.
 
 If you don't want any configuration, you can also directly set a function returning the data. The function's name will be used as label.
 

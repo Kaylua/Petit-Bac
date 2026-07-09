@@ -118,7 +118,7 @@ morelI18n.set_store(morelStore)
 
 // Langue par défaut : français, indépendamment de la langue du navigateur.
 // On respecte quand même un choix explicite précédent (sélecteur de langue,
-// persisté dans localStorage par MorelI18n) — seul le cas "aucun choix connu"
+// persisté dans localStorage par MorelI18n), seul le cas "aucun choix connu"
 // bascule sur 'fr' au lieu de l'auto-détection navigateur de
 // load_locale_from_browser() (qui, elle, retomberait sur l'anglais pour
 // n'importe quel navigateur non francophone).

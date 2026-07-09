@@ -1,4 +1,4 @@
-# Morel Games — Core
+# Morel Games : Core
 
 This package centralizes all common components for Morel games: authentication,
 network, game URL, players list, master player, master actions (kick players,
@@ -206,7 +206,7 @@ message_in_my_action({ thing, thong }) {
 #### Sending messages
 
 From any method, use the `send_message` method. The first argument is the
-action, and the second (optional), the payload you want to send—that can be any
+action, and the second (optional), the payload you want to send, that can be any
 `object`. It returns a `Promise`, resolved when the message was successfully
 sent.
 

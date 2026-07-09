@@ -40,7 +40,8 @@
             :multiline="!we_finished"
             :label="finish_button_label"
             variant="dark"
-            position="bottom"
+            position="auto"
+            teleport
           >
             <o-button
               variant="primary"
@@ -256,10 +257,17 @@ export default {
     .field
       width: 100%
 
+      // Le wrapper o-tooltip rend en `.tooltip`, en `inline-flex` par défaut
+      // (ne s'étire pas tout seul), sans ce fix le bouton `expanded` à
+      // l'intérieur reste centré sur sa largeur de contenu.
+      .tooltip
+        display: inline-block
+        width: 100%
+
       button
         cursor: pointer
 
-    // Sur mobile : grille compacte — progress à gauche, label + bouton à droite
+    // Sur mobile : grille compacte, progress à gauche, label + bouton à droite
     +mobile
       position: unset
       width: 100%

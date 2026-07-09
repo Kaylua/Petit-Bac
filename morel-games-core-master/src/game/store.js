@@ -251,7 +251,7 @@ export const useMorelStore = defineStore('morel', {
           description:
             _t("The connection was lost, but we're trying to fix this problem.") +
             '<br />' +
-            _t("<strong>If it doesn't work after a few seconds, try to reload the page</strong>—you won't lose your progress in the game.")
+            _t("<strong>If it doesn't work after a few seconds, try to reload the page</strong>, you won't lose your progress in the game.")
         })
       }
     },

@@ -16,14 +16,14 @@ $dark-invert: findColorInvert($dark);
 $less-dark: lighten($dark, 22%);
 $less-dark-invert: findColorInvert($less-dark);
 
-// Tropical teal for links — contraste pool/ciel d'été
+// Tropical teal for links, contraste pool/ciel d'été
 $link: #00838F;
 $link-invert: findColorInvert($link);
 
 $danger: hsl(0, 67%, 44%);
 $danger-invert: findColorInvert($danger);
 
-// Accents décoratifs "playful illustré" — palette élargie au-delà du corail
+// Accents décoratifs "playful illustré", palette élargie au-delà du corail
 // (motifs SVG, blobs, confettis). Pas utilisés comme couleurs Bulma
 // (boutons/tags restent en $primary), uniquement pour la couche décorative.
 $accent-teal: #00BFA5;
@@ -53,12 +53,12 @@ $input-hover-border-color: $primary;
 $input-focus-border-color: $primary;
 $input-focus-box-shadow-color: rgba($primary, 0.2);
 
-// Formes — coins arrondis pour feel friendly été
+// Formes : coins arrondis pour feel friendly été
 $radius: 8px;
 $radius-small: 4px;
 $radius-large: 16px;
 
-// Box — ombre chaude, pas froide
+// Box : ombre chaude, pas froide
 $box-radius: 16px;
 $box-shadow: 0 4px 20px rgba(180, 60, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.06);
 

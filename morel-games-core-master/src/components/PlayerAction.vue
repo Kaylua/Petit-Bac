@@ -8,7 +8,8 @@
   >
     <o-tooltip
       :label="label"
-      position="bottom"
+      position="auto"
+      teleport
       :variant="type"
     >
       <o-icon :pack="pack" :icon="icon" size="small"></o-icon>

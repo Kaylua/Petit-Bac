@@ -1,4 +1,4 @@
-# Instructions Claude — Projet Petit Bac
+# Instructions Claude : Projet Petit Bac
 
 ## Bootstrap (vérifier au démarrage de chaque session)
 
@@ -25,13 +25,13 @@ Vérifier que `.claude/settings.local.json` contient bien le hook PostToolUse ci
 
 ## Fichiers à ignorer
 
-`project-setup-template.md` — template one-shot pour initialiser ce système sur d'autres projets. Inutile dans ce projet, ne pas lire.
+`project-setup-template.md` : template one-shot pour initialiser ce système sur d'autres projets. Inutile dans ce projet, ne pas lire.
 
 ---
 
 ## Début de session : lire dans cet ordre
-1. `INDEX.md` — carte du projet + pièges connus (toujours, ~1 min)
-2. `CHANTIER.md` — **uniquement si** la tâche implique :
+1. `INDEX.md` : carte du projet + pièges connus (toujours, ~1 min)
+2. `CHANTIER.md` : **uniquement si** la tâche implique :
    - un changement d'architecture ou de stack
    - comprendre pourquoi une décision a été prise
    - un bug complexe sans réponse dans INDEX.md
@@ -39,6 +39,6 @@ Vérifier que `.claude/settings.local.json` contient bien le hook PostToolUse ci
 
 ## Règles obligatoires
 
-**Après chaque décision ou événement notable** (nouvelle lib, piège découvert, choix architectural, bug non-trivial résolu) : laisser une trace dans le **"Journal des modifications récentes"** de `CHANTIER.md`. Pas de granularité fichier-par-fichier — ça va dans git.
+**Après chaque décision ou événement notable** (nouvelle lib, piège découvert, choix architectural, bug non-trivial résolu) : laisser une trace dans le **"Journal des modifications récentes"** de `CHANTIER.md`. Pas de granularité fichier-par-fichier, ça va dans git.
 
 **Si la structure du projet change** (fichier important ajouté, supprimé, renommé, ou changement architectural) : mettre à jour `INDEX.md`.

@@ -186,7 +186,7 @@ export default {
 @import "assets/design-system"
 
 // ============================================================
-// FOND GLOBAL — Coucher de soleil été
+// FOND GLOBAL : coucher de soleil été
 // ============================================================
 
 html
@@ -207,7 +207,7 @@ html.overflow, html.overflow body
   overflow-y: unset
 
 // ============================================================
-// BLOBS DE PROFONDEUR — halos flous fixes, palette élargie
+// BLOBS DE PROFONDEUR : halos flous fixes, palette élargie
 // ============================================================
 
 .ambient-blobs
@@ -453,7 +453,7 @@ html.overflow, html.overflow body
       width: 0.7em
       height: 0.7em
 
-// Bouton "Quitter le lobby" — style ghost discret
+// Bouton "Quitter le lobby" : style ghost discret
 .leave-lobby-btn
   font-size: 0.82em !important
   font-weight: 500 !important
@@ -474,7 +474,7 @@ html.overflow, html.overflow body
     position: absolute
     left: 1rem
 
-// Bouton quitter — sidebar desktop uniquement
+// Bouton quitter : sidebar desktop uniquement
 .leave-lobby-desktop
   margin-top: 1.2rem
   text-align: center
@@ -573,6 +573,14 @@ html.overflow, html.overflow body
   100%
     opacity: 0
     transform: translateY(80px) rotate(360deg)
+
+@keyframes tagPopIn
+  from
+    opacity: 0
+    transform: scale(0.85)
+  to
+    opacity: 1
+    transform: scale(1)
 
 // Animations d'entrée pour les écrans principaux
 @media (prefers-reduced-motion: no-preference)

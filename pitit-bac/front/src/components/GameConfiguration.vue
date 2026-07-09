@@ -48,7 +48,7 @@
               </div>
 
               <div class="field start-button is-desktop">
-                <o-tooltip multiline position="bottom" :label="start_button_tooltip">
+                <o-tooltip multiline position="auto" teleport :label="start_button_tooltip">
                   <o-button
                     variant="primary"
                     size="medium"
@@ -72,14 +72,14 @@
               </div>
 
               <p class="config-defaults-hint">
-                {{ $t('{rounds} rounds, {time} per round by default — adjust this in advanced settings.', { rounds: config.turns, time: actual_time }) }}
+                {{ $t('{rounds} rounds, {time} per round by default, adjust this in advanced settings.', { rounds: config.turns, time: actual_time }) }}
               </p>
             </div>
           </div>
         </section>
 
         <div class="field start-button is-mobile">
-          <o-tooltip multiline position="bottom" :label="start_button_tooltip">
+          <o-tooltip multiline position="auto" teleport :label="start_button_tooltip">
             <o-button
               variant="primary"
               size="medium"
@@ -91,7 +91,7 @@
         </div>
 
         <!-- Suggestions modal -->
-        <o-modal v-model:active="suggestions_opened" @close="suggestions_search = ''">
+        <o-modal v-model:active="suggestions_opened" teleport animation="modal-pop" @close="suggestions_search = ''">
           <div class="modal-card suggestions-card">
             <header class="modal-card-head">
               <p class="modal-card-title">
@@ -103,11 +103,11 @@
             </header>
             <section class="modal-card-body">
               <div v-if="master || categories_by_everyone">
-                <p v-t="'Categories ideas are suggested below. You can always write your own categories directly—don\'t hesitate if you have original ideas or private references!'" />
+                <p v-t="'Categories ideas are suggested below. You can always write your own categories directly, don\'t hesitate if you have original ideas or private references!'" />
                 <p v-t="'Click on a category to add or remove it.'" />
               </div>
               <div v-else>
-                <p v-t="'Categories ideas are suggested below. The game master can write your own categories directly—don\'t hesitate to ask if you have original ideas or private references!'" />
+                <p v-t="'Categories ideas are suggested below. The game master can write your own categories directly, don\'t hesitate to ask if you have original ideas or private references!'" />
               </div>
 
               <div class="suggestions-search" v-if="suggested_categories.length > 0">
@@ -146,6 +146,59 @@
             </section>
             <footer class="modal-card-foot">
               <o-button variant="primary" expanded @click="toggle_suggestions_modale()">
+                {{ $t('Done') }}
+              </o-button>
+            </footer>
+          </div>
+        </o-modal>
+
+        <!-- Alphabet presets modal -->
+        <o-modal v-model:active="presets_opened" teleport animation="modal-pop">
+          <div class="modal-card presets-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">{{ $t('Presets') }}</p>
+            </header>
+            <section class="modal-card-body">
+              <div class="preset-group" v-for="(alphabets_cat, i) in Object.keys(alphabets)" :key="i">
+                <h4>{{ $t(alphabets_cat) }}</h4>
+                <p>{{ $t(alphabets[alphabets_cat].description) }}</p>
+                <div class="tags">
+                  <span
+                    class="tag is-medium"
+                    :class="{ 'is-primary': config.alphabet === alphabets[alphabets_cat].alphabets[alphabet_in_cat] }"
+                    v-for="(alphabet_in_cat, j) in Object.keys(alphabets[alphabets_cat].alphabets)"
+                    :key="j"
+                    @click="select_alphabet_preset(alphabets[alphabets_cat].alphabets[alphabet_in_cat])"
+                  >
+                    <span class="tag-check" v-if="config.alphabet === alphabets[alphabets_cat].alphabets[alphabet_in_cat]">✓</span>{{ $t(alphabet_in_cat) }}
+                  </span>
+                </div>
+              </div>
+            </section>
+            <footer class="modal-card-foot">
+              <o-button variant="primary" expanded @click="toggle_presets_modale()">
+                {{ $t('Done') }}
+              </o-button>
+            </footer>
+          </div>
+        </o-modal>
+
+        <!-- Scores explanation modal -->
+        <o-modal v-model:active="scores_info_opened" teleport animation="modal-pop">
+          <div class="modal-card scores-info-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">{{ $t('How does it work?') }}</p>
+            </header>
+            <section class="modal-card-body">
+              <div class="info-item"><h4 v-t="'Valid'" /><p v-t="'Points granted if the answer is correct, accepted by all players, and unique.'" /></div>
+              <div class="info-item"><h4 v-t="'Duplicated'" /><p v-t="'Points granted if the answer is correct, accepted by all players, but when other players answered the same thing.'" /></div>
+              <div class="info-item"><h4 v-t="'Invalid'" /><p v-t="'Points granted if the answer is not correct (does not start with the correct letter).'" /></div>
+              <div class="info-item"><h4 v-t="'Refused'" /><p v-t="'Points granted if the answer starts with the correct letter, but was voted against by a majority of players.'" /></div>
+              <div class="info-item"><h4 v-t="'Empty'" /><p v-t="'Points granted if the answer is missing.'" /></div>
+              <div class="info-item"><p v-t="'Scores can be negative (points are then subtracted from the player\'s score).'" /></div>
+            </section>
+            <footer class="modal-card-foot">
+              <o-button variant="primary" expanded @click="toggle_scores_info_modale()">
                 {{ $t('Done') }}
               </o-button>
             </footer>
@@ -218,39 +271,9 @@
                 <div class="columns is-mobile">
                   <div class="column is-half">{{ $t('Alphabet') }}</div>
                   <div class="column is-half suggestions-link" v-if="master">
-                    <o-dropdown aria-role="list" position="bottom-left">
-                      <template #trigger>
-                        <a href="" @click.prevent="" class="suggestions-link-trigger" role="button">
-                          {{ $t('Presets') }}
-                          <o-icon icon="caret-down" size="small"></o-icon>
-                        </a>
-                      </template>
-
-                      <div v-for="(alphabets_cat, i) in Object.keys(alphabets)" :key="i">
-                        <o-dropdown-item separator v-if="i != 0"></o-dropdown-item>
-                        <div class="dropdown-item">
-                          <h4>{{ $t(alphabets_cat) }}</h4>
-                          <p>{{ $t(alphabets[alphabets_cat].description) }}</p>
-                        </div>
-                        <o-dropdown-item
-                          aria-role="listitem"
-                          :class="{ 'is-active': config.alphabet === alphabets[alphabets_cat].alphabets[alphabet_in_cat] }"
-                          @click="config.alphabet = alphabets[alphabets_cat].alphabets[alphabet_in_cat]; update_game_configuration()"
-                          v-for="(alphabet_in_cat, j) in Object.keys(alphabets[alphabets_cat].alphabets)"
-                          :key="j"
-                        >{{ $t(alphabet_in_cat) }}</o-dropdown-item>
-                      </div>
-
-                      <o-dropdown-item separator></o-dropdown-item>
-                      <div class="dropdown-item">
-                        <p>
-                          {{ $t('Your language or alphabet is missing?') }}
-                          <a href="https://github.com/MorelGames/pitit-bac/issues" target="_blank">
-                            {{ $t('Explain us how to add it!') }}
-                          </a>
-                        </p>
-                      </div>
-                    </o-dropdown>
+                    <a href="#" class="suggestions-link-trigger" @click.prevent="toggle_presets_modale()">
+                      <SummerDecor variant="icon" motif="sun" />{{ $t('Presets') }}
+                    </a>
                   </div>
                 </div>
               </template>
@@ -269,22 +292,9 @@
                 <div class="columns is-mobile">
                   <div class="column is-half">{{ $t('Scores') }}</div>
                   <div class="column is-half suggestions-link">
-                    <o-dropdown aria-role="list" position="bottom-left">
-                      <template #trigger>
-                        <a href="" @click.prevent="" class="suggestions-link-trigger" role="button">
-                          {{ $t('How does it work?') }}
-                          <o-icon icon="caret-down" size="small"></o-icon>
-                        </a>
-                      </template>
-                      <div class="dropdown-item"><h4 v-t="'Valid'" /><p v-t="'Points granted if the answer is correct, accepted by all players, and unique.'" /></div>
-                      <div class="dropdown-item"><h4 v-t="'Duplicated'" /><p v-t="'Points granted if the answer is correct, accepted by all players, but when other players answered the same thing.'" /></div>
-                      <o-dropdown-item separator></o-dropdown-item>
-                      <div class="dropdown-item"><h4 v-t="'Invalid'" /><p v-t="'Points granted if the answer is not correct (does not start with the correct letter).'" /></div>
-                      <div class="dropdown-item"><h4 v-t="'Refused'" /><p v-t="'Points granted if the answer starts with the correct letter, but was voted against by a majority of players.'" /></div>
-                      <div class="dropdown-item"><h4 v-t="'Empty'" /><p v-t="'Points granted if the answer is missing.'" /></div>
-                      <o-dropdown-item separator></o-dropdown-item>
-                      <div class="dropdown-item"><p v-t="'Scores can be negative (points are then subtracted from the player\'s score).'" /></div>
-                    </o-dropdown>
+                    <a href="#" class="suggestions-link-trigger" @click.prevent="toggle_scores_info_modale()">
+                      <SummerDecor variant="icon" motif="watermelon" />{{ $t('How does it work?') }}
+                    </a>
                   </div>
                 </div>
               </template>
@@ -329,6 +339,8 @@ export default {
       filtered_suggestions: [],
       suggestions_opened: false,
       suggestions_search: '',
+      presets_opened: false,
+      scores_info_opened: false,
       show_advanced: false,
       alphabets: alphabetsData,
       categories_edited: false,
@@ -352,7 +364,7 @@ export default {
       return Array.prototype.concat.apply([], this.suggested_categories)
     },
 
-    // Recherche insensible aux accents (ex: "ecole" trouve "école") — les
+    // Recherche insensible aux accents (ex: "ecole" trouve "école"), les
     // groupes sans aucune correspondance sont masqués plutôt que rendus
     // vides, pour ne pas laisser de blancs dans la liste filtrée.
     filtered_suggestion_groups() {
@@ -367,7 +379,7 @@ export default {
     // localement (instantané, pas d'aller-retour serveur) du temps par
     // catégorie et du nombre de catégories actuel. Le serveur recalcule la
     // même formule de son côté (source de vérité pour le timer de la
-    // partie) — voir update_configuration() dans back/src/game.js.
+    // partie), voir update_configuration() dans back/src/game.js.
     seconds_per_category_or_default() {
       return this.config.secondsPerCategory || this.default_seconds_per_category
     },
@@ -392,7 +404,7 @@ export default {
         : this.format_seconds(this.round_time_seconds, true, true)
     },
 
-    // Bascule "No time limit" — remplace l'ancien tick "∞" en bout de slider
+    // Bascule "No time limit", remplace l'ancien tick "∞" en bout de slider
     // par un switch explicite. On retient la dernière valeur manuelle pour la
     // restaurer si le maître décoche.
     no_time_limit: {
@@ -439,7 +451,7 @@ export default {
         else if (!this.required_fields_filled) return this.$t('Some fields are not correctly set.')
         else return ''
       } else {
-        return this.$t('Please wait—the game master will start the game…')
+        return this.$t('Please wait, the game master will start the game…')
       }
     },
     categories_field_message() {
@@ -522,6 +534,20 @@ export default {
 
     toggle_suggestions_modale() {
       this.suggestions_opened = !this.suggestions_opened
+    },
+
+    toggle_presets_modale() {
+      this.presets_opened = !this.presets_opened
+    },
+
+    select_alphabet_preset(alphabet) {
+      this.config.alphabet = alphabet
+      this.update_game_configuration()
+      this.presets_opened = false
+    },
+
+    toggle_scores_info_modale() {
+      this.scores_info_opened = !this.scores_info_opened
     },
 
     has_category(category) {
@@ -608,12 +634,15 @@ div.column.is-half div.field:not(:first-child):not(.no-extended-margin-top)
   +mobile
     gap: 0.7rem
 
-div.field > span.o-tooltip
+// Le wrapper o-tooltip rend en `.tooltip` (Bulma theme), affiché en
+// `inline-flex` par défaut, il ne s'étire donc pas pour laisser le bouton
+// `expanded` qu'il contient occuper toute la largeur du champ. Sans ce
+// fix, le bouton "Démarrer la partie" reste centré sur une largeur de
+// contenu au lieu de remplir la carte (et son centre décalé fait déborder
+// la bulle d'info centrée dessus).
+div.field > div.tooltip
   display: inline-block
   width: 100%
-
-  &.o-tooltip--multiline:after
-    width: 360px !important
 
 .is-date-desktop
   +mobile
@@ -649,7 +678,7 @@ div.field > span.o-tooltip
     a.suggestions-link-trigger
       display: inline-flex
       align-items: center
-      gap: 0.3rem
+      gap: 0.35rem
       background: rgba($primary, 0.10)
       border: 1.5px solid rgba($primary, 0.30)
       border-radius: 20px
@@ -659,7 +688,7 @@ div.field > span.o-tooltip
       color: $primary-dark !important
       cursor: pointer
       text-decoration: none !important
-      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease
       white-space: nowrap
 
       .summer-icon
@@ -670,6 +699,16 @@ div.field > span.o-tooltip
         background: rgba($primary, 0.18)
         border-color: rgba($primary, 0.50)
         transform: translateY(-1px)
+        box-shadow: 0 3px 10px rgba($primary, 0.18)
+
+      &:active
+        transform: translateY(0) scale(0.96)
+
+      +mobile
+        min-height: 2.4em
+        padding: 0.3rem 0.9rem
+        font-size: 0.85em
+        box-shadow: 0 2px 8px rgba($primary, 0.12)
 
   input.input[disabled]
     background: transparent
@@ -715,8 +754,11 @@ div.field > span.o-tooltip
       color: $dark
       cursor: default
 
-// Modal suggestions — style estival
-div.modal-card.suggestions-card
+// Modals (suggestions, présélections d'alphabet, explication des scores) :
+// même style estival partagé pour une cohérence visuelle sur les 3 popups.
+div.modal-card.suggestions-card,
+div.modal-card.presets-card,
+div.modal-card.scores-info-card
   width: auto
   border-radius: 20px
   overflow: hidden
@@ -763,7 +805,7 @@ div.modal-card.suggestions-card
     border-top: 1px solid rgba(240, 175, 100, 0.2)
     padding: 0.9rem 1.5rem
 
-  // Champ de recherche — collant en haut du corps scrollable pour rester
+  // Champ de recherche, collant en haut du corps scrollable pour rester
   // accessible même en bas d'une longue liste filtrée. Wrapper séparé (pas
   // de class directement sur o-input) : le prop `class` d'o-input atterrit
   // sur le <input> natif lui-même (pas sur un wrapper), ce qui casse le
@@ -860,6 +902,55 @@ div.modal-card.suggestions-card
   article.notification
     margin-top: 1rem
 
+  // Modal présélections d'alphabet
+  .preset-group
+    &:not(:first-child)
+      margin-top: 1.3rem
+      padding-top: 1.1rem
+      border-top: 1px solid rgba(230, 150, 90, 0.25)
+
+    h4
+      color: #2D1B00
+      font-size: 1.05em
+      font-variant: all-small-caps
+      letter-spacing: 1px
+      font-weight: 700
+
+    p
+      color: $grey
+      font-size: .9em
+
+  .presets-footer-note
+    margin-top: 1.4rem
+    padding-top: 1rem
+    border-top: 1px solid rgba(230, 150, 90, 0.25)
+    font-size: .85em
+    color: $grey
+
+    a
+      color: $primary-dark
+      font-weight: 600
+      text-decoration: none
+
+  // Modal explication des scores
+  .info-item
+    &:not(:last-child)
+      margin-bottom: 1rem
+      padding-bottom: 1rem
+      border-bottom: 1px solid rgba(230, 150, 90, 0.25)
+
+    h4
+      color: #2D1B00
+      font-size: 1.05em
+      font-variant: all-small-caps
+      letter-spacing: 1px
+      font-weight: 700
+      margin-bottom: .2rem
+
+    p
+      color: $grey
+      font-size: .9em
+
 div.column.is-column-with-start-button
   display: flex
   flex-direction: column
@@ -891,42 +982,6 @@ div.column.is-column-with-start-button
 .avanced-section
   .message-body
     border: none
-
-    .suggestions-link
-      position: relative
-      top: -2px
-
-      a .icon
-        position: relative
-        top: 6px
-
-      .dropdown-content
-        border-radius: 12px
-        box-shadow: 0 8px 28px rgba(150, 45, 0, 0.12)
-        border: 1px solid rgba(240, 175, 100, 0.2)
-
-        div.dropdown-item
-          margin-bottom: .4rem
-          text-align: left
-          color: $grey
-
-          +tablet
-            min-width: 20rem
-
-          h4
-            color: $grey-dark
-            font-size: 1.1em
-            font-variant: all-small-caps
-            letter-spacing: 1px
-          p
-            color: $grey
-            font-size: .9em
-          a
-            color: $primary-dark
-            text-decoration: none
-
-          &:last-child
-            margin-bottom: 0
 
     .scores-master-field
       +mobile

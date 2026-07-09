@@ -98,7 +98,7 @@ These are included in every message, and will not be repeated afterwards.
 
 ## `set-server-runtime-identifier`
 
-Sets an identifier that the client must save (only in the tab session memory; it should not persist over reloads). When the client is disconnected, when it reconnects, it should check the identifier sent and compare it with the one stored, and force-reload if they differ—this means the game server rebooted and the current game is lost.
+Sets an identifier that the client must save (only in the tab session memory; it should not persist over reloads). When the client is disconnected, when it reconnects, it should check the identifier sent and compare it with the one stored, and force-reload if they differ: this means the game server rebooted and the current game is lost.
 
 It is also used when the player was idle in the tab out of a game for way too long, disconnected, and its server-side client reference was cleaned up.
 

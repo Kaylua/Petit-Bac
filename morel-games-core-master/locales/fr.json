@@ -49,7 +49,7 @@
   "You are now the Game Master": "Vous êtes désormais maître du jeu",
   "Reconnecting…": "Reconnexion en cours…",
   "The connection was lost, but we're trying to fix this problem.": "La connexion a été perdue, mais nous tentons de corriger le problème.",
-  "<strong>If it doesn't work after a few seconds, try to reload the page</strong>—you won't lose your progress in the game.": "<strong>Si ça ne fonctionne toujours pas d'ici quelques secondes, tentez de recharger la page</strong> — vous ne perdrez pas votre progression dans la partie.",
+  "<strong>If it doesn't work after a few seconds, try to reload the page</strong>, you won't lose your progress in the game.": "<strong>Si ça ne fonctionne toujours pas d'ici quelques secondes, tentez de recharger la page</strong>, vous ne perdrez pas votre progression dans la partie.",
   "Connection lost.": "Connexion à la partie perdue.",
   "Reload the page to continue.": "Rechargez la page pour continuer.",
   "The game server was restarted, or you stayed inactive (way) too long. The page will reload automatically in ten seconds.": "Le serveur de jeu a été redémarré, ou vous êtes resté⋅e inactif⋅ve bien trop longtemps. Sans action de votre part, la page s'actualisera automatiquement dans dix secondes."

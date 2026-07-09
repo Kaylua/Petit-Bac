@@ -186,7 +186,7 @@ export default {
 @import "bulma/sass/utilities/_all"
 @import "../assets/variables"
 
-// Icône inline monochrome (currentColor) — utilisée dans les titres/headers,
+// Icône inline monochrome (currentColor), utilisée dans les titres/headers,
 // à la différence de .summer-decor qui est un calque décoratif en position absolue.
 .summer-icon
   display: inline-flex
@@ -201,7 +201,7 @@ export default {
     width: 100%
     height: 100%
 
-// Partial décoratif — piochant dans la palette élargie (teal/jaune) en plus
+// Partial décoratif, piochant dans la palette élargie (teal/jaune) en plus
 // du corail. Purement cosmétique : aria-hidden, pointer-events: none, ne
 // doit jamais capter le focus ni gêner la mise en page.
 
@@ -322,7 +322,7 @@ export default {
         top: 2.6rem
         left: 6.4rem
 
-  // Calque ambiant plein écran — ajouté une seule fois dans App.vue, visible
+  // Calque ambiant plein écran, ajouté une seule fois dans App.vue, visible
   // sur tous les écrans (pas seulement l'accueil). Position fixed (pas
   // absolute) : le composant est un enfant direct de #app, ce calque doit
   // couvrir le viewport entier peu importe la hauteur de la page.
@@ -341,7 +341,7 @@ export default {
       display: none
 
     // Le contenu (sidebar + card) occupe déjà ~1344px de large (container
-    // Bulma fullhd) — en dessous de ~1700px de viewport, la "gouttière"
+    // Bulma fullhd), en dessous de ~1700px de viewport, la "gouttière"
     // restante est trop étroite et les motifs chevauchent le contenu réel
     // (piège rencontré : un cocktail de la gouttière recouvrait le texte de
     // la sidebar à 1440px, résolution laptop très courante). On réserve donc

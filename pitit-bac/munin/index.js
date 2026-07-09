@@ -109,7 +109,7 @@ export class Munin {
    * “Data source attributes”, without their `{fieldname}.` prefix.
    *
    * `config` and `data.xxx.label` are optional. If you don't want to provide
-   * a label, you can also configure this module like this—the label exposed to
+   * a label, you can also configure this module like this, the label exposed to
    * Munin will be the key (here, resp. `name` and `other_name`).
    * ```
    * {

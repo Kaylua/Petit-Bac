@@ -77,9 +77,10 @@
                     <li v-for="(search_engine, k) in Object.keys(search_engines)" :key="k">
                       <o-tooltip
                         :label="search_label(answer.answer.text)"
-                        position="bottom"
+                        position="auto"
                         variant="light"
                         multiline
+                        teleport
                       >
                         <a :href="search_url(search_engine, category, answer.answer.text)" target="search_engine">{{ search_engine }}</a>
                       </o-tooltip>
@@ -94,7 +95,7 @@
           <div class="level-right">
             <div v-for="(vote, k) in answer.votes" :key="k">
               <div class="block">
-                <o-tooltip :label="vote.voter.pseudonym">
+                <o-tooltip :label="vote.voter.pseudonym" position="auto" teleport>
                   <o-icon
                     icon="check"
                     v-if="vote.vote"

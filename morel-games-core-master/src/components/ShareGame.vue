@@ -5,7 +5,7 @@
         <h3>{{ $t("Share game") }}</h3>
       </slot>
       <slot name="lock">
-        <o-tooltip :label="lock_tooltip" position="bottom" :variant="type" :class="{'is-static': !master}">
+        <o-tooltip :label="lock_tooltip" position="auto" teleport :variant="type" :class="{'is-static': !master}">
           <o-button
             :icon-left="locked ? 'lock' : 'lock-open'"
             :loading="lock_loading"
@@ -29,7 +29,8 @@
       <p class="control copy-button">
         <o-tooltip
           :label="copied ? $t('Copied!') : $t('Copy link to clipboard')"
-          position="bottom"
+          position="auto"
+          teleport
           :variant="type"
           multiline
         >
@@ -120,7 +121,7 @@ export default {
       margin: 1rem 0 .4rem
       color: #4E2E00
 
-    span.o-tooltip
+    div.tooltip
       button.button
         position: relative
         top: 5px
@@ -161,7 +162,7 @@ export default {
       margin-left: -999999px
 
     .control.copy-button
-      &, & .o-tooltip
+      &, & .tooltip
         width: 100%
 
       +mobile

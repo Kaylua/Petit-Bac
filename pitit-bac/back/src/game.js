@@ -375,7 +375,7 @@ export class Game {
     // "time" éventuellement envoyé par le client est ignoré) afin d'éviter
     // tout désync si plusieurs joueurs modifient la config en même temps.
     // secondsPerCategory >= infinite_duration reste le sentinel "illimité",
-    // exactement comme l'ancien slider "time" — sinon le round est borné à
+    // exactement comme l'ancien slider "time", sinon le round est borné à
     // infinite_duration - 1 pour ne jamais atteindre accidentellement ce
     // sentinel par multiplication (ex: 20 catégories × 60s = 1200s).
     const seconds_per_category = Math.max(Math.abs(parseInt(configuration.secondsPerCategory) || 20), 1);
