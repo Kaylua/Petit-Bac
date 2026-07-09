@@ -3,8 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import uuid_pkg from "uuid";
-const { v4: uuidv4 } = uuid_pkg;
+import { v4 as uuidv4 } from "uuid";
 
 import websocket from "websocket";
 const { server: WebSocketServer } = websocket;

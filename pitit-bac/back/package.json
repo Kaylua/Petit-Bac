@@ -5,14 +5,10 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "uuid": "^7.0.2",
-    "websocket": "^1.0.31",
+    "munin-http": "file:../munin",
     "ptitbac-commons": "file:../commons",
-    "munin-http": "file:../munin"
-  },
-  "devDependencies": {},
-  "esm": {
-    "mode": "all"
+    "uuid": "^14.0.1",
+    "websocket": "^1.0.31"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

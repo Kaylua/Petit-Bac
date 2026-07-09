@@ -1,10 +1,7 @@
 import http from "http";
 
-import uuid_pkg from "uuid";
-const { v4: uuid } = uuid_pkg;
-
 import GameServer from "./server.js";
-import { log_info, log_err } from "./logging.js";
+import { log_info } from "./logging.js";
 
 const DEBUG = (process.env.NODE_ENV || 'development') != "production";
 const SERVER_PORT = process.env.PITIT_BAC_WS_PORT || 62868;

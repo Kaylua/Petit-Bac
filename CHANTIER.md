@@ -217,3 +217,15 @@ Le package `esm@3` crashait sur Node 22 (assertion native dans `node::fs::Intern
 - `pitit-bac/back/src/server.js` : ajout `import { fileURLToPath } from "url"` + `const __dirname = path.dirname(fileURLToPath(import.meta.url))` ; `require("../data/statistics.json")` → `JSON.parse(fs.readFileSync(new URL('../data/statistics.json', import.meta.url), 'utf8'))` ; `import { server as WebSocketServer } from "websocket"` → import default + destructuring (websocket est CJS, pas d'exports nommés en ESM natif) ; idem pour `uuid` ; imports locaux `"./game"` → `"./game.js"`, `"./logging"` → `"./logging.js"`
 - `pitit-bac/back/src/index.js` : `import { v4 as uuid } from "uuid"` → import default + destructuring ; imports locaux avec extension `.js`
 - `pitit-bac/back/src/game.js` : import local `"./logging"` → `"./logging.js"`
+
+**Back — Nettoyage deps et corrections audit npm (2026-07-09)**
+
+Correction du crash au démarrage (`node index.js`) et réduction des vulnérabilités npm.
+
+- `pitit-bac/back/package.json` : suppression du bloc `"esm": {"mode": "all"}` (résidu stale du shim) ; upgrade `uuid` `^7.0.2` → `^14.0.1`
+- `pitit-bac/back/src/index.js` : suppression de l'import `uuid` inutilisé ici ; suppression de l'import `log_err` inutilisé
+- `pitit-bac/back/src/server.js` : import uuid CJS-compat (`import uuid_pkg from "uuid"; const { v4: uuidv4 } = uuid_pkg`) → import ESM natif (`import { v4 as uuidv4 } from "uuid"`)
+- `pitit-bac/back/` : `npm prune` pour supprimer `esm@3.2.25` extraneous (cause du crash Node 22) ; `npm audit fix` pour les corrections sans breaking change
+- `pitit-bac/commons/package.json` : upgrade `mocha` `^7.1.1` → `^11.0.0` pour corriger les vulnérabilités de ses deps transitives
+
+Vulnérabilités résiduelles (5 dans back, 3 dans commons) : toutes dans `mocha` → `diff` / `serialize-javascript`. Pas de fix stable disponible (mocha v12 encore en bêta).
