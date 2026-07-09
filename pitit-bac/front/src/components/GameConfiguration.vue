@@ -289,6 +289,7 @@
 import { mapState } from 'pinia'
 import { useMorelStore } from 'morel-games-core'
 import { useGameStore } from '../store.js'
+import alphabetsData from '../../data/alphabets.json'
 
 export default {
   data() {
@@ -296,7 +297,7 @@ export default {
       filtered_suggestions: [],
       suggestions_opened: false,
       show_advanced: false,
-      alphabets: require('../../data/alphabets.json'),
+      alphabets: alphabetsData,
       categories_edited: false,
       suggested_categories: []
     }

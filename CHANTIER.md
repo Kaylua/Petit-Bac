@@ -102,6 +102,14 @@ Serveur → Client : `categories-by-everyone`, `catch-up-game-state`, `round-sta
 
 ## Journal des modifications récentes
 
+### 2026-07-09 — Piège : `require()` dans un composant Vue 3 / Vite → page blanche
+
+`GameConfiguration.vue` utilisait `require('../../data/alphabets.json')` dans `data()` — héritage Vue 2/webpack. Dans un contexte ESM/Vite, `require` n'est pas défini côté navigateur → erreur JS silencieuse au montage → page blanche sans message d'erreur console évident.
+
+**Fix :** import statique ESM en haut du script : `import alphabetsData from '../../data/alphabets.json'`, puis `alphabets: alphabetsData` dans `data()`. Vite sait importer les JSON nativement.
+
+**À retenir :** Tout `require()` dans le code front est un survivant webpack à éliminer.
+
 > Les modifications détaillées fichier-par-fichier sont dans git (`git log`). Ce journal ne conserve que les décisions et événements notables entre sessions.
 
 ### 2026-07-09 — Optimisation du système de contexte Claude Code

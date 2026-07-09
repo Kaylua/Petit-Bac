@@ -47,6 +47,12 @@
 | Point d'entrée + serveur WS | `index.js` → `server.js` |
 | Logique de jeu | `game.js` |
 
+### Fichiers data
+| Quoi | Chemin |
+|------|--------|
+| Alphabets présets (FR, EN, etc.) — utilisé par GameConfiguration.vue | `pitit-bac/front/data/alphabets.json` |
+| Stats runtime (parties jouées, etc.) — **gitignored, doit exister** | `pitit-bac/back/data/statistics.json` |
+
 ---
 
 ## Démarrage rapide
@@ -90,3 +96,9 @@ Dépendance locale `file:../../morel-games-core-master`. Modifier directement le
 
 ### CSS — Bulma 1.x vs 0.9.4 coexistent
 `@oruga-ui/theme-bulma/style.css` embarque Bulma 1.0.4. `App.vue` importe Bulma 0.9.4 via SCSS. Pas de conflit bloquant (0.9.4 gagne pour les classes communes), mais peut causer des glitches de style.
+
+### ⚠️ `require()` dans le front → page blanche silencieuse
+Tout `require(...)` dans le code front est un survivant webpack. Dans Vite/ESM, `require` n'existe pas côté navigateur → erreur JS au montage du composant → page blanche sans warning Vue. Remplacer par un import statique ESM en haut du fichier. Voir CHANTIER.md pour le fix appliqué à `GameConfiguration.vue`.
+
+### ⚠️ `back/data/statistics.json` — fichier gitignored à créer manuellement
+Le back écrit ses stats dans `pitit-bac/back/data/statistics.json`. Ce fichier est gitignored et le dossier `data/` n'existe pas dans un clone frais → erreur `ENOENT` au lancement (non bloquante, la partie tourne quand même). Créer manuellement : `mkdir pitit-bac/back/data && echo {} > pitit-bac/back/data/statistics.json`.
