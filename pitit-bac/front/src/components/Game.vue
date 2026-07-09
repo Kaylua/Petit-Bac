@@ -194,6 +194,7 @@ export default {
 
 <style lang="sass">
 @import "bulma/sass/utilities/mixins"
+@import "../assets/variables"
 
 .answers-column
   .field
@@ -202,6 +203,8 @@ export default {
 
     .label
       text-align: left
+      font-weight: 600
+      color: #3A1E00
 
   .answers-form
     +mobile
@@ -221,15 +224,23 @@ export default {
     flex-direction: column
     align-items: center
     position: fixed
+    background: var(--card-bg, rgba(255, 253, 249, 0.97))
+    border: 1px solid var(--card-border, rgba(240, 175, 100, 0.22))
+    box-shadow: var(--card-shadow, 0 6px 28px rgba(150, 45, 0, 0.10))
+    border-radius: 20px
+    padding: 1.5rem 1.2rem
 
     h3
-      font-size: 1.1em
+      font-size: 1em
       font-variant: all-small-caps
-      letter-spacing: .1em
+      letter-spacing: .12em
+      color: $primary-dark
+      font-weight: 600
+      margin-bottom: 0
 
     .circular-progress
-      margin-top: 1.8rem
-      margin-bottom: 2rem
+      margin-top: 1.6rem
+      margin-bottom: 1.8rem
 
     .field
       width: 100%
@@ -247,6 +258,8 @@ export default {
       column-gap: 1rem
       row-gap: 0.5rem
       padding: 1rem
+      border-radius: 0
+      box-shadow: 0 2px 12px rgba(150, 45, 0, 0.08)
 
       h3
         grid-area: info
@@ -262,4 +275,8 @@ export default {
       .field
         grid-area: button
         align-self: start
+
+// Notification d'instruction en haut du formulaire
+.game-answers .notification
+  font-size: 0.95em
 </style>

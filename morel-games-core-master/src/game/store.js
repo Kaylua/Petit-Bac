@@ -274,6 +274,32 @@ export const useMorelStore = defineStore('morel', {
       if (_morel_i18n) {
         _morel_i18n.load_locale(locale).then(() => this.set_locale_loading(false))
       }
+    },
+
+    leave_game() {
+      if (_client && _client.client) {
+        _client.kicked = true
+        _client.client_uuid = null
+        _client.secret = null
+        _client.runtime_server_identifier = null
+        _client.delete_persisted_credentials()
+        _client.client.close()
+      }
+      this.phase = 'PSEUDONYM'
+      this.slug = null
+      this.uuid = null
+      this.pseudonym = null
+      this.master = false
+      this.players = {}
+      this.configuration = {}
+      this.locked = false
+      this.lock_loading = false
+      this.kick_reason = null
+      this.loading = false
+      this.loading_reason = { title: null, description: null }
+      this.error = { title: null, description: null }
+      this.notifications = []
+      window.history.pushState(null, '', '/')
     }
   }
 })

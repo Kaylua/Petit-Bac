@@ -1,0 +1,192 @@
+// ============================================================
+// DESIGN TOKENS LOCAUX
+// ============================================================
+// Ce fichier est un partial Sass : il s'attend à être importé APRÈS
+// bulma/sass/utilities/_all et assets/variables (fournis par App.vue).
+// Ne pas ajouter d'@import ici — les variables $primary, +mobile, etc.
+// viennent du contexte d'import.
+
+:root
+  --card-bg: rgba(255, 253, 249, 0.97)
+  --card-border: rgba(240, 175, 100, 0.22)
+  --card-shadow: 0 6px 28px rgba(150, 45, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.05)
+  --card-shadow-lift: 0 12px 42px rgba(150, 45, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.07)
+  --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1)
+
+// ============================================================
+// BOUTONS
+// ============================================================
+
+.button
+  border-radius: 12px
+  font-weight: 600
+  letter-spacing: 0.025em
+  transition: transform var(--transition), box-shadow var(--transition)
+
+  &.is-primary
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%)
+    border-color: transparent
+    box-shadow: 0 4px 16px rgba($primary, 0.38)
+
+  @media (prefers-reduced-motion: no-preference)
+    &.is-primary:not([disabled]):not(.is-loading):hover
+      transform: translateY(-2px)
+      box-shadow: 0 8px 24px rgba($primary, 0.48)
+
+    &.is-primary:not([disabled]):active
+      transform: translateY(0px)
+      box-shadow: 0 3px 10px rgba($primary, 0.30)
+
+// ============================================================
+// CARTES — .message
+// ============================================================
+
+.message
+  border-radius: 20px
+  overflow: hidden
+  border: 1px solid var(--card-border)
+  box-shadow: var(--card-shadow)
+  background: transparent
+
+  // Override Oruga/Bulma 1.x cascade avec #app pour la spécificité
+  &#app,
+  &.is-primary
+    .message-header
+      background: linear-gradient(135deg, $primary 0%, $primary-dark 100%) !important
+      font-weight: 700
+      font-size: 1.05em
+      letter-spacing: 0.03em
+      padding: 1rem 1.5rem
+
+    .message-body
+      background: var(--card-bg) !important
+      border: none !important
+      border-top: 1px solid var(--card-border) !important
+      color: #2D1B00 !important
+
+// Override global pour tous les message-body dans #app
+#app .message.is-primary .message-body
+  background: var(--card-bg) !important
+  border: none !important
+  border-top: 1px solid var(--card-border) !important
+  color: #2D1B00 !important
+
+#app .message.is-primary .message-header
+  background: linear-gradient(135deg, $primary 0%, $primary-dark 100%) !important
+
+// ============================================================
+// CARTES — .box
+// ============================================================
+
+.box
+  background: var(--card-bg)
+  border: 1px solid var(--card-border)
+  box-shadow: var(--card-shadow)
+  border-radius: 20px
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+.notification
+  background: var(--card-bg)
+  border: 1px solid var(--card-border)
+  box-shadow: 0 2px 12px rgba(150, 45, 0, 0.07)
+  border-radius: 16px
+  padding-right: 1.5rem !important
+
+  &.is-flat
+    box-shadow: none
+
+  &.is-primary
+    background: rgba($primary, 0.08) !important
+    border-color: rgba($primary, 0.25) !important
+    color: #2D1B00 !important
+
+  .media-content
+    overflow: hidden
+
+// ============================================================
+// TAGS (catégories)
+// ============================================================
+
+.tag:not(body)
+  border-radius: 20px
+  font-weight: 500
+  transition: all 0.15s ease
+
+  &.is-primary
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%)
+
+  &.is-medium
+    font-size: 0.9em
+    padding: 0 0.9em
+
+// ============================================================
+// TAGINPUT
+// ============================================================
+
+.taginput .taginput-container
+  border-radius: 12px
+
+// ============================================================
+// INPUTS
+// ============================================================
+
+.input, .textarea
+  border-radius: 10px
+  background: rgba(255, 253, 249, 0.9)
+  border-color: $border
+  transition: border-color var(--transition), box-shadow var(--transition)
+
+  &:focus
+    background: rgba(255, 255, 255, 0.98)
+
+// ============================================================
+// PANEL (liste joueurs)
+// ============================================================
+
+.panel
+  border: 1px solid var(--card-border) !important
+  border-radius: 16px !important
+  overflow: hidden
+  box-shadow: var(--card-shadow)
+
+  .panel-heading
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%) !important
+    color: white !important
+    font-weight: 700
+
+  .panel-block
+    background: var(--card-bg)
+    border-color: var(--card-border) !important
+
+// ============================================================
+// SWITCH (Oruga)
+// ============================================================
+
+.o-switch .o-switch__check--checked
+  background: $primary !important
+
+// ============================================================
+// MOBILE — suppression border-radius + anti-zoom iOS
+// ============================================================
+
++mobile
+  main .notification,
+  main .message .message-header,
+  main .message .message-body,
+  main .hero
+    border-radius: 0 !important
+
+  main .box
+    border-radius: 0
+
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select
+    font-size: max(16px, 1em)

@@ -31,7 +31,8 @@ Les chemins `src/...` sont relatifs à `pitit-bac/front/`.
 | Vote sur les réponses | `src/components/GameVote.vue` |
 | Scores finaux | `src/components/GameEnd.vue` |
 | Timer circulaire CSS-driven (props: `value` 0–100, `label`) | `src/components/CircularProgress.vue` |
-| Variables Bulma (couleurs, primary=#3f9718 vert) | `src/assets/variables.scss` |
+| Variables Bulma (couleurs, primary=#E64A19 orange été) | `src/assets/variables.scss` |
+| Overrides globaux composants UI (boutons, cartes, inputs, tags, panel, mobile) — partial Sass, importé par App.vue | `src/assets/design-system.sass` |
 | Config Vite (`preserveSymlinks` pour `file:`, `loadPaths` SCSS → node_modules) | `vite.config.js` |
 | Entrypoint HTML Vite | `index.html` |
 | Variables d'env dev (`VITE_WS_URL=ws://{hostname}:62868`, `VITE_URL`) | `.env` |

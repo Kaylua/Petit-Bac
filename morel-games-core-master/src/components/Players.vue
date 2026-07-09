@@ -143,8 +143,6 @@ export default {
 @import "bulma/sass/utilities/_all"
 
 .panel.morel-players-list
-  // border-radius hérite de $radius via Bulma (8px avec le thème été)
-
   +mobile
     margin-left: 1rem
     margin-right: 1rem
@@ -152,6 +150,7 @@ export default {
   .panel-block
     align-items: center
     min-height: 44px
+    transition: background 0.15s ease
 
     &:first-child
       border-top-left-radius: $radius
@@ -160,6 +159,10 @@ export default {
     &:last-child
       border-bottom-left-radius: $radius
       border-bottom-right-radius: $radius
+      border-bottom: none
+
+    &:hover
+      background: rgba(255, 230, 185, 0.18)
 
     .panel-icon, .panel-icon-right
       display: inline-block
@@ -167,20 +170,25 @@ export default {
       top: -2px
       width: 1em
       height: 1em
+      opacity: 0.6
 
     .panel-block-main
       flex: 2
+      font-weight: 500
 
     .ourself-mark
       display: inline-block
       margin-left: .4em
       padding-top: .3em
+      opacity: 0.6
+      font-weight: 400
 
     .is-master
-      font-weight: bold
+      font-weight: 700
 
     .is-offline
       font-style: italic
+      opacity: 0.55
 
     &:hover .morel-player-action-icon
       display: block

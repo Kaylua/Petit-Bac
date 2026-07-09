@@ -235,6 +235,7 @@ export default {
 
 <style lang="sass">
 @import "bulma/sass/utilities/_all"
+@import "../assets/variables"
 
 // Les border-radius: 0 sur mobile sont gérés globalement dans App.vue
 
@@ -242,8 +243,11 @@ export default {
   position: sticky !important
   top: 10px
   z-index: 40
-  background-color: rgba(#fff9f3, .92)
-  backdrop-filter: blur(10px)
+  background-color: rgba(255, 253, 249, 0.96) !important
+  backdrop-filter: blur(12px)
+  -webkit-backdrop-filter: blur(12px)
+  border: 1px solid rgba(240, 175, 100, 0.22) !important
+  box-shadow: 0 4px 20px rgba(150, 45, 0, 0.10) !important
 
   +mobile
     position: relative !important
@@ -258,23 +262,37 @@ export default {
       margin-bottom: 0
       text-align: justify
 
-    // Bouton "J'ai fini" plus grand sur mobile
     .field
       +mobile
         .button
           min-height: 44px
 
+.notification.interrupted-by
+  background: rgba($primary, 0.08) !important
+  border-color: rgba($primary, 0.25) !important
+  font-weight: 500
+
 .all-answers
   display: flex
   flex-direction: column
   align-items: center
+  gap: 1rem
 
   article.category-answers
     width: 99%
     text-align: left
+    border-radius: 16px
 
     +mobile
       width: 100%
+
+    h3.title.is-4
+      font-size: 1.1em
+      font-weight: 700
+      color: $primary-dark
+      padding-bottom: 0.6rem
+      border-bottom: 2px solid rgba($primary, 0.12)
+      margin-bottom: 1rem
 
     .level.has-lots-of-votes
       flex-direction: column
@@ -283,15 +301,20 @@ export default {
       .level-right
         align-self: end
 
-    // Évite l'overflow sur les longues réponses
     .level-left
       flex: 2
 
     .answer
+      padding: 0.5rem 0
+      border-radius: 8px
+      transition: background 0.15s ease
+
+      &:hover
+        background: rgba(255, 230, 190, 0.12)
+
       .answer-checkbox
         padding-top: .2em
 
-        // Zone tactile agrandie sur mobile
         +mobile
           padding: .4em .4em .4em 0
 
@@ -300,7 +323,7 @@ export default {
 
       .answer-text
         padding-right: 1em
-        font-size: 1.2em
+        font-size: 1.15em
         text-align: justify
 
         +mobile
@@ -323,9 +346,10 @@ export default {
 
           &.is-pseudonym
             font-weight: 600
+            color: $primary-dark
 
           a
-            color: $text
+            color: $link
 
       &.is-invalid .answer-text
         color: $grey

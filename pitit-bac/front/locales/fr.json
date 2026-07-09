@@ -153,5 +153,7 @@
 
   "Another game?": "On recommence ?",
   "Click on this button to go back to the configuration screen with all players, and play again.": "Cliquez sur le bouton pour retourner avec tous les joueurs à l'écran de configuration, et recommencer une partie.",
-  "New game": "Nouvelle partie"
+  "New game": "Nouvelle partie",
+
+  "Leave": "Quitter"
 }

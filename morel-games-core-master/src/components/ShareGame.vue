@@ -116,8 +116,9 @@ export default {
       flex: 4
       position: relative
       left: 1px
-      font-weight: bold
+      font-weight: 700
       margin: 1rem 0 .4rem
+      color: #4E2E00
 
     span.o-tooltip
       button.button
@@ -125,6 +126,8 @@ export default {
         top: 5px
         font-size: .9em
         color: $grey
+        border-radius: 8px
+        transition: color 0.15s ease, background 0.15s ease
 
         &, &:hover, &:active, &:focus
           background: none
@@ -132,7 +135,8 @@ export default {
           box-shadow: none
 
         &:hover, &:active, &:focus
-          color: $grey-dark
+          color: #4E2E00
+          background: rgba(240, 175, 100, 0.12) !important
 
         span.icon
           transform: scale(-1, 1)
@@ -146,9 +150,11 @@ export default {
     align-items: center
 
     input
-      border-color: $border
-      border-radius: $radius
-      // font-size géré globalement (min 16px sur mobile, anti-zoom iOS)
+      border-color: rgba(240, 175, 100, 0.4)
+      border-radius: 10px
+      background: rgba(255, 253, 249, 0.8)
+      font-size: 0.85em
+      color: #4E2E00
 
     .control:not(.copy-button)
       position: absolute
@@ -158,7 +164,6 @@ export default {
       &, & .o-tooltip
         width: 100%
 
-      // Cible tactile suffisante sur mobile
       +mobile
         .button
           min-height: 44px
@@ -166,6 +171,7 @@ export default {
   .share-invite
     position: relative
     left: 1px
-    font-size: .9em
+    font-size: .88em
     color: $grey-dark !important
+    line-height: 1.5
 </style>

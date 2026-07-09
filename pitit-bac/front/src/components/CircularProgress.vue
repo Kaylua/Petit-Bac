@@ -20,7 +20,7 @@ export default {
 @import "../assets/variables"
 
 $circular-progress-color: $primary !default
-$circular-progress-background-color: $less-dark !default
+$circular-progress-background-color: rgba(0, 0, 0, 0.10) !default
 $circular-progress-size: 8em !default
 $circular-progress-label-font-family: "Fira Sans" !default
 $circular-progress-label-font-weight: 200 !default
@@ -35,7 +35,8 @@ $circular-progress-thickness: .12em !default
   height: 1em
   border-radius: 50%
   border: $circular-progress-thickness solid $circular-progress-background-color
-  background-color: transparent
+  background-color: rgba(255, 253, 249, 0.7)
+  transition: box-shadow 0.5s ease
 
   &[data-value^='5']:not([data-value='5']):not([data-value^='5.']),
   &[data-value^='6']:not([data-value='6']):not([data-value^='6.']),
@@ -45,6 +46,14 @@ $circular-progress-thickness: .12em !default
   &[data-value^='100']
     .circular-progress-mask
       clip: rect(auto, auto, auto, auto)
+
+  // Glow orangé quand le temps file (valeur > 70%)
+  &[data-value^='7']:not([data-value='7']):not([data-value^='7.']),
+  &[data-value^='8']:not([data-value='8']):not([data-value^='8.']),
+  &[data-value^='9']:not([data-value='9']):not([data-value^='9.']),
+  &[data-value^='100']
+    @media (prefers-reduced-motion: no-preference)
+      animation: timerGlow 1.4s ease-in-out infinite
 
   .circular-progress-mask
     position: absolute
@@ -65,7 +74,6 @@ $circular-progress-thickness: .12em !default
       width: 1em
       height: 1em
       clip: rect(0, .5em, 1em, 0)
-
       transition: transform 1s ease-in-out
 
     .circular-progress-bar-half
@@ -94,4 +102,10 @@ $circular-progress-thickness: .12em !default
     display: flex
     align-items: center
     justify-content: center
+
+@keyframes timerGlow
+  0%, 100%
+    box-shadow: 0 0 0 0 rgba($primary, 0.25)
+  50%
+    box-shadow: 0 0 0 0.06em rgba($primary, 0.18)
 </style>

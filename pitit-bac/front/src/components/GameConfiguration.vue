@@ -518,6 +518,10 @@ div.field > span.o-tooltip
       color: $primary-dark !important
       cursor: pointer
       text-decoration: none !important
+      transition: opacity 0.15s ease
+
+      &:hover
+        opacity: 0.75
 
   input.input[disabled]
     background: transparent
@@ -529,8 +533,8 @@ div.field > span.o-tooltip
   div.taginput.control .taginput-container[disabled]
     position: relative
     left: -2px
-    background-color: #fff5f0
-    border-color: #fff5f0
+    background-color: rgba(255, 245, 240, 0.7)
+    border-color: rgba(255, 220, 190, 0.5)
     cursor: default
 
     .tag .delete
@@ -561,14 +565,18 @@ div.field > span.o-tooltip
       color: $dark
       cursor: default
 
+// Modal suggestions — style estival
 div.modal-card.suggestions-card
   width: auto
+  border-radius: 20px
+  overflow: hidden
 
   +mobile
     width: 100%
     height: 100%
     max-height: 100vh
     margin: 0
+    border-radius: 0
     background-color: #fff9f3
 
     p
@@ -578,15 +586,36 @@ div.modal-card.suggestions-card
   p:not(:first-child)
     margin-top: .8rem
 
+  .modal-card-head
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%)
+    border-bottom: none
+    border-radius: 0
+
+    .modal-card-title
+      color: white
+      font-weight: 700
+
+  .modal-card-body
+    background: #fff9f3
+
+  .modal-card-foot
+    background: rgba(255, 245, 235, 0.9)
+    border-top: 1px solid rgba(240, 175, 100, 0.2)
+
   div.tags
     margin-top: 1.5rem
 
     .tag:not(.is-static)
       cursor: pointer
+      transition: all 0.15s ease
+
       &:hover
-        background-color: $grey-lighter
+        background-color: rgba(240, 175, 100, 0.25)
+        transform: scale(1.05)
+
         &.is-primary
-          background-color: $primary-dark
+          background: $primary-dark
+          transform: scale(1.05)
 
     .tag.is-static
       cursor: default
@@ -601,17 +630,22 @@ div.column.is-column-with-start-button
   .field:not(.start-button)
     flex: 4
 
+// Bouton toggle "Paramètres avancés"
 .avanced-section-toggle
   margin-bottom: 1.5rem
   text-align: center
-  color: $grey-light
+  color: $grey
   cursor: pointer
+  font-size: 0.9em
+  font-weight: 500
+  letter-spacing: 0.03em
+  transition: color 0.2s ease
 
   &.is-active
-    color: $grey
+    color: $primary-dark
 
   &:hover
-    color: $grey-dark
+    color: $primary
 
   .icon
     position: relative
@@ -630,6 +664,10 @@ div.column.is-column-with-start-button
         top: 6px
 
       .dropdown-content
+        border-radius: 12px
+        box-shadow: 0 8px 28px rgba(150, 45, 0, 0.12)
+        border: 1px solid rgba(240, 175, 100, 0.2)
+
         div.dropdown-item
           margin-bottom: .4rem
           text-align: left
@@ -647,7 +685,7 @@ div.column.is-column-with-start-button
             color: $grey
             font-size: .9em
           a
-            color: $grey-dark
+            color: $primary-dark
             text-decoration: none
 
           &:last-child

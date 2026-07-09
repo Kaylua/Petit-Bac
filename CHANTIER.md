@@ -179,3 +179,53 @@ Sur mobile, le timer + bouton "J'ai fini" apparaissait EN BAS du formulaire (apr
 **Zones tactiles :** Ajout de `min-height: 44px` sur les boutons critiques dans GameVote et ShareGame (recommandation WCAG 2.5.5).
 
 **index.html :** `<meta name="theme-color" content="#E64A19">` — colore la barre d'adresse Chrome Android en orange été.
+
+### 2026-07-09 — Extraction design-system.sass depuis App.vue
+
+**Décision :** Création de `pitit-bac/front/src/assets/design-system.sass`. Tout le CSS des overrides composants UI (`:root` tokens, `.button`, `.message`, `.box`, `.notification`, `.tag`, `.input`, `.panel`, `.o-switch`, ajustements mobile globaux) a été extrait de `App.vue <style>` vers ce partial Sass.
+
+**App.vue garde** uniquement le CSS structurel de l'app shell : html/body (fond gradient), `#app`, overlay de chargement, container notifications, logo, layout colonnes, top-bar mobile, sticky players, footer, keyframes.
+
+**Règle d'import :** `design-system.sass` est un partial sans `@import` propres — il s'attend à être inclus *après* `bulma/sass/utilities/_all` + `assets/variables` + `bulma/bulma` dans App.vue. Les variables `$primary`, `+mobile` etc. viennent du contexte parent.
+
+**Pourquoi :** App.vue faisait 683 lignes (517 de CSS mixte), ce qui obligeait à le lire entièrement pour n'importe quel changement UI. Désormais : changement composant → lire uniquement le composant ; changement design system → lire `design-system.sass` (~160 lignes) ; changement layout/shell → lire App.vue (~350 lignes). Gain estimé : ~300 lignes de contexte évitées par session sur les tâches front simples.
+
+### 2026-07-09 — Refonte graphique summer vibes v2 : design system complet
+
+**Contexte :** L'UI précédente était fonctionnelle mais visuellement plate. Objectif : look moderne "soirée été entre amis", avec animations légères et direction artistique cohérente. Mobile-first, pas d'impact perf.
+
+**Décisions architecture :**
+
+- **Design tokens CSS** : variables CSS (`--card-bg`, `--card-border`, `--card-shadow`, `--card-shadow-lift`, `--transition`) déclarées dans `:root` dans `App.vue`. Permettent aux composants d'utiliser `var(--card-bg)` sans importer les variables SASS.
+- **Overrides Oruga/Bulma 1.x** : le thème Oruga (Bulma 1.0.4) est injecté dynamiquement via JS après notre SCSS statique, donc il gagne la cascade pour certains éléments (notamment `.message.is-primary .message-body` qui apparaissait en teal au lieu d'orange). Solution : règles ciblées avec `#app .message.is-primary .message-body { ... !important }` pour garantir la spécificité.
+- **Centralisation renforcée** : tout le design system (cartes, boutons, tags, inputs, panels, notifications) dans `App.vue <style>`. Les composants gardent leur CSS fonctionnel, ne définissent plus les couleurs de fond ou ombres.
+
+**Changements visuels :**
+
+- **Background** : gradient plus profond `#FFF9F0 → #FFE9C8 → #FFD298 → #FFBA70` (coucher de soleil estival).
+- **Cartes** : `.message`, `.box`, `.notification`, `.panel` — fond semi-transparent chaud, bordure ambrée, ombre chaude. `border-radius: 20px` sur les cartes principales, `16px` sur les secondaires.
+- **Boutons `.is-primary`** : gradient linéaire `$primary → $primary-dark`, ombre colorée, hover `translateY(-2px)` + ombre amplifiée (wrappé dans `prefers-reduced-motion: no-preference`).
+- **Tags/catégories** : `border-radius: 20px` (pilule), gradient sur `.is-primary`.
+- **Timer circulaire** : fond transparent chaud, animation `timerGlow` (pulsation orangée) quand valeur > 70% (temps file).
+- **Box timer** (`Game.vue`) : la boîte fixe du timer devient une véritable carte avec `var(--card-bg)` et `var(--card-shadow)`.
+- **Écran victoire** (`GameEnd.vue`) : hero gradient `$primary → $primary-dark → darken(...)` avec halos décoratifs CSS (`::before` / `::after`). Animations `bounceIn` pour le 1er, `fadeInUp` pour 2e/3e. Rang en `$primary`, scores en `$primary-dark`.
+- **Votes** (`GameVote.vue`) : header sticky avec `backdrop-filter: blur(12px)`, catégories avec `h3` en `$primary-dark` + séparateur orangé, pseudo en `$primary-dark`.
+- **Liste joueurs** (`Players.vue`) : hover `rgba(255, 230, 185, 0.18)`, offline players à `opacity: 0.55`.
+- **Logo** : `drop-shadow` chaud + micro-rotation au hover (`rotate(-0.4deg)`).
+- **Animations d'entrée** : `fadeInUp 0.4s` sur `.game-configuration`, `.game-answers`, `.end-screen` + `ask-pseudonym` (wrappées dans `prefers-reduced-motion`).
+
+**Piège : `rgba($sass-var, alpha)` dans des CSS custom properties** : impossible d'interpoler une variable Sass dans un `var()` CSS. Solution : utiliser `rgba($primary, 0.38)` directement dans le SASS (compilé à build time), ou stocker la valeur dans un token Sass plutôt que CSS.
+
+### 2026-07-09 — Feature : bouton "Quitter le lobby"
+
+**Contexte :** Sur mobile, une fois dans un lobby (phase CONFIG), il n'y avait aucun moyen de revenir à l'écran d'accueil (saisie du pseudo).
+
+**Décision :** Ajouter `leave_game()` dans `useMorelStore` (morel-games-core). L'action : met `_client.kicked = true` (empêche la boucle de reconnexion automatique), ferme le WebSocket, purge les credentials sessionStorage, remet tout le store à zéro et redirige vers `/`.
+
+**UI :**
+- Mobile : barre `.mobile-top-bar` qui remplace l'ancien `.pititbac-logo.is-mobile` — logo centré + bouton `← Quitter` positionné en `absolute left: 1rem` pour ne pas décaler le logo.
+- Desktop : bouton discret ghost en bas de la sidebar, caché sur mobile (`display: none`).
+- Icône `angle-left` (déjà enregistrée dans `main.js` comme `faAngleLeft`).
+- Traduction FR ajoutée dans `pitit-bac/front/locales/fr.json` : `"Leave": "Quitter"`.
+
+**Piège reset store :** Pinia `$reset()` n'est pas disponible dans tous les contextes (Options API stores). Réinitialisation manuelle champ par champ dans `leave_game()`.
