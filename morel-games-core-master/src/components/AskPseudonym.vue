@@ -1,28 +1,26 @@
 <template>
   <div class="ask-pseudonym">
-    <o-field :label-class="size" :label-position="position">
+    <o-field :variant="unfilled_error ? 'danger' : type" addons>
       <template #label>{{ $t(label) }}</template>
-      <o-field :variant="unfilled_error ? 'danger' : type" addons>
-        <o-input
-          :placeholder="$t(placeholder)"
-          :size="size"
-          expanded
-          :maxlength="maxlength"
-          v-model.trim="pseudonym"
-          @keyup.enter="start_game"
-          autofocus
-        ></o-input>
-        <p class="control">
-          <button
-            class="button"
-            :class="[size ? 'is-' + size : '', type ? 'is-' + type : '']"
-            :aria-label="$t(labelButton)"
-            @click="start_game"
-          >
-            <o-icon icon="chevron-right"></o-icon>
-          </button>
-        </p>
-      </o-field>
+      <o-input
+        :placeholder="$t(placeholder)"
+        :size="size"
+        expanded
+        :maxlength="maxlength"
+        v-model.trim="pseudonym"
+        @keyup.enter="start_game"
+        autofocus
+      ></o-input>
+      <p class="control">
+        <button
+          class="button"
+          :class="[size ? 'is-' + size : '', type ? 'is-' + type : '']"
+          :aria-label="$t(labelButton)"
+          @click="start_game"
+        >
+          <o-icon icon="chevron-right"></o-icon>
+        </button>
+      </p>
     </o-field>
 
     <p class="joining-existing-game" v-if="is_existing_game && !kick_reason">
@@ -65,9 +63,8 @@ export default {
     label: { type: String, default: "What's your name?" },
     'label-button': { type: String, default: 'Join the game' },
     placeholder: { type: String, default: 'Enter your name…' },
-    type: { type: String, default: 'is-primary' },
-    size: { type: String, default: 'is-large' },
-    position: { type: String, default: 'is-centered' },
+    type: { type: String, default: 'primary' },
+    size: { type: String, default: 'large' },
     maxlength: { type: Number, default: 32 }
   },
 

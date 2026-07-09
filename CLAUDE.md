@@ -1,13 +1,11 @@
 # Instructions Claude — Projet Petit Bac
 
-## Règle obligatoire : journal des modifications
+## Début de session : lire dans cet ordre
+1. `INDEX.md` — carte du projet + pièges connus (1 minute max)
+2. `CHANTIER.md` — si besoin d'approfondir une décision ou l'historique
 
-Après **chaque modification de fichier** dans ce projet, tu dois mettre à jour la section **"Journal des modifications"** de `CHANTIER.md` (à la racine du repo).
+## Règles obligatoires
 
-- Note la date, le(s) fichier(s) modifié(s) et la nature du changement
-- Si la modification impacte le plan, la stack ou une décision, mets aussi à jour la section concernée dans `CHANTIER.md`
-- Ne saute jamais cette étape, même pour un changement mineur
+**Après chaque modification de fichier** : mettre à jour le **"Journal des modifications"** dans `CHANTIER.md`.
 
-## Contexte du projet
-
-`CHANTIER.md` contient toute la documentation vivante du projet : architecture, stack, décisions techniques, plan de migration et historique complet. C'est la référence principale — lis-le en début de session pour te remettre dans le contexte.
+**Après chaque ajout de fichier ou décision technique importante** : mettre à jour `INDEX.md`.

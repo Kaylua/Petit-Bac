@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { createOruga } from '@oruga-ui/oruga-next'
+import { createOruga, OrugaComponentPlugins } from '@oruga-ui/oruga-next'
 import { bulmaConfig } from '@oruga-ui/theme-bulma'
 import '@oruga-ui/theme-bulma/style.css'
 
@@ -10,7 +10,10 @@ import {
   faExclamationCircle,
   faLockOpen,
   faLock,
-  faChevronRight,
+  faAngleRight,
+  faAngleLeft,
+  faAngleDown,
+  faAngleUp,
   faCaretUp,
   faCaretDown,
   faXmark,
@@ -18,7 +21,13 @@ import {
   faUserSlash,
   faUserShield,
   faClipboard,
-  faAward
+  faAward,
+  faCircleNotch,
+  faEye,
+  faEyeSlash,
+  faTimesCircle,
+  faExclamationTriangle,
+  faInfoCircle
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -31,17 +40,26 @@ import App from './App.vue'
 library.add(
   faCheck,
   faExclamationCircle,
+  faExclamationTriangle,
+  faInfoCircle,
   faLockOpen,
   faLock,
-  faChevronRight,
+  faAngleRight,
+  faAngleLeft,
+  faAngleDown,
+  faAngleUp,
   faCaretUp,
   faCaretDown,
   faXmark,
+  faTimesCircle,
   faHourglassHalf,
   faUserSlash,
   faUserShield,
   faClipboard,
-  faAward
+  faAward,
+  faCircleNotch,
+  faEye,
+  faEyeSlash
 )
 
 // App bootstrap
@@ -54,8 +72,14 @@ app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(createOruga({
   ...bulmaConfig,
   iconPack: 'fas',
-  iconComponent: 'font-awesome-icon'
-}))
+  iconComponent: 'font-awesome-icon',
+  // o-input doit produire <div class="control"><input class="input"> pour Bulma 0.9
+  input: {
+    ...bulmaConfig.input,
+    rootClass: 'control',
+    inputClass: 'input',
+  },
+}, OrugaComponentPlugins))
 
 // WebSocket client
 const client = new GameClient(

@@ -229,3 +229,31 @@ Correction du crash au démarrage (`node index.js`) et réduction des vulnérabi
 - `pitit-bac/commons/package.json` : upgrade `mocha` `^7.1.1` → `^11.0.0` pour corriger les vulnérabilités de ses deps transitives
 
 Vulnérabilités résiduelles (5 dans back, 3 dans commons) : toutes dans `mocha` → `diff` / `serialize-javascript`. Pas de fix stable disponible (mocha v12 encore en bêta).
+
+**Front — Correction page d'accueil (champ pseudo invisible, bouton vide) (2026-07-09)**
+
+Diagnostic : trois causes cumulées rendaient la page d'accueil inutilisable.
+
+1. **Icônes manquantes** — Oruga 0.13 remapping interne pour les packs FA : `chevron-right → angle-right`, `chevron-left → angle-left`, etc. Seul `faChevronRight` était enregistré dans la library FontAwesome, pas `faAngleRight`. Résultat : bouton vide.
+2. **`o-input` sans classes Bulma** — `@oruga-ui/theme-bulma 0.9.1` ne configure pas `rootClass: "control"` ni `inputClass: "input"` pour le composant `o-input`. Sans ces classes, le wrapper n'est pas reconnu comme `.control` dans `.field.has-addons` → l'input était invisible (pas de layout flex, pas de style Bulma).
+3. **Double nesting `o-field`** + **props avec préfixe `is-`** — `AskPseudonym.vue` imbriquait deux `<o-field>` (label + addons séparés), ce qui déclenchait `field-body` hors contexte horizontal. Les props `size: 'is-large'` et `type: 'is-primary'` produisaient `is-is-large` / `is-is-primary` au lieu de `is-large` / `is-primary`.
+
+Fichiers modifiés :
+- `pitit-bac/front/src/main.js` : ajout des icônes FA manquantes (`faAngleRight/Left/Down/Up`, `faCircleNotch`, `faEye`, `faEyeSlash`, `faTimesCircle`, `faExclamationTriangle`, `faInfoCircle`) dans `library.add()` ; extension de la config Oruga `input` avec `rootClass: 'control'` et `inputClass: 'input'`
+- `morel-games-core-master/src/components/AskPseudonym.vue` : suppression de l'`o-field` externe (label intégré dans l'`o-field addons` unique) ; props `size` et `type` corrigés (`'is-large'` → `'large'`, `'is-primary'` → `'primary'`) ; prop `position` supprimée (n'existe plus dans Oruga 0.13)
+
+**Front — Fix critique : composants Oruga non enregistrés (2026-07-09)**
+
+Cause racine réelle : `createOruga({...})` configure le plugin Oruga mais **n'enregistre pas les composants Vue** (`o-field`, `o-input`, `o-icon`, `o-button`, etc.). Sans enregistrement, Vue les traite comme des balises HTML custom inconnues → aucun rendu de composant, `<o-input>` passe en élément HTML brut → champ invisible, icônes absentes.
+
+Diagnostic confirmé par Playwright : logs `[Vue warn]: Failed to resolve component: o-input / o-field / o-icon / o-button / o-notification`. Le diagnostic précédent (rootClass manquants, double o-field) n'était pas la cause principale — le fond du problème était l'absence totale d'enregistrement des composants.
+
+Fix : passage de `OrugaComponentPlugins` (tableau de tous les plugins composants d'Oruga) comme second argument de `createOruga(config, OrugaComponentPlugins)`. Ce second paramètre fait appeler `app.use(plugin)` pour chaque composant lors de l'installation.
+
+- `pitit-bac/front/src/main.js` : import de `OrugaComponentPlugins` depuis `@oruga-ui/oruga-next` ; ajout de `OrugaComponentPlugins` comme second argument de `createOruga()`
+
+**Documentation (2026-07-09)**
+- `GOTCHAS.md` : créé à la racine — référence rapide des pièges connus (Oruga non-enregistrement composants, remapping icônes FA, conflit CSS Bulma 1.x/0.9.4, props sans préfixe `is-`, archi express, démarrage rapide)
+- `INDEX.md` : fusionné avec `GOTCHAS.md` — carte du projet + pièges connus en un seul fichier
+- `GOTCHAS.md` : supprimé (contenu fusionné dans INDEX.md)
+- `CLAUDE.md` : simplifié — ordre de lecture (INDEX → CHANTIER), deux règles obligatoires claires
