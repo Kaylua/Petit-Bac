@@ -1,73 +1,45 @@
 <template>
   <section>
-    <b-notification :active="true" :closable="false" class="votes-header">
+    <o-notification :active="true" :closable="false" class="votes-header">
       <div class="columns votes-header-column">
         <div class="column is-9">
-          <i18n
-            path="Here are everyone's proposals for the letter {letter}."
-            tag="p"
-            class="content"
-          >
-            <strong slot="letter">{{ letter }}</strong>
-          </i18n>
+          <i18n-t keypath="Here are everyone's proposals for the letter {letter}." tag="p" class="content">
+            <template #letter><strong>{{ letter }}</strong></template>
+          </i18n-t>
           <p class="content">
             {{ $t("Are they acceptable? You'll be the judge!") }}
-            {{
-              $t(
-                "Uncheck all the boxes against the proposals you refuse. Then, validate with the finish button."
-              )
-            }}
+            {{ $t("Uncheck all the boxes against the proposals you refuse. Then, validate with the finish button.") }}
           </p>
         </div>
         <div class="column is-3">
           <div class="field">
-            <b-button
-              type="is-primary is-medium"
-              expanded
-              :disabled="ready"
-              @click.once="vote_ready"
-            >
+            <o-button variant="primary" size="medium" expanded :disabled="ready" @click.once="vote_ready">
               <span v-if="ready" v-t="'Please wait…'" />
               <span v-else v-t="'I finished!'" />
-            </b-button>
+            </o-button>
           </div>
         </div>
       </div>
-    </b-notification>
+    </o-notification>
 
-    <b-notification
-      type="is-primary"
+    <o-notification
+      variant="primary"
       class="interrupted-by is-flat"
       :active="true"
       :closable="false"
       v-if="interrupted && interrupted_by"
     >
-      <i18n
-        path="The round was interrupted by {name}, who was faster than the others!"
-      >
-        <strong slot="name">{{ interrupted_by }}</strong>
-      </i18n>
-    </b-notification>
+      <i18n-t keypath="The round was interrupted by {name}, who was faster than the others!">
+        <template #name><strong>{{ interrupted_by }}</strong></template>
+      </i18n-t>
+    </o-notification>
 
-    <b-notification
-      type="is-dark"
-      :active="true"
-      :closable="false"
-      v-if="categories.length === 0"
-    >
-      {{
-        $t(
-          "It looks like no one answered anything during this round… So there is nothing to vote. Please click “I finished!” to start the next round."
-        )
-      }}
-    </b-notification>
+    <o-notification variant="dark" :active="true" :closable="false" v-if="categories.length === 0">
+      {{ $t('It looks like no one answered anything during this round… So there is nothing to vote. Please click “I finished!” to start the next round.') }}
+    </o-notification>
 
     <div class="all-answers">
-      <article
-        class="box category-answers"
-        v-for="(category, i) in categories"
-        :key="i"
-      >
+      <article class="box category-answers" v-for="(category, i) in categories" :key="i">
         <h3 class="title is-4">{{ category }}</h3>
 
         <div
@@ -80,54 +52,38 @@
             <div
               class="media answer"
               :class="{
-                'is-invalid':
-                  !answer_accepted(category, answer.uuid) ||
-                  (!answer.answer.valid && answer.answer.text),
+                'is-invalid': !answer_accepted(category, answer.uuid) || (!answer.answer.valid && answer.answer.text),
                 'is-empty': !answer.answer.text
               }"
             >
               <div class="media-left answer-checkbox">
-                <b-checkbox
-                  size="is-medium"
-                  :value="own_vote(category, answer.uuid)"
+                <o-checkbox
+                  size="medium"
+                  :model-value="own_vote(category, answer.uuid)"
                   :disabled="!answer.answer.valid"
-                  @input="toggle_vote(category, answer.uuid)"
-                ></b-checkbox>
+                  @update:modelValue="toggle_vote(category, answer.uuid)"
+                ></o-checkbox>
               </div>
               <div class="media-content">
                 <p class="answer-text">
-                  {{
-                    answer.answer.text ? answer.answer.text : $t("(no answer)")
-                  }}
+                  {{ answer.answer.text ? answer.answer.text : $t("(no answer)") }}
                 </p>
                 <ul class="answer-meta">
                   <li class="is-pseudonym">{{ answer.author.pseudonym }}</li>
                   <template v-if="answer.answer.valid">
                     <li v-for="(search_engine, k) in Object.keys(search_engines)" :key="k">
-                      <b-tooltip
-                        :label="
-                          $t(
-                            'Search “{term}” on a search engine (in a new tab)',
-                            { term: answer.answer.text }
-                          )
-                        "
-                        position="is-bottom"
-                        type="is-light"
-                        multilined
+                      <o-tooltip
+                        :label="search_label(answer.answer.text)"
+                        position="bottom"
+                        variant="light"
+                        multiline
                       >
-                        <a
-                          :href="search_url(search_engine, category, answer.answer.text)"
-                          target="search_engine"
-                          >{{ search_engine }}</a
-                        >
-                      </b-tooltip>
+                        <a :href="search_url(search_engine, category, answer.answer.text)" target="search_engine">{{ search_engine }}</a>
+                      </o-tooltip>
                     </li>
                   </template>
                   <li v-if="!answer.answer.valid" v-t="'Invalid answer'" />
-                  <li
-                    v-else-if="!answer_accepted(category, answer.author.uuid)"
-                    v-t="'Rejected by a majority of players'"
-                  />
+                  <li v-else-if="!answer_accepted(category, answer.author.uuid)" v-t="'Rejected by a majority of players'" />
                 </ul>
               </div>
             </div>
@@ -135,29 +91,19 @@
           <div class="level-right">
             <div v-for="(vote, k) in answer.votes" :key="k">
               <div class="block">
-                <b-tooltip :label="vote.voter.pseudonym">
-                  <b-icon
+                <o-tooltip :label="vote.voter.pseudonym">
+                  <o-icon
                     icon="check"
                     v-if="vote.vote"
-                    :aria-label="
-                      $t('{name} voted for this answer', {
-                        name: vote.voter.pseudonym
-                      })
-                    "
+                    :aria-label="$t('{name} voted for this answer', { name: vote.voter.pseudonym })"
                   />
-                  <b-icon
-                    icon="times"
+                  <o-icon
+                    icon="xmark"
                     v-else
-                    :aria-label="
-                      $t('{name} voted against this answer', {
-                        name: vote.voter.pseudonym
-                      })
-                    "
-                    :class="{
-                      'is-real-vote': answer.answer.valid
-                    }"
+                    :aria-label="$t('{name} voted against this answer', { name: vote.voter.pseudonym })"
+                    :class="{ 'is-real-vote': answer.answer.valid }"
                   />
-                </b-tooltip>
+                </o-tooltip>
               </div>
             </div>
           </div>
@@ -165,142 +111,126 @@
       </article>
     </div>
 
-    <b-notification
-      :active="true"
-      :closable="false"
-      class="mobile-bottom-submit-button"
-    >
+    <o-notification :active="true" :closable="false" class="mobile-bottom-submit-button">
       <div class="field">
-        <b-button
-          type="is-primary is-medium"
-          expanded
-          :disabled="ready"
-          @click.once="vote_ready"
-        >
+        <o-button variant="primary" size="medium" expanded :disabled="ready" @click.once="vote_ready">
           <span v-if="ready" v-t="'Please wait…'" />
           <span v-else v-t="'I finished!'" />
-        </b-button>
+        </o-button>
       </div>
-    </b-notification>
+    </o-notification>
   </section>
 </template>
 
 <script>
-import { is_answer_accepted } from "ptitbac-commons";
-import { mapState } from "vuex";
+import { is_answer_accepted } from 'ptitbac-commons'
+import { mapState } from 'pinia'
+import { useMorelStore } from 'morel-games-core'
+import { useGameStore } from '../store.js'
 
 export default {
   data() {
     return {
       ready: false
-    };
-  },
-  computed: {
-    ...mapState({
-      letter: state => state.game.current_round.letter,
-      votes: state => state.game.current_round.votes,
-      players: state => state.morel.players,
-      own_uuid: state => state.morel.uuid,
-      interrupted: state => state.morel.configuration.stopOnFirstCompletion,
-      interrupted_by: state => {
-        let interrupter =
-          state.morel.players[state.game.current_round.interrupted_by];
-        return interrupter ? interrupter.pseudonym : null;
-      },
-      search_engines: state => state.search_engines
-    }),
-    categories() {
-      return Object.keys(this.votes);
     }
   },
-  methods: {
-    answers_in_category(category) {
-      let answers = [];
 
-      Object.keys(this.votes[category]).forEach(uuid => {
-        let votes = [];
+  computed: {
+    ...mapState(useMorelStore, {
+      own_uuid: state => state.uuid,
+      players: state => state.players,
+      interrupted: state => state.configuration.stopOnFirstCompletion
+    }),
+    ...mapState(useGameStore, {
+      letter: state => state.current_round.letter,
+      votes: state => state.current_round.votes,
+      search_engines: state => state.search_engines,
+      interrupted_by_uuid: state => state.current_round.interrupted_by
+    }),
 
-        Object.keys(this.votes[category][uuid].votes).forEach(voter_uuid => {
-          votes.push({
-            voter: this.players[voter_uuid],
-            vote: this.votes[category][uuid].votes[voter_uuid]
-          });
-        });
-
-        votes.sort((a, b) =>
-          a.voter.pseudonym
-            .toLowerCase()
-            .localeCompare(b.voter.pseudonym.toLowerCase())
-        );
-
-        answers.push({
-          uuid: uuid,
-          answer: {
-            text: this.votes[category][uuid].answer,
-            valid: this.votes[category][uuid].valid
-          },
-          votes: votes,
-          author: this.players[uuid]
-        });
-      });
-
-      answers.sort((a, b) =>
-        a.author.pseudonym
-          .toLowerCase()
-          .localeCompare(b.author.pseudonym.toLowerCase())
-      );
-
-      return answers;
+    interrupted_by() {
+      const player = useMorelStore().players[this.interrupted_by_uuid]
+      return player ? player.pseudonym : null
     },
 
-    answer_accepted(category, uuid) {
-      return is_answer_accepted(this.votes[category][uuid].votes);
-    },
-
-    own_vote(category, uuid) {
-      return this.votes[category][uuid].votes[this.own_uuid];
-    },
-
-    toggle_vote(category, uuid) {
-      this.$store.dispatch("send_vote_update", {
-        voter: {
-          uuid: this.own_uuid
-        },
-        vote: {
-          uuid: uuid,
-          category: category,
-          vote: !this.own_vote(category, uuid)
-        }
-      });
-    },
-
-    vote_ready() {
-      this.$store.dispatch("vote_ready");
-      this.ready = true;
-    },
-
-    search_url(search_engine, category, text) {
-      return this.search_engines[search_engine].replace(
-        "{s}",
-        category + " " + text
-      );
+    categories() {
+      return Object.keys(this.votes)
     }
   },
 
   mounted() {
-    // For the position: sticky to work, there must not be ANY overflow: hidden
-    // in all parents of the sticky element, up to `<html>`. We do have a
-    // overflow: hidden on `<html>` and `<body>`; this disables the CSS rule
-    // for this screen only, so the sticky banner actually sticks.
-    document.getElementsByTagName("html")[0].classList.add("overflow");
-    this.$store.commit("set_sticky_players_list", true);
+    // For position: sticky to work, remove overflow: hidden on html
+    document.getElementsByTagName('html')[0].classList.add('overflow')
+    useGameStore().set_sticky_players_list(true)
   },
 
-  beforeDestroy() {
-    document.getElementsByTagName("html")[0].classList.remove("overflow");
-    this.$store.commit("set_sticky_players_list", false);
+  beforeUnmount() {
+    document.getElementsByTagName('html')[0].classList.remove('overflow')
+    useGameStore().set_sticky_players_list(false)
+  },
+
+  methods: {
+    answers_in_category(category) {
+      const morelStore = useMorelStore()
+      let answers = []
+
+      Object.keys(this.votes[category]).forEach(uuid => {
+        let votes = []
+
+        Object.keys(this.votes[category][uuid].votes).forEach(voter_uuid => {
+          votes.push({
+            voter: morelStore.players[voter_uuid],
+            vote: this.votes[category][uuid].votes[voter_uuid]
+          })
+        })
+
+        votes.sort((a, b) => a.voter.pseudonym.toLowerCase().localeCompare(b.voter.pseudonym.toLowerCase()))
+
+        answers.push({
+          uuid,
+          answer: {
+            text: this.votes[category][uuid].answer,
+            valid: this.votes[category][uuid].valid
+          },
+          votes,
+          author: morelStore.players[uuid]
+        })
+      })
+
+      answers.sort((a, b) => a.author.pseudonym.toLowerCase().localeCompare(b.author.pseudonym.toLowerCase()))
+
+      return answers
+    },
+
+    answer_accepted(category, uuid) {
+      return is_answer_accepted(this.votes[category][uuid].votes)
+    },
+
+    own_vote(category, uuid) {
+      return this.votes[category][uuid].votes[this.own_uuid]
+    },
+
+    toggle_vote(category, uuid) {
+      useGameStore().send_vote_update({
+        voter: { uuid: this.own_uuid },
+        vote: { uuid, category, vote: !this.own_vote(category, uuid) }
+      })
+    },
+
+    vote_ready() {
+      useGameStore().vote_ready()
+      this.ready = true
+    },
+
+    search_label(text) {
+      return this.$t('Search "{term}" on a search engine (in a new tab)', { term: text })
+    },
+
+    search_url(search_engine, category, text) {
+      return this.search_engines[search_engine].replace('{s}', category + ' ' + text)
+    }
   }
-};
+}
 </script>
 
 <style lang="sass">

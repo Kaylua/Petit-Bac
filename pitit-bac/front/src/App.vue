@@ -1,28 +1,39 @@
 <template>
   <div id="app">
-    <b-loading
-      :is-full-page="true"
-      :active="has_fullscreen_message"
-      :can-cancel="false"
-    >
-      <template slot="default" v-if="loading_reason.title || error.title">
+    <!-- Loading / error fullscreen overlay (replaces b-loading) -->
+    <div class="loading-overlay is-full-page" v-if="has_fullscreen_message">
+      <div class="loading-background"></div>
+      <template v-if="loading_reason.title || (error && error.title)">
         <p
-          v-html="loading_reason.title || error.title"
+          v-html="loading_reason.title || (error && error.title)"
           :class="{ 'is-pulsing': !!loading }"
         ></p>
         <p
           class="loading-subtitle"
-          v-if="loading_reason.title || error.title"
-          v-html="loading_reason.description || error.description"
+          v-if="loading_reason.description || (error && error.description)"
+          v-html="loading_reason.description || (error && error.description)"
         ></p>
       </template>
-    </b-loading>
+    </div>
+
+    <!-- Notification queue (replaces Buefy Snackbar) -->
+    <div class="notifications-container">
+      <o-notification
+        v-for="notif in notifications"
+        :key="notif.id"
+        :variant="notif.variant || undefined"
+        closable
+        @close="removeNotification(notif.id)"
+      >
+        {{ notif.message }}
+      </o-notification>
+    </div>
 
     <main>
       <div
         class="container"
         :class="{ 'is-loading': has_fullscreen_message }"
-        v-if="phase != 'PSEUDONYM'"
+        v-if="phase !== 'PSEUDONYM'"
       >
         <div class="pititbac-logo is-mobile" aria-hidden="true">
           <img src="./assets/logo.svg" alt="Pitit Bac" />
@@ -55,6 +66,7 @@
           </div>
         </div>
       </div>
+
       <div
         v-else
         class="container"
@@ -74,18 +86,17 @@
     <footer class="footer" :class="{ 'is-loading': has_fullscreen_message }">
       <div class="content has-text-centered">
         <p>
-          <i18n path="Pitit Bac is brought to you by {name}.">
-            <a href="https://amaury.carrade.eu" slot="name"
-              >Amaury Carrade</a
-            > </i18n
-          >&nbsp;
-          <i18n path="This application is {open_source}.">
-            <a
-              href="https://github.com/MorelGames/pitit-bac"
-              slot="open_source"
-              >{{ $t("open source, and published under a free licence") }}</a
-            >
-          </i18n>
+          <i18n-t keypath="Pitit Bac is brought to you by {name}.">
+            <template #name>
+              <a href="https://amaury.carrade.eu">Amaury Carrade</a>
+            </template>
+          </i18n-t>
+          &nbsp;
+          <i18n-t keypath="This application is {open_source}.">
+            <template #open_source>
+              <a href="https://github.com/MorelGames/pitit-bac">{{ $t("open source, and published under a free licence") }}</a>
+            </template>
+          </i18n-t>
         </p>
         <morel-locale-switcher />
       </div>
@@ -94,41 +105,46 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState } from 'pinia'
+import { useMorelStore } from 'morel-games-core'
+import { useGameStore } from './store.js'
 
-import GameConfiguration from "./components/GameConfiguration.vue";
-import Game from "./components/Game.vue";
-import GameVote from "./components/GameVote.vue";
-import GameEnd from "./components/GameEnd.vue";
+import GameConfiguration from './components/GameConfiguration.vue'
+import Game from './components/Game.vue'
+import GameVote from './components/GameVote.vue'
+import GameEnd from './components/GameEnd.vue'
 
 export default {
-  name: "App",
+  name: 'App',
+
+  components: { GameConfiguration, Game, GameVote, GameEnd },
+
   computed: {
-    ...mapState("morel", {
+    ...mapState(useMorelStore, {
       phase: state => state.phase,
       loading: state => state.loading,
       loading_reason: state => state.loading_reason,
-      error: state => state.error
+      error: state => state.error,
+      notifications: state => state.notifications
     }),
-    ...mapState(["sticky_players_list"]),
+    ...mapState(useGameStore, ['sticky_players_list']),
     has_fullscreen_message() {
-      return !!this.loading || (!!this.error && !!this.error.title);
+      return !!this.loading || !!(this.error && this.error.title)
     }
   },
 
   watch: {
     phase() {
-      this.$nextTick(() => window.scrollTo(0, 0));
+      this.$nextTick(() => window.scrollTo(0, 0))
     }
   },
 
-  components: {
-    GameConfiguration,
-    Game,
-    GameVote,
-    GameEnd
+  methods: {
+    removeNotification(id) {
+      useMorelStore().remove_notification(id)
+    }
   }
-};
+}
 </script>
 
 <style lang="sass">
@@ -138,7 +154,6 @@ export default {
 @import "assets/variables"
 
 @import "bulma/bulma"
-@import "buefy/src/scss/buefy"
 
 html, body
   overflow-y: auto
@@ -181,14 +196,26 @@ html.overflow, html.overflow body
     .media-content
       overflow: hidden
 
-  .loading-overlay
+  // Full-screen overlay (replaces b-loading)
+  .loading-overlay.is-full-page
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    z-index: 999
+    display: flex
     flex-direction: column
-
+    align-items: center
+    justify-content: center
     padding: 1em 20%
     background-color: rgba(white, .8)
 
     +mobile
       padding: 1em
+
+    .loading-background
+      display: none
 
     p
       font-size: 2.8em
@@ -212,6 +239,20 @@ html.overflow, html.overflow body
 
         +mobile
           font-size: 1.3em
+
+  // Notification queue (top-right corner)
+  .notifications-container
+    position: fixed
+    top: 1rem
+    right: 1rem
+    z-index: 1000
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+    max-width: 400px
+
+    .notification
+      box-shadow: 0 2px 8px hsla(0, 0%, 0%, .2)
 
   .container, .footer
     &.is-loading
