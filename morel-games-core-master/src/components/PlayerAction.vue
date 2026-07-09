@@ -75,7 +75,7 @@
 </script>
 
 <style lang="sass">
-@import "~bulma/sass/utilities/_all"
+@import "bulma/sass/utilities/_all"
 
 .panel.morel-players-list .panel-block .panel-icon-right.morel-player-action-icon
   display: none

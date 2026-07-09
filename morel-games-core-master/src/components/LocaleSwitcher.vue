@@ -53,7 +53,7 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import "~bulma/sass/utilities/all"
+@import "bulma/sass/utilities/all"
 
 button.button.is-text
   padding-left: 1.2rem
