@@ -23,6 +23,12 @@ $link-invert: findColorInvert($link);
 $danger: hsl(0, 67%, 44%);
 $danger-invert: findColorInvert($danger);
 
+// Accents décoratifs "playful illustré" — palette élargie au-delà du corail
+// (motifs SVG, blobs, confettis). Pas utilisés comme couleurs Bulma
+// (boutons/tags restent en $primary), uniquement pour la couche décorative.
+$accent-teal: #00BFA5;
+$accent-yellow: #FFC93C;
+
 // Fond et bordures chauds
 $background: #FFF8F3;
 $border: #E8D0C0;

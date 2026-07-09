@@ -3,9 +3,12 @@
     <o-notification :active="true" :closable="false" class="votes-header">
       <div class="columns votes-header-column">
         <div class="column is-9">
-          <i18n-t keypath="Here are everyone's proposals for the letter {letter}." tag="p" class="content">
-            <template #letter><strong>{{ letter }}</strong></template>
-          </i18n-t>
+          <p class="content votes-header-title">
+            <SummerDecor variant="icon" motif="palm" />
+            <i18n-t keypath="Here are everyone's proposals for the letter {letter}." tag="span">
+              <template #letter><strong>{{ letter }}</strong></template>
+            </i18n-t>
+          </p>
           <p class="content">
             {{ $t("Are they acceptable? You'll be the judge!") }}
             {{ $t("Uncheck all the boxes against the proposals you refuse. Then, validate with the finish button.") }}
@@ -127,8 +130,11 @@ import { is_answer_accepted } from 'ptitbac-commons'
 import { mapState } from 'pinia'
 import { useMorelStore } from 'morel-games-core'
 import { useGameStore } from '../store.js'
+import SummerDecor from './SummerDecor.vue'
 
 export default {
+  components: { SummerDecor },
+
   data() {
     return {
       ready: false
@@ -257,6 +263,15 @@ export default {
 
   .votes-header-column
     align-items: center
+
+  .votes-header-title
+    display: flex
+    align-items: center
+    font-weight: 600
+
+    .summer-icon
+      color: $primary
+      flex-shrink: 0
 
     p.content
       margin-bottom: 0

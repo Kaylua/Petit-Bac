@@ -281,3 +281,46 @@ Vite pre-bundle `morel-games-core` au premier démarrage dans `node_modules/.vit
    - **Fix final** : `background-image: url("data:image/svg+xml,...")` avec un SVG × dessiné en path ASCII (deux diagonales `stroke='%235A1600'`). Zéro dépendance d'encodage, zéro pseudo-élément, zéro FA. Croix clairement visible en brun chaud sur fond peach.
 
 **Piège encodage SASS** : Les caractères unicode non-ASCII dans les strings SASS (y compris via `content: '\D7'`) peuvent être corrompus selon le chemin compilation Dart Sass → Vite → bundle. Ne jamais mettre de caractère non-ASCII dans `content` SASS. Préférer les SVG data URI (100% ASCII) pour tous les icônes CSS custom.
+
+### 2026-07-09 — Diagnostic "l'UI ne change jamais" + refonte v4 "playful illustré"
+
+**Contexte :** Après 3 itérations "summer vibes" (tokens couleur, ombres, radius), le rendu restait perçu comme "à peine différent". Diagnostic demandé avant de retenter une 4e itération à l'aveugle.
+
+**Diagnostic (app lancée réellement + screenshots Playwright, front `npm run serve` + back `node index.js`) :**
+- Le rendu CSS fonctionne correctement (vérifié via `getComputedStyle` : gradients, ombres, focus states tous corrects). Une première capture semblait montrer un écran "invisible" — c'était un artefact du screenshot pris pendant l'animation `fadeInUp` (0.53s), pas un bug réel.
+- Le bouton "Start the game" pâle sur le screenshot de config = état `disabled` normal (`can_start` nécessite >1 joueur), pas un bug de contraste.
+- **Vraie cause :** 3 itérations avaient changé uniquement les *tokens* (couleur primaire, radius, box-shadow) sur un squelette Bulma inchangé (colonne centrée, card blanche rectangulaire, formulaire). Repeindre une card blanche en orange ne la transforme pas en "soirée cocktail d'été" — ça reste un panneau de configuration SaaS avec un accent chaud. Confirmé par du code mort : le keyframe `confettiFall` existait dans App.vue depuis la v2 sans jamais être utilisé nulle part.
+
+**Décision (validée avec l'utilisateur via question à choix) :** direction "playful illustré" — motifs SVG récurrents (palmier, cocktail, soleil, confettis), palette élargie (teal `#00BFA5` + jaune citron `#FFC93C` en plus du corail), texture de fond, ambiance affiche de festival plutôt que sobriété éditoriale.
+
+**Ce qui a été fait :**
+- `assets/variables.scss` : ajout `$accent-teal` / `$accent-yellow` — décoratifs uniquement, ne remplacent pas `$primary` dans les composants Bulma (boutons/tags restent corail).
+- Nouveau composant `components/SummerDecor.vue` : motifs SVG inline (soleil animé en rotation, palmier, verre à cocktail, confettis flottants) en 2 variants (`hero` pour l'écran pseudo, `corner` pour le logo sidebar). Positionnement absolu, `aria-hidden`, `pointer-events: none`, animations dans `prefers-reduced-motion: no-preference`.
+- `App.vue` : fond avec texture de points en plus du gradient (SVG data-uri) ; 3 blobs flous fixes (`.ambient-blobs`, z-index -1) en teal/jaune/corail pour la profondeur ; tagline sous le logo d'accueil (nouvelle clé i18n `"The word game for your summer nights"`).
+- `GameEnd.vue` : confettis réels (26 pièces générées de façon déterministe, pas de `Math.random`, palette blanc/jaune/teal/pêche) qui tombent sur le hero des gagnants — nouveau keyframe `confettiRain` (le `confettiFall` mort dans App.vue reste inutilisé, pas supprimé — pourrait servir ailleurs).
+
+**Décision architecture :** aucune décoration ajoutée dans `morel-games-core-master/` (Players.vue, AskPseudonym.vue) — le core reste un framework multi-jeux réutilisable, la couche "summer vibes" reste 100% côté `pitit-bac/front`.
+
+**Vérification :** app lancée réellement (front + back), 0 erreur console (`page.on('console')` + `page.on('pageerror')` vides), screenshots desktop + mobile sur écran pseudo et config.
+
+### 2026-07-09 — Refonte v5 : décoration étendue à tout le site (config/jeu/vote) + 2 pièges corrigés
+
+**Contexte :** Retour utilisateur après la v4 — l'écran d'accueil était bien thématisé mais le reste (config, jeu, vote) beaucoup moins. Demande explicite : "plus de folie", plus de cocktails/palmiers partout, pas seulement sur l'accueil.
+
+**Ce qui a été ajouté à `SummerDecor.vue` :**
+- Nouveau variant `icon` (+ prop `motif`) : icône inline monochrome (`currentColor`, ~1.1em) pour les titres de header — différent des variants décoratifs multicolores existants. Motifs : cocktail, palm, pineapple, watermelon, sun.
+- Nouveau variant `scatter` : calque ambiant plein écran (position fixed, `#app` direct child, ajouté une fois dans App.vue) avec des motifs dans les gouttières gauche/droite sur très grands écrans.
+- `corner` enrichi d'un petit cocktail à côté du palmier existant.
+- Icônes `icon` posées dans les headers : `GameConfiguration.vue` (cocktail dans "Configure the game"), `GameVote.vue` (palm dans le header de vote), `Game.vue` (sun dans la consigne de round), `GameEnd.vue` (pineapple dans la bannière "Another game?"), `App.vue` (cocktail dans la mobile-top-bar, visible sur tous les écrans mobile).
+
+**Piège n°1 — sélecteur d'attribut `[class^="..."]` qui ne matche jamais :**
+Le calque `scatter` cachait par défaut ses motifs via `[class^="decor-g-"] { display: none }`, réactivés ensuite par breakpoint. Sauf que l'attribut `class` réel d'un élément est `"decor decor-g-palm-l"` (la classe de base `decor` listée en premier) — `^=` teste que la chaîne *entière* commence par le préfixe, donc ne matche jamais un attribut qui commence par `"decor "`. Résultat : le `display:none` par défaut ne s'appliquait jamais, et les motifs `decor-g-*`/`decor-m-*` héritaient uniquement de `.decor { display: block }` sans aucune règle de taille/position en dehors de leur breakpoint → SVG absolu sans contrainte, étiré à la taille du viewport entier (palmier géant recouvrant tout l'écran de jeu, capturé en screenshot avant le fix). **Fix :** toujours lister les classes explicitement (`.decor-g-palm-l, .decor-g-cocktail-l, ...`), jamais de sélecteur d'attribut `^=` sur un élément qui a plusieurs classes dont une classe de base commune.
+
+**Piège n°2 — gouttières "vides" qui ne le sont pas à 1440px :**
+Le calque `scatter` desktop supposait un espace vide notable de chaque côté du contenu (`+widescreen`, dès 1216px). En réalité le container Bulma fullhd fait ~1344px de large ; à 1440px (résolution laptop très courante) il ne reste que ~48px de gouttière de chaque côté — la sidebar (liste joueurs, "Share game") occupe presque toute la largeur restante. Un cocktail de gouttière se retrouvait à chevaucher le texte "Invite other players…". **Fix :** seuil relevé à un `@media (min-width: 1700px)` custom (pas un mixin Bulma standard) + motifs repoussés plus près du bord réel (0.6–1.4vw au lieu de 1–3vw). Vérifié sans chevauchement à 1440px (motifs simplement absents) et propre à 1920px.
+
+**Mobile — décision de ne PAS mettre le calque `scatter` en mobile :** une première tentative plaçait 2 motifs (ananas, pastèque) en `position: fixed; bottom: ...` sur mobile. Problème : `position:fixed` reste collé au viewport quel que soit le scroll, alors que le contenu mobile est plein-large sans marge (radius 0, edge-to-edge) — les motifs finissaient systématiquement à chevaucher des champs de formulaire au lieu de rester dans un espace vide. Supprimé. Le supplément mobile passe uniquement par des éléments en flux normal (icônes inline `variant="icon"` dans les headers + top-bar), jamais par un calque fixed superposé au contenu scrollable.
+
+**Icône palm en petit format peu lisible :** la première version du SVG palm (variant `icon`) utilisait 4 triangles pleins en éventail — à ~20px (mobile-top-bar) ça ne se lit pas comme un palmier, juste une tache. Redessiné en 4 traits (stroke, pas fill) façon feuilles fines ; toujours pas parfait en dessous de ~24px, donc la mobile-top-bar utilise `cocktail` (qui se lit bien même petit) plutôt que `palm`.
+
+**Vérification :** partie complète jouée avec 2 joueurs réels via Playwright (2 contextes navigateur, un slug de partie partagé), 0 erreur console sur les deux, écran de jeu (`Game.vue`) inspecté via `getComputedStyle`/`getBoundingClientRect` sur les éléments `.decor` pour confirmer le fix du piège n°1 avant/après.

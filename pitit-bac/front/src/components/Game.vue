@@ -1,8 +1,9 @@
 <template>
   <section class="columns game-answers">
     <div class="column is-9 answers-column">
-      <o-notification :active="true" :closable="false">
-        <i18n-t keypath="Fill all categories with words or phrases beginning with the letter {letter}, then submit your answers using the finish button.">
+      <o-notification :active="true" :closable="false" class="answers-intro">
+        <SummerDecor variant="icon" motif="sun" />
+        <i18n-t keypath="Fill all categories with words or phrases beginning with the letter {letter}, then submit your answers using the finish button." tag="span">
           <template #letter><strong>{{ letter }}</strong></template>
         </i18n-t>
         <span v-if="stop_on_first_completion">
@@ -64,9 +65,10 @@ import { mapState } from 'pinia'
 import { useMorelStore } from 'morel-games-core'
 import { useGameStore } from '../store.js'
 import CircularProgress from './CircularProgress.vue'
+import SummerDecor from './SummerDecor.vue'
 
 export default {
-  components: { CircularProgress },
+  components: { CircularProgress, SummerDecor },
 
   data() {
     return {
@@ -197,6 +199,15 @@ export default {
 @import "../assets/variables"
 
 .answers-column
+  .answers-intro
+    display: flex
+    align-items: flex-start
+
+    .summer-icon
+      color: $primary
+      flex-shrink: 0
+      margin-top: 0.15em
+
   .field
     &:not(:first-child)
       margin-top: 1.4em

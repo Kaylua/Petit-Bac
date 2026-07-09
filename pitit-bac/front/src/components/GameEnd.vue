@@ -1,6 +1,21 @@
 <template>
   <section class="end-screen">
     <section class="hero is-medium is-primary is-bold is-winners-frame">
+      <div class="confetti-burst" aria-hidden="true">
+        <span
+          v-for="p in confetti_pieces"
+          :key="p.id"
+          class="confetti-piece"
+          :style="{
+            left: p.left + '%',
+            background: p.color,
+            animationDelay: p.delay + 's',
+            animationDuration: p.duration + 's',
+            width: p.size + 'px',
+            height: Math.round(p.size * 0.4) + 'px'
+          }"
+        ></span>
+      </div>
       <div class="hero-body">
         <div class="container">
           <div class="title winner first-winner">
@@ -37,8 +52,8 @@
     <o-notification :active="master" :closable="false" class="restart-game-banner">
       <div class="columns restart-game-columns">
         <div class="column is-9">
-          <p class="content">
-            <strong>{{ $t("Another game?") }}</strong><br />
+          <p class="content restart-banner-text">
+            <strong><SummerDecor variant="icon" motif="pineapple" />{{ $t("Another game?") }}</strong><br />
             {{ $t("Click on this button to go back to the configuration screen with all players, and play again.") }}
           </p>
         </div>
@@ -89,8 +104,11 @@
 import { mapState } from 'pinia'
 import { useMorelStore } from 'morel-games-core'
 import { useGameStore } from '../store.js'
+import SummerDecor from './SummerDecor.vue'
 
 export default {
+  components: { SummerDecor },
+
   computed: {
     ...mapState(useMorelStore, {
       players: state => state.players,
@@ -108,7 +126,21 @@ export default {
     seconds_points() { return this.nth_winners_points(2) },
     thirds() { return this.nth_winners(3) },
     thirds_count() { return this.nth_winners_count(3) },
-    thirds_points() { return this.nth_winners_points(3) }
+    thirds_points() { return this.nth_winners_points(3) },
+
+    confetti_pieces() {
+      // Générées de façon déterministe (pas de Math.random) pour un rendu stable.
+      const colors = ['#FFFFFF', '#FFC93C', '#00BFA5', '#FFD9B8']
+      const count = 26
+      return Array.from({ length: count }, (_, i) => ({
+        id: i,
+        left: (i * 37) % 100,
+        color: colors[i % colors.length],
+        delay: (i * 0.27) % 3.2,
+        duration: 3.4 + (i % 5) * 0.5,
+        size: 6 + (i % 4) * 3
+      }))
+    }
   },
 
   methods: {
@@ -188,6 +220,24 @@ export default {
     @media (prefers-reduced-motion: no-preference)
       animation: fadeInUp 0.7s ease both
 
+    .confetti-burst
+      position: absolute
+      inset: 0
+      overflow: hidden
+      pointer-events: none
+      z-index: 0
+
+      .confetti-piece
+        position: absolute
+        top: -8%
+        border-radius: 2px
+        opacity: 0.9
+
+        @media (prefers-reduced-motion: no-preference)
+          animation-name: confettiRain
+          animation-timing-function: ease-in
+          animation-iteration-count: infinite
+
     .hero-body
       padding: 4rem 1rem
       position: relative
@@ -249,6 +299,9 @@ export default {
   .restart-game-banner
     margin-top: 2rem
     border-radius: 16px
+
+    .restart-banner-text .summer-icon
+      color: $primary
 
     .restart-game-columns
       align-items: center
@@ -325,4 +378,14 @@ export default {
   100%
     opacity: 1
     transform: scale(1)
+
+@keyframes confettiRain
+  0%
+    opacity: 0
+    transform: translateY(0) rotate(0deg)
+  10%
+    opacity: 1
+  100%
+    opacity: 0
+    transform: translateY(340px) rotate(540deg)
 </style>

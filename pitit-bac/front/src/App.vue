@@ -1,5 +1,12 @@
 <template>
   <div id="app">
+    <div class="ambient-blobs" aria-hidden="true">
+      <span class="blob-teal"></span>
+      <span class="blob-yellow"></span>
+      <span class="blob-coral"></span>
+    </div>
+    <SummerDecor variant="scatter" />
+
     <!-- Loading / error fullscreen overlay (replaces b-loading) -->
     <div class="loading-overlay is-full-page" v-if="has_fullscreen_message">
       <div class="loading-background"></div>
@@ -36,7 +43,7 @@
         v-if="phase !== 'PSEUDONYM'"
       >
         <div class="mobile-top-bar">
-          <span aria-hidden="true" class="mobile-top-logo game-title">Pitit Bac</span>
+          <span aria-hidden="true" class="mobile-top-logo game-title"><SummerDecor variant="icon" motif="cocktail" />Pitit Bac</span>
           <o-button
             v-if="phase === 'CONFIG'"
             size="small"
@@ -48,6 +55,7 @@
         <div class="columns layout-columns">
           <div class="column is-3">
             <div class="pititbac-logo">
+              <SummerDecor variant="corner" />
               <span class="game-title">Pitit Bac</span>
             </div>
             <morel-players
@@ -90,7 +98,9 @@
         <div class="columns">
           <div class="column is-half is-offset-3">
             <header class="init-logo">
+              <SummerDecor variant="hero" />
               <span class="game-title">Pitit Bac</span>
+              <p class="init-tagline">{{ $t('The word game for your summer nights') }}</p>
             </header>
             <morel-ask-pseudonym />
           </div>
@@ -128,11 +138,12 @@ import GameConfiguration from './components/GameConfiguration.vue'
 import Game from './components/Game.vue'
 import GameVote from './components/GameVote.vue'
 import GameEnd from './components/GameEnd.vue'
+import SummerDecor from './components/SummerDecor.vue'
 
 export default {
   name: 'App',
 
-  components: { GameConfiguration, Game, GameVote, GameEnd },
+  components: { GameConfiguration, Game, GameVote, GameEnd, SummerDecor },
 
   computed: {
     ...mapState(useMorelStore, {
@@ -180,18 +191,68 @@ export default {
 
 html
   min-height: 100%
-  background: linear-gradient(155deg, #FFF9F0 0%, #FFE9C8 35%, #FFD298 65%, #FFBA70 100%) fixed
+  background-color: #FFE9C8
+  background-image: linear-gradient(155deg, #FFF9F0 0%, #FFE9C8 35%, #FFD298 65%, #FFBA70 100%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Ccircle cx='2' cy='2' r='2' fill='%23FFFFFF' fill-opacity='0.35'/%3E%3C/svg%3E")
+  background-repeat: no-repeat, repeat
+  background-size: 100% 100%, 64px 64px
 
 body
+  position: relative
   min-height: 100vh
   background: transparent
   overflow-y: auto
-
-  +mobile
-    overflow-x: hidden
+  overflow-x: hidden
 
 html.overflow, html.overflow body
   overflow-y: unset
+
+// ============================================================
+// BLOBS DE PROFONDEUR — halos flous fixes, palette élargie
+// ============================================================
+
+.ambient-blobs
+  position: fixed
+  inset: 0
+  overflow: hidden
+  pointer-events: none
+  z-index: -1
+
+  span
+    position: absolute
+    border-radius: 50%
+    filter: blur(60px)
+    opacity: 0.30
+
+    +mobile
+      filter: blur(36px)
+      opacity: 0.22
+
+  .blob-teal
+    width: 32vw
+    height: 32vw
+    min-width: 260px
+    min-height: 260px
+    top: -8vw
+    right: -8vw
+    background: $accent-teal
+
+  .blob-yellow
+    width: 26vw
+    height: 26vw
+    min-width: 220px
+    min-height: 220px
+    bottom: 4vh
+    left: -6vw
+    background: $accent-yellow
+
+  .blob-coral
+    width: 20vw
+    height: 20vw
+    min-width: 180px
+    min-height: 180px
+    bottom: -6vw
+    right: 12vw
+    background: $primary
 
 // ============================================================
 // APP SHELL
@@ -317,6 +378,7 @@ html.overflow, html.overflow body
   background-clip: text
 
 .pititbac-logo
+  position: relative
   margin-top: .2rem
   margin-bottom: 2rem
 
@@ -327,16 +389,21 @@ html.overflow, html.overflow body
       display: block
 
   .game-title
+    position: relative
+    z-index: 1
     font-size: 2.8rem
     display: block
     filter: drop-shadow(0 3px 10px rgba($primary, 0.22))
 
 .init-logo
+  position: relative
   text-align: center
   margin-bottom: 3.5rem
   width: 100%
 
   .game-title
+    position: relative
+    z-index: 1
     font-size: 5.5rem
     display: block
     filter: drop-shadow(0 6px 20px rgba($primary, 0.22))
@@ -349,6 +416,17 @@ html.overflow, html.overflow body
 
       &:hover
         transform: scale(1.02) rotate(-0.4deg)
+
+  .init-tagline
+    position: relative
+    z-index: 1
+    margin-top: 0.6rem
+    font-size: 1.15rem
+    font-weight: 500
+    color: #8A4B12
+
+    +mobile
+      font-size: 0.95rem
 
 // ============================================================
 // BARRE MOBILE HAUT (logo + bouton quitter)
@@ -369,6 +447,11 @@ html.overflow, html.overflow body
   .mobile-top-logo
     font-size: 2rem
     filter: drop-shadow(0 3px 8px rgba($primary, 0.22))
+
+    .summer-icon
+      color: $primary
+      width: 0.7em
+      height: 0.7em
 
 // Bouton "Quitter le lobby" — style ghost discret
 .leave-lobby-btn

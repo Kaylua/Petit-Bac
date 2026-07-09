@@ -2,7 +2,7 @@
   <div class="game-configuration">
     <div class="message is-primary">
       <div class="message-header">
-        <p>{{ master ? $t('Configure the game') : $t('Game configuration') }}</p>
+        <p><SummerDecor variant="icon" motif="cocktail" />{{ master ? $t('Configure the game') : $t('Game configuration') }}</p>
       </div>
       <div class="message-body">
         <section>
@@ -290,8 +290,11 @@ import { mapState } from 'pinia'
 import { useMorelStore } from 'morel-games-core'
 import { useGameStore } from '../store.js'
 import alphabetsData from '../../data/alphabets.json'
+import SummerDecor from './SummerDecor.vue'
 
 export default {
+  components: { SummerDecor },
+
   data() {
     return {
       filtered_suggestions: [],
