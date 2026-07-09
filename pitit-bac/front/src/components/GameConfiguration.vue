@@ -541,11 +541,7 @@ export default {
       // If init = false, this is called from a locale switch. Then, we only
       // update the categories with the default if they were not updated by the
       // user yet.
-      import(
-        /* webpackChunkName: "categories-[request]" */ "./../../locales/categories/" +
-          this.locale +
-          ".json"
-      )
+      import(/* @vite-ignore */ "./../../locales/categories/" + this.locale + ".json")
         .then(categories => {
           this.suggested_categories = categories.default.suggestions;
 

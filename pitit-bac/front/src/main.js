@@ -55,17 +55,12 @@ library.add(
 Vue.component("vue-fontawesome", FontAwesomeIcon);
 
 const client = new GameClient(
-  process.env.VUE_APP_WS_URL.replace("{hostname}", document.location.hostname),
+  import.meta.env.VITE_WS_URL.replace("{hostname}", document.location.hostname),
   "pb-protocol"
 );
 
 const i18n = new MorelI18n(
-  locale =>
-    import(
-      /* webpackChunkName: "locales-[request]" */ "./../locales/" +
-        locale +
-        ".json"
-    ),
+  locale => import(/* @vite-ignore */ "./../locales/" + locale + ".json"),
   {
     en: "English",
     fr: "Français"

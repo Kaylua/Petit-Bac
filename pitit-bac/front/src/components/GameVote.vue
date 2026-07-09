@@ -304,7 +304,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import "~bulma/sass/utilities/_all"
+@import "bulma/sass/utilities/_all"
 
 .notification.votes-header
   position: sticky !important

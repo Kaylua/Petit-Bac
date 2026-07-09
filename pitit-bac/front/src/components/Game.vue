@@ -258,7 +258,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import "~bulma/sass/utilities/mixins"
+@import "bulma/sass/utilities/mixins"
 
 .answers-column
   .field
