@@ -469,27 +469,24 @@ export default {
 <style lang="sass">
 @import "../assets/variables"
 
-.message
-  .message-header
-    +mobile
-      border-radius: 0
-  .message-body
-    .media-content
-      overflow-x: inherit
+// La règle border-radius: 0 sur mobile est centralisée dans App.vue
+.message-body
+  .media-content
+    overflow-x: inherit
 
-      div.column.is-half:first-of-type
-        +mobile
-          padding-bottom: 0
+    div.column.is-half:first-of-type
+      +mobile
+        padding-bottom: 0
 
-      .start-button
-        &.is-desktop
-          +mobile
-            display: none
-        &.is-mobile
-          +tablet
-            display: none
-          +mobile
-            margin-top: 1.5rem
+  .start-button
+    &.is-desktop
+      +mobile
+        display: none
+    &.is-mobile
+      +tablet
+        display: none
+      +mobile
+        margin-top: 1.5rem
 
 label.switch span.control-label
   position: relative
@@ -532,8 +529,8 @@ div.field > span.o-tooltip
   div.taginput.control .taginput-container[disabled]
     position: relative
     left: -2px
-    background-color: #f8fef6
-    border-color: #f8fef6
+    background-color: #fff5f0
+    border-color: #fff5f0
     cursor: default
 
     .tag .delete
@@ -572,7 +569,7 @@ div.modal-card.suggestions-card
     height: 100%
     max-height: 100vh
     margin: 0
-    background-color: whitesmoke
+    background-color: #fff9f3
 
     p
       width: calc(100vw - 2rem)

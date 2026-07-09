@@ -146,12 +146,9 @@ export default {
     align-items: center
 
     input
-      border-color: $grey-light
-      border-radius: 4px
-      font-size: 0.9rem
-
-      +mobile
-        font-size: 0.95rem
+      border-color: $border
+      border-radius: $radius
+      // font-size géré globalement (min 16px sur mobile, anti-zoom iOS)
 
     .control:not(.copy-button)
       position: absolute
@@ -160,6 +157,11 @@ export default {
     .control.copy-button
       &, & .o-tooltip
         width: 100%
+
+      // Cible tactile suffisante sur mobile
+      +mobile
+        .button
+          min-height: 44px
 
   .share-invite
     position: relative

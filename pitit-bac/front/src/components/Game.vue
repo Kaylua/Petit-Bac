@@ -199,6 +199,7 @@ export default {
   .field
     &:not(:first-child)
       margin-top: 1.4em
+
     .label
       text-align: left
 
@@ -211,15 +212,15 @@ export default {
   flex-direction: column
   align-items: center
 
+  // Timer remonte avant le formulaire sur mobile
+  +mobile
+    order: -1
+
   .inner-time-and-button
     display: flex
     flex-direction: column
     align-items: center
     position: fixed
-
-    +mobile
-      position: unset
-      width: 90%
 
     h3
       font-size: 1.1em
@@ -235,4 +236,30 @@ export default {
 
       button
         cursor: pointer
+
+    // Sur mobile : grille compacte — progress à gauche, label + bouton à droite
+    +mobile
+      position: unset
+      width: 100%
+      display: grid
+      grid-template-areas: "progress info" "progress button"
+      grid-template-columns: auto 1fr
+      column-gap: 1rem
+      row-gap: 0.5rem
+      padding: 1rem
+
+      h3
+        grid-area: info
+        font-size: 1em
+        align-self: end
+        margin: 0
+
+      .circular-progress
+        grid-area: progress
+        font-size: 5em
+        margin: 0
+
+      .field
+        grid-area: button
+        align-self: start
 </style>

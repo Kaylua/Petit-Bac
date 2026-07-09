@@ -147,6 +147,8 @@ export default {
 <style lang="sass">
 @import "bulma/sass/utilities/_all"
 
+// Les border-radius: 0 sur mobile sont gérés globalement dans App.vue
+
 .end-screen
   display: flex
   flex-direction: column
@@ -154,16 +156,15 @@ export default {
 
   .hero.is-winners-frame
     width: 100%
-    border-radius: 6px
+    border-radius: $radius-large
     text-align: center
-
     animation: fadein 1s 1
-
-    +mobile
-      border-radius: 0
 
     .hero-body
       padding: 4rem 1rem
+
+      +mobile
+        padding: 2.5rem 1rem
 
     .winner
       .winner-names
@@ -182,12 +183,26 @@ export default {
     .second-and-third-winners
       margin-top: 4rem
 
+      +mobile
+        margin-top: 2rem
+
     .first-winner
       font-size: 2rem
+
+      +mobile
+        font-size: 1.6rem
+
     .second-winner
       font-size: 1.8rem
+
+      +mobile
+        font-size: 1.4rem
+
     .third-winner
       font-size: 1.6rem
+
+      +mobile
+        font-size: 1.2rem
 
   .restart-game-banner
     margin-top: 2rem
@@ -195,12 +210,17 @@ export default {
     .restart-game-columns
       align-items: center
 
+      +mobile
+        .button
+          min-height: 44px
+
   .all-scores
     margin-top: 6rem
     width: 60%
 
     +mobile
       width: 100%
+      margin-top: 3rem
 
     .level-left
       flex: 2
@@ -211,17 +231,26 @@ export default {
 
         .is-rank
           flex: 1
-
           font-size: 2.2em
           font-weight: 200
           text-align: center
 
+          +mobile
+            font-size: 1.6em
+
         .is-pseudonym
           font-size: 1.5em
+
+          +mobile
+            font-size: 1.2em
 
     .level-right
       .is-score
         font-size: 1.4em
+
+        +mobile
+          font-size: 1.1em
+
         span
           font-weight: bold
 

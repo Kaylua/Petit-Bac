@@ -236,17 +236,16 @@ export default {
 <style lang="sass">
 @import "bulma/sass/utilities/_all"
 
+// Les border-radius: 0 sur mobile sont gérés globalement dans App.vue
+
 .notification.votes-header
   position: sticky !important
   top: 10px
-
   z-index: 40
-
-  background-color: rgba(whitesmoke, .8)
+  background-color: rgba(#fff9f3, .92)
   backdrop-filter: blur(10px)
 
   +mobile
-    border-radius: 0
     position: relative !important
 
   .media-content
@@ -259,15 +258,16 @@ export default {
       margin-bottom: 0
       text-align: justify
 
-.notification.interrupted-by
-  +mobile
-    border-radius: 0
+    // Bouton "J'ai fini" plus grand sur mobile
+    .field
+      +mobile
+        .button
+          min-height: 44px
 
 .all-answers
   display: flex
   flex-direction: column
   align-items: center
-
 
   article.category-answers
     width: 99%
@@ -275,7 +275,6 @@ export default {
 
     +mobile
       width: 100%
-      border-radius: 0
 
     .level.has-lots-of-votes
       flex-direction: column
@@ -284,19 +283,26 @@ export default {
       .level-right
         align-self: end
 
-    // Avoids long answers to overflow
+    // Évite l'overflow sur les longues réponses
     .level-left
       flex: 2
 
     .answer
       .answer-checkbox
         padding-top: .2em
+
+        // Zone tactile agrandie sur mobile
+        +mobile
+          padding: .4em .4em .4em 0
+
       .media-content
         overflow: hidden
+
       .answer-text
         padding-right: 1em
         font-size: 1.2em
         text-align: justify
+
         +mobile
           padding-right: 0
 
@@ -324,6 +330,7 @@ export default {
       &.is-invalid .answer-text
         color: $grey
         text-decoration: line-through
+
       &.is-empty .answer-text
         color: $grey-light
         font-style: italic
@@ -336,7 +343,6 @@ export default {
         display: flex
         flex-direction: row
         align-items: center
-
         margin-top: .4rem
 
 .notification.mobile-bottom-submit-button
@@ -344,4 +350,7 @@ export default {
     display: none
 
   margin-top: 1.5rem
+
+  .button
+    min-height: 44px
 </style>

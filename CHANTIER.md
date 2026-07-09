@@ -151,3 +151,31 @@ Audit complet du projet vs INDEX.md : lecture de tous les fichiers source non en
 ### 2026-07-09 — Auto-réparation du hook dans CLAUDE.md
 
 `CLAUDE.md` : ajout d'une section "Bootstrap" — au démarrage de chaque session, Claude vérifie que le hook PostToolUse est présent dans `.claude/settings.local.json` et l'ajoute si absent. Garantit que INDEX.md et CHANTIER.md sont toujours alimentés même avec un `.claude` vide.
+
+### 2026-07-09 — Refonte responsive mobile-first + thème été "soirée buvette"
+
+**Contexte :** Le jeu est utilisé à 99% sur mobile. La demande était : responsive mobile nickel, thème visuel été/buvette, CSS centralisé (pas de répétitions), tester tous les cas cassants avant livraison.
+
+**Décisions architecture CSS :**
+
+- **Centralisation** : toutes les règles globales (fond, border-radius mobiles, font-size iOS, notifications toast) sont dans `App.vue <style>` (non scopé = global). Les composants ne gardent que leur CSS propre.
+- **Border-radius sur mobile** : la règle `+mobile { main .notification, main .message .message-header, main .box, main .hero { border-radius: 0 } }` dans App.vue remplace les `border-radius: 0` éparpillés dans chaque composant — 6 règles dupliquées supprimées.
+- **Anti-zoom iOS Safari** : `input[type="text"], ... { font-size: max(16px, 1em) }` en global mobile (iOS zoome si l'input a font-size < 16px — silencieux et dérangeant sur mobile).
+
+**Palette thème été "soirée buvette" :**
+- Primary : `#E64A19` (orange coucher de soleil, Deep Orange 600) — contraste blanc 3.87:1, OK WCAG AA grand texte (boutons bold)
+- Link : `#00838F` (teal tropical, style piscine/plage)
+- Dark : `#1A0A00` (brun chaud profond au lieu du vert nuit précédent)
+- Background : gradient `#fff9f0 → #ffe6c8` sur `<html>` (peach chaud, non attaché en fixed — meilleure perf iOS)
+- Radius : `8px` (standard), `16px` (large) — formes plus rondes/friendly
+- Box shadow : ombre chaude `rgba(180, 60, 0, 0.10)` au lieu de gris froid
+
+**Piège nouveau — `background-attachment: fixed` sur iOS :**  
+`background-attachment: fixed` sur `body` crée des problèmes de compositing sur iOS Safari (fond ne se repeint pas lors du scroll). Solution : mettre le gradient sur `<html>` avec `background-attachment` par défaut (scroll). L'élément `<html>` couvre toute la hauteur du document même sur les longues pages.
+
+**Fix UX mobile Game.vue — ordre des colonnes :**  
+Sur mobile, le timer + bouton "J'ai fini" apparaissait EN BAS du formulaire (après le défilement de toutes les catégories). Fix : `+mobile { order: -1 }` sur `.time-and-button-column` + disposition CSS Grid sur `.inner-time-and-button` (progress à gauche, label + bouton à droite) + `font-size: 5em` au lieu de `8em` pour la jauge circulaire.
+
+**Zones tactiles :** Ajout de `min-height: 44px` sur les boutons critiques dans GameVote et ShareGame (recommandation WCAG 2.5.5).
+
+**index.html :** `<meta name="theme-color" content="#E64A19">` — colore la barre d'adresse Chrome Android en orange été.

@@ -1,24 +1,31 @@
 @import "bulma/sass/utilities/_all";
 
-$primary: #3f9718;
+// ============================================================
+// SUMMER BUVETTE PALETTE
+// ============================================================
+
+$primary: #E64A19;
 $primary-invert: findColorInvert($primary);
 
-// Should be used for background under white text
-// (insufficient contrast with $primary).
-$primary-dark: #338800;
+$primary-dark: #BF360C;
 $primary-dark-invert: findColorInvert($primary-dark);
 
-$dark: #001F00;
+$dark: #1A0A00;
 $dark-invert: findColorInvert($dark);
 
-$less-dark: lighten($dark, 10%);
+$less-dark: lighten($dark, 22%);
 $less-dark-invert: findColorInvert($less-dark);
 
-$link: $primary-dark;
+// Tropical teal for links — contraste pool/ciel d'été
+$link: #00838F;
 $link-invert: findColorInvert($link);
 
-$danger: hsl(360, 67%, 44%);
+$danger: hsl(0, 67%, 44%);
 $danger-invert: findColorInvert($danger);
+
+// Fond et bordures chauds
+$background: #FFF8F3;
+$border: #E8D0C0;
 
 $colors: (
     "white": ($white, $black),
@@ -34,44 +41,20 @@ $colors: (
     "danger": ($danger, $danger-invert)
 );
 
-//$input-color: $white;
-//$input-background-color: lighten($dark, 2%);
-$input-border-color: $less-dark;
-$input-hover-border-color: lighten($dark, 14%);
+// Inputs
+$input-border-color: $border;
+$input-hover-border-color: $primary;
+$input-focus-border-color: $primary;
+$input-focus-box-shadow-color: rgba($primary, 0.2);
+
+// Formes — coins arrondis pour feel friendly été
+$radius: 8px;
+$radius-small: 4px;
+$radius-large: 16px;
+
+// Box — ombre chaude, pas froide
+$box-radius: 16px;
+$box-shadow: 0 4px 20px rgba(180, 60, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.06);
 
 $footer-background-color: transparent;
-$footer-padding: 6rem 1.5rem;
-
-/*
-Below are some tests for a dark theme.
-
-$text: $white;
-
-$label-color: $white;
-
-
-$input-focus-border-color: $primary;
-$input-focus-box-shadow-color: rgba($primary, 0.25);
-
-$panel-heading-background-color: $primary-dark;
-$panel-heading-color: $white;
-$panel-item-border: 1px solid $less-dark;
-
-$panel-block-hover-background-color: $less-dark;
-$panel-block-color: $white;
-$panel-list-item-color: $white;
-$panel-list-item-hover-color: $white;
-$panel-block-active-color: $white;
-$panel-tab-active-color: $white;
-
-$message-header-color: $white;
-$message-header-background-color: $primary-dark;
-$message-background-color: $less-dark;
-$message-body-color: $white-ter;
-
-$slider-track-background: $dark;
-$slider-thumb-border: 1px solid $dark;
-$slider-tick-background: $dark;
-
-$notification-background-color: $less-dark;
-*/
+$footer-padding: 2.5rem 1.5rem;

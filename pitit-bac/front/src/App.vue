@@ -149,21 +149,34 @@ export default {
 
 <style lang="sass">
 @import "bulma/sass/utilities/_all"
-@import url("https://fonts.googleapis.com/css2?family=Fira+Sans:wght@200;400;600;700&display=swap")
+@import url("https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,200;0,400;0,600;0,700;1,400&display=swap")
 
 @import "assets/variables"
 
 @import "bulma/bulma"
 
-html, body
-  overflow-y: auto
+// ============================================================
+// FOND GLOBAL — Gradient été, fixé sur tout le viewport
+// ============================================================
+
+html
+  min-height: 100%
+  background: linear-gradient(160deg, #fff9f0 0%, #fff0de 55%, #ffe6c8 100%) #fff9f0
+
+body
   min-height: 100vh
+  background: transparent
+  overflow-y: auto
 
   +mobile
     overflow-x: hidden
 
 html.overflow, html.overflow body
   overflow-y: unset
+
+// ============================================================
+// APP SHELL
+// ============================================================
 
 #app
   font-family: "Fira Sans", Avenir, Helvetica, Arial, sans-serif
@@ -174,11 +187,11 @@ html.overflow, html.overflow body
   flex-direction: column
   min-height: 100vh
 
-  color: #2c3e50
+  color: #2D1B00
   padding-top: 60px
 
   +mobile
-    padding: 1.6rem 0 1rem 0
+    padding: 1.2rem 0 2rem 0
 
   +tablet
     padding: 1.6rem 1rem
@@ -186,131 +199,196 @@ html.overflow, html.overflow body
   main
     flex: 2
 
-  .notification
-    padding-right: 1.5rem !important
-    box-shadow: 0 1px 3px hsla(0, 0%, 0%, .12), 0 1px 2px hsla(0, 0%, 0%, .24)
+// ============================================================
+// STYLES GLOBAUX CENTRALISÉS — évite répétitions dans composants
+// ============================================================
 
-    &.is-flat
-      box-shadow: none
+// Notifications flottantes
+.notification
+  padding-right: 1.5rem !important
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10)
 
-    .media-content
-      overflow: hidden
+  &.is-flat
+    box-shadow: none
 
-  // Full-screen overlay (replaces b-loading)
-  .loading-overlay.is-full-page
-    position: fixed
-    top: 0
-    left: 0
-    width: 100%
-    height: 100%
-    z-index: 999
-    display: flex
-    flex-direction: column
-    align-items: center
-    justify-content: center
-    padding: 1em 20%
-    background-color: rgba(white, .8)
+  .media-content
+    overflow: hidden
+
+// Sur mobile, les notifications/messages/héros pleine largeur
+// perdent leurs coins arrondis (évite le décalage visuel sur bords écran)
++mobile
+  main .notification,
+  main .message .message-header,
+  main .message .message-body,
+  main .hero
+    border-radius: 0
+
+  main .box
+    border-radius: 0
+
+  // Empêche le zoom auto d'iOS Safari sur les inputs
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select
+    font-size: max(16px, 1em)
+
+// ============================================================
+// OVERLAY CHARGEMENT
+// ============================================================
+
+.loading-overlay.is-full-page
+  position: fixed
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  z-index: 999
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  padding: 1em 20%
+  background-color: rgba(#fff9f0, .9)
+  backdrop-filter: blur(6px)
+
+  +mobile
+    padding: 1em
+
+  .loading-background
+    display: none
+
+  p
+    font-size: 2.8em
+    font-weight: 200
+    text-align: center
 
     +mobile
-      padding: 1em
+      font-size: 1.8em
 
-    .loading-background
-      display: none
+    &.is-pulsing
+      animation: pulse 2s infinite
 
-    p
-      font-size: 2.8em
-      font-weight: 200
+    strong
+      font-weight: 400
+
+    &.loading-subtitle
+      margin-top: 2em
+      font-size: 1.8em
+      animation: none
 
       +mobile
-        font-size: 1.8em
+        font-size: 1.3em
 
+// ============================================================
+// FILE D'ATTENTE NOTIFICATIONS (toast en haut à droite)
+// ============================================================
+
+.notifications-container
+  position: fixed
+  top: 1rem
+  right: 1rem
+  z-index: 1000
+  display: flex
+  flex-direction: column
+  gap: 0.5rem
+  max-width: 400px
+
+  +mobile
+    top: 0
+    right: 0
+    left: 0
+    max-width: 100%
+
+  .notification
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18)
+
+    +mobile
+      border-radius: 0
+      margin: 0
+
+// ============================================================
+// LAYOUT & LOGO
+// ============================================================
+
+.container, .footer
+  &.is-loading
+    filter: blur(4px)
+
+.field
+  .help
+    color: $grey-dark
+
+.pititbac-logo
+  margin-top: .2rem
+  margin-bottom: 2rem
+
+  &.is-mobile
+    +mobile
+      display: block
       text-align: center
 
-      &.is-pulsing
-        animation: pulse 2s infinite
-
-      strong
-        font-weight: 400
-
-      &.loading-subtitle
-        margin-top: 2em
-        font-size: 1.8em
-        animation: none
-
-        +mobile
-          font-size: 1.3em
-
-  // Notification queue (top-right corner)
-  .notifications-container
-    position: fixed
-    top: 1rem
-    right: 1rem
-    z-index: 1000
-    display: flex
-    flex-direction: column
-    gap: 0.5rem
-    max-width: 400px
-
-    .notification
-      box-shadow: 0 2px 8px hsla(0, 0%, 0%, .2)
-
-  .container, .footer
-    &.is-loading
-      filter: blur(4px)
-
-  .field
-    .help
-      color: $grey-dark
-
-  .pititbac-logo
-    margin-top: .2rem
-    margin-bottom: 2rem
-
-    +tablet
-      display: none
-
-    &.is-mobile
-      +mobile
-        display: block
-        text-align: center
-
-        img
-          width: 90%
-          max-height: 4rem
-
-    &:not(.is-mobile)
-      +mobile
-        display: none
-      +tablet
-        display: block
-
-  .init-logo
-    text-align: center
-    margin-bottom: 4rem
-    width: 100%
-
-    img
-      width: 70%
-
-      +mobile
+      img
         width: 90%
+        max-height: 4rem
 
-  .columns.layout-columns
+  &:not(.is-mobile)
     +mobile
-      display: flex
-      flex-direction: column-reverse
+      display: none
+    +tablet
+      display: block
 
-  .morel-players-list.is-sticky
-    position: sticky
-    top: 10px
-    z-index: 21
-    background-color: white
+.init-logo
+  text-align: center
+  margin-bottom: 4rem
+  width: 100%
+
+  img
+    width: 70%
+
+    +mobile
+      width: 90%
+
+.columns.layout-columns
+  +mobile
+    display: flex
+    flex-direction: column-reverse
+
+// ============================================================
+// LISTE JOUEURS STICKY
+// ============================================================
+
+.morel-players-list.is-sticky
+  position: sticky
+  top: 10px
+  z-index: 21
+  background-color: #fff9f4
+  border-radius: 12px
+  box-shadow: 0 2px 12px rgba(180, 60, 0, 0.10)
+
+// ============================================================
+// FOOTER
+// ============================================================
+
+.footer
+  color: lighten($dark, 35%)
+  font-size: 0.9em
+
+  a
+    color: $link
+
+// ============================================================
+// ANIMATIONS
+// ============================================================
 
 @keyframes pulse
   0%
-    color: $black
+    color: $dark
   50%
-    color: $grey
+    color: lighten($primary, 20%)
   100%
-    color: $black
+    color: $dark
 </style>
