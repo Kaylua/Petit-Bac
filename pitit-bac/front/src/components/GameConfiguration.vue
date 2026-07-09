@@ -13,10 +13,13 @@
               >
                 <template #label>
                   <div class="columns is-mobile">
-                    <div class="column is-8">{{ $t('Categories') }}</div>
+                    <div class="column is-8 categories-label-count">
+                      {{ $t('Categories') }}
+                      <span class="categories-count" v-if="config.categories.length">{{ config.categories.length }}</span>
+                    </div>
                     <div class="column is-4 suggestions-link">
                       <a href="#" class="suggestions-link-trigger" @click.prevent="toggle_suggestions_modale()">
-                        {{ $t('Suggestions') }}
+                        <SummerDecor variant="icon" motif="pineapple" />{{ $t('Suggestions') }}
                       </a>
                     </div>
                   </div>
@@ -88,10 +91,15 @@
         </div>
 
         <!-- Suggestions modal -->
-        <o-modal v-model:active="suggestions_opened">
+        <o-modal v-model:active="suggestions_opened" @close="suggestions_search = ''">
           <div class="modal-card suggestions-card">
             <header class="modal-card-head">
-              <p class="modal-card-title">{{ $t('Categories suggestions') }}</p>
+              <p class="modal-card-title">
+                {{ $t('Categories suggestions') }}
+                <span class="suggestions-selected-count" v-if="config.categories.length">
+                  {{ $tc('{n} selected | {n} selected', config.categories.length) }}
+                </span>
+              </p>
             </header>
             <section class="modal-card-body">
               <div v-if="master || categories_by_everyone">
@@ -102,27 +110,44 @@
                 <p v-t="'Categories ideas are suggested below. The game master can write your own categories directly—don\'t hesitate to ask if you have original ideas or private references!'" />
               </div>
 
-              <div class="tags" v-for="(categories_group, i) in suggested_categories" :key="i">
-                <span
-                  class="tag is-medium"
-                  :class="{
-                    'is-primary': has_category(suggestion),
-                    'is-static': !master && !categories_by_everyone
-                  }"
-                  v-for="(suggestion, j) in categories_group"
-                  :key="j"
-                  @click="toggle_category(suggestion)"
-                >{{ suggestion }}</span>
+              <div class="suggestions-search" v-if="suggested_categories.length > 0">
+                <o-input
+                  v-model="suggestions_search"
+                  icon="magnifying-glass"
+                  :placeholder="$t('Search a category…')"
+                  expanded
+                />
               </div>
 
-              <o-notification v-if="suggested_categories.length === 0" :closable="false">
+              <template v-if="filtered_suggestion_groups.length > 0">
+                <div class="tags" v-for="(categories_group, i) in filtered_suggestion_groups" :key="i">
+                  <span
+                    class="tag is-medium"
+                    :class="{
+                      'is-primary': has_category(suggestion),
+                      'is-static': !master && !categories_by_everyone
+                    }"
+                    v-for="(suggestion, j) in categories_group"
+                    :key="j"
+                    @click="toggle_category(suggestion)"
+                  >
+                    <span class="tag-check" v-if="has_category(suggestion)">✓</span>{{ suggestion }}
+                  </span>
+                </div>
+              </template>
+
+              <o-notification v-else-if="suggested_categories.length === 0" :closable="false">
                 {{ $t('Sorry, but there are no suggestions available for your language.') }}
+              </o-notification>
+
+              <o-notification v-else :closable="false">
+                {{ $t('No categories match your search.') }}
               </o-notification>
             </section>
             <footer class="modal-card-foot">
-              <button class="button" type="button" @click="toggle_suggestions_modale()">
-                {{ $t('Close') }}
-              </button>
+              <o-button variant="primary" expanded @click="toggle_suggestions_modale()">
+                {{ $t('Done') }}
+              </o-button>
             </footer>
           </div>
         </o-modal>
@@ -303,6 +328,7 @@ export default {
     return {
       filtered_suggestions: [],
       suggestions_opened: false,
+      suggestions_search: '',
       show_advanced: false,
       alphabets: alphabetsData,
       categories_edited: false,
@@ -324,6 +350,17 @@ export default {
 
     flat_suggested_categories() {
       return Array.prototype.concat.apply([], this.suggested_categories)
+    },
+
+    // Recherche insensible aux accents (ex: "ecole" trouve "école") — les
+    // groupes sans aucune correspondance sont masqués plutôt que rendus
+    // vides, pour ne pas laisser de blancs dans la liste filtrée.
+    filtered_suggestion_groups() {
+      const term = this.normalize_for_search(this.suggestions_search.trim())
+      if (!term) return this.suggested_categories
+      return this.suggested_categories
+        .map(group => group.filter(item => this.normalize_for_search(item).includes(term)))
+        .filter(group => group.length > 0)
     },
 
     // Le temps par round n'est plus une valeur saisie : il est dérivé
@@ -472,6 +509,17 @@ export default {
       )
     },
 
+    normalize_for_search(text) {
+      // Recherche insensible aux accents : décompose "é" en "e" + accent
+      // (NFD) puis retire les diacritiques combinants (U+0300 à U+036F).
+      // Bornes construites via charCode plutôt qu'un caractère unicode
+      // littéral dans le source, pour éviter tout souci d'encodage.
+      const diacritics_start = String.fromCharCode(0x0300)
+      const diacritics_end = String.fromCharCode(0x036f)
+      const diacritics_pattern = new RegExp('[' + diacritics_start + '-' + diacritics_end + ']', 'g')
+      return text.toLowerCase().normalize('NFD').replace(diacritics_pattern, '')
+    },
+
     toggle_suggestions_modale() {
       this.suggestions_opened = !this.suggestions_opened
     },
@@ -575,6 +623,25 @@ div.field > span.o-tooltip
     display: none
 
 .game-configuration
+  .categories-label-count
+    display: flex
+    align-items: center
+    gap: 0.4rem
+
+    .categories-count
+      display: inline-flex
+      align-items: center
+      justify-content: center
+      min-width: 1.5em
+      height: 1.5em
+      padding: 0 0.35em
+      border-radius: 999px
+      background: rgba($primary, 0.14)
+      color: $primary-dark
+      font-size: 0.72em
+      font-weight: 700
+      font-variant-numeric: tabular-nums
+
   label.label .suggestions-link
     text-align: right
     font-weight: normal !important
@@ -582,11 +649,11 @@ div.field > span.o-tooltip
     a.suggestions-link-trigger
       display: inline-flex
       align-items: center
-      gap: 0.25rem
+      gap: 0.3rem
       background: rgba($primary, 0.10)
       border: 1.5px solid rgba($primary, 0.30)
       border-radius: 20px
-      padding: 0.1rem 0.6rem
+      padding: 0.2rem 0.7rem
       font-size: 0.82em
       font-weight: 600
       color: $primary-dark !important
@@ -594,6 +661,10 @@ div.field > span.o-tooltip
       text-decoration: none !important
       transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease
       white-space: nowrap
+
+      .summer-icon
+        margin-right: 0
+        color: $primary-dark
 
       &:hover
         background: rgba($primary, 0.18)
@@ -671,8 +742,18 @@ div.modal-card.suggestions-card
     border-radius: 0
 
     .modal-card-title
+      display: flex
+      align-items: baseline
+      flex-wrap: wrap
+      gap: 0.5rem
       color: white
       font-weight: 700
+
+      .suggestions-selected-count
+        font-size: 0.7em
+        font-weight: 600
+        color: rgba(255, 255, 255, 0.85)
+        white-space: nowrap
 
   .modal-card-body
     background: #fff9f3
@@ -680,24 +761,101 @@ div.modal-card.suggestions-card
   .modal-card-foot
     background: rgba(255, 245, 235, 0.9)
     border-top: 1px solid rgba(240, 175, 100, 0.2)
+    padding: 0.9rem 1.5rem
+
+  // Champ de recherche — collant en haut du corps scrollable pour rester
+  // accessible même en bas d'une longue liste filtrée. Wrapper séparé (pas
+  // de class directement sur o-input) : le prop `class` d'o-input atterrit
+  // sur le <input> natif lui-même (pas sur un wrapper), ce qui casse le
+  // rendu de l'icône si on y accroche aussi le positionnement sticky.
+  //
+  // Piège icône : la config Oruga globale (main.js) fixe rootClass:'control'
+  // pour input, ce qui écrase la logique interne du thème Bulma qui ajoute
+  // normalement `has-icons-left` sur `.control` quand un icon est présent.
+  // Sans cette classe, l'icône `.icon.is-left` reste en flux normal au lieu
+  // d'être positionnée en absolu sur l'input → positionnement refait à la
+  // main ci-dessous plutôt que de dépendre de cette classe manquante.
+  .suggestions-search
+    position: sticky
+    top: -1.25rem
+    z-index: 2
+    margin: 1.2rem 0 0.4rem
+    padding-top: 0.4rem
+    background: #fff9f3
+
+    +mobile
+      top: -1rem
+
+    .control
+      position: relative
+      display: flex
+      align-items: center
+
+      .icon.is-left
+        position: absolute
+        left: 0.9rem
+        top: 50%
+        transform: translateY(-50%)
+        pointer-events: none
+        color: $grey
+        z-index: 1
+
+    input.input
+      padding-left: 2.6rem
+      border-radius: 14px
+      background: white !important
 
   div.tags
-    margin-top: 1.5rem
+    display: flex
+    flex-wrap: wrap
+    gap: 0.55rem
+    margin-top: 1.1rem
+
+    .tag:not(body)
+      display: inline-flex
+      align-items: center
+      height: auto
+      min-height: 2.3em
+      padding: 0.35em 0.95em
+      background: rgba(255, 255, 255, 0.85)
+      border: 1.5px solid rgba(230, 150, 90, 0.35)
+      color: #6B4419
+      font-weight: 500
+      border-radius: 999px
+      white-space: normal
+      text-align: left
+      line-height: 1.25
+
+      .tag-check
+        margin-right: 0.35em
+        font-weight: 700
 
     .tag:not(.is-static)
       cursor: pointer
       transition: all 0.15s ease
 
       &:hover
-        background-color: rgba(240, 175, 100, 0.25)
-        transform: scale(1.05)
+        background-color: rgba(255, 255, 255, 0.98)
+        border-color: rgba(230, 150, 90, 0.6)
+        transform: translateY(-1px)
 
-        &.is-primary
+      &.is-primary
+        background: linear-gradient(135deg, $primary 0%, $primary-dark 100%)
+        border-color: transparent
+        color: white
+        font-weight: 600
+        box-shadow: 0 3px 10px rgba($primary, 0.28)
+
+        &:hover
           background: $primary-dark
-          transform: scale(1.05)
+          transform: translateY(-1px) scale(1.02)
 
     .tag.is-static
       cursor: default
+      opacity: 0.85
+
+      &:hover
+        transform: none
 
   article.notification
     margin-top: 1rem

@@ -395,3 +395,27 @@ Le calque `scatter` desktop supposait un espace vide notable de chaque côté du
 - Bug isolé et confirmé avant fix : assignation directe `i18n.global.locale.value = 'fr'` → aucun effet visible. Après fix : `i18n.global.locale = 'fr'` → changement instantané et correct de toute l'UI.
 - `useMorelStore().set_locale('en')` (l'action exacte appelée par le sélecteur de langue) appelée directement → bascule tout l'app vers l'anglais correctement, confirmant que le sélecteur fonctionne réellement maintenant (le clic simulé via Playwright sur le dropdown Oruga teleporté restait capricieux en headless — probablement une limite de l'automatisation sur ce composant, pas un bug produit ; testé et confirmé au niveau de l'action qu'il déclenche).
 - Partie complète rejouée à 2 joueurs après le fix, 0 erreur console.
+
+### 2026-07-09 — Refonte UX du sélecteur de catégories (champ + modal de suggestions)
+
+**Demande utilisateur :** le sélecteur de catégories était "moche et vieux et pas pratique" sur mobile comme desktop.
+
+**Diagnostic :** le champ principal (taginput) était déjà correctement stylé (chips coral, croix visibles — travail de sessions précédentes). Le vrai problème était la **modal de suggestions** : ~400 suggestions réparties en 30 groupes sans aucun moyen de chercher, et surtout les tags non sélectionnés étaient quasiment invisibles — `$background` (variables.scss, `#FFF8F3`) et le fond de la modal (`#fff9f3`) sont presque identiques, donc un tag Bulma par défaut (fond = `$background`) se fondait complètement dans l'arrière-plan. Zéro affordance "c'est cliquable".
+
+**Ce qui a été fait (`GameConfiguration.vue`) :**
+- **Recherche** dans la modal : nouveau champ (icône loupe — `faMagnifyingGlass` ajouté dans `main.js`), filtre en direct sur `filtered_suggestion_groups`, insensible aux accents (`normalize_for_search` : NFD + suppression des diacritiques combinants). Les groupes sans résultat sont masqués (pas de lignes vides). Champ **sticky** en haut du corps de la modal — reste accessible même après avoir scrollé loin dans la liste.
+- **Tags redessinés** : chips toujours visibles (fond blanc translucide + bordure ambrée quand non sélectionné, gradient corail + coche `✓` quand sélectionné), tap targets plus généreux (`min-height: 2.3em`, padding augmenté) pour le tactile.
+- **Compteur en direct** dans l'en-tête de la modal ("9 sélectionnées") et sur le label du champ principal ("Catégories à remplir 9").
+- **Footer** : bouton "Fermer" neutre remplacé par un CTA primaire "Terminé" (pleine largeur).
+- **État vide** : message dédié "Aucune catégorie ne correspond à votre recherche." si la recherche ne donne rien (distinct du message "aucune suggestion pour votre langue").
+- Bouton "Suggestions" du champ principal : ajout d'une icône (ananas, `SummerDecor variant="icon"`) pour cohérence avec le reste du thème.
+
+**Bug fixé au passage :** l'aide sous le champ catégories affichait littéralement `&nbsp;` (entité HTML non décodée) — `:message` d'`o-field` rend du texte brut, pas du HTML. Remplacé par un espace normal dans `fr.json`.
+
+**Piège rencontré — icône cassée dans `<o-input icon="...">` :**
+1. Passer `class="suggestions-search"` directement sur `<o-input>` atterrit sur le `<input>` natif lui-même, pas sur un wrapper — cassait le positionnement sticky combiné à l'icône. Fix : wrapper `<div class="suggestions-search">` autour de l'`o-input`.
+2. Une fois wrappé, l'icône loupe restait quand même mal positionnée (rendue en flux normal au-dessus de l'input au lieu d'être superposée à gauche). Cause : la config Oruga globale dans `main.js` (`input: { rootClass: 'control', inputClass: 'input' }`) écrase la logique interne du thème Bulma qui ajoute normalement `has-icons-left` sur `.control` quand une icône est présente — sans cette classe, `.icon.is-left` n'est jamais positionné en absolu. Fix : positionnement de l'icône refait à la main en CSS (`.control { position: relative } .icon.is-left { position: absolute; left: 0.9rem }`) plutôt que de dépendre de cette classe manquante. À garder en tête pour tout futur usage de `icon=` sur `o-input` dans ce projet.
+
+**Piège de tooling (pas un bug produit) :** tentative initiale d'utiliser `̀-ͯ` (plage des diacritiques combinants) comme échappement ASCII dans le regex de `normalize_for_search` — plusieurs passes d'édition ont fini par écrire les caractères Unicode combinants littéraux dans le fichier source au lieu de la séquence d'échappement textuelle (perte probable au passage à travers plusieurs couches d'échappement shell/JS). Contourné en construisant les bornes du regex via `String.fromCharCode(0x0300)` / `String.fromCharCode(0x036f)` — garantit un fichier source 100 % ASCII pour cette regex, indépendamment de tout souci d'encodage d'outillage.
+
+**Vérification :** recherche testée sans accent ("celebrite" trouve "Célébrité⋅e"), sélection/désélection avec mise à jour immédiate du compteur, état "aucun résultat", scroll avec recherche sticky sur mobile (390px), partie complète rejouée à 2 joueurs. 0 erreur console partout.

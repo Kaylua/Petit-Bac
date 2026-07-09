@@ -27,7 +27,8 @@ import {
   faEyeSlash,
   faTimesCircle,
   faExclamationTriangle,
-  faInfoCircle
+  faInfoCircle,
+  faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -59,7 +60,8 @@ library.add(
   faAward,
   faCircleNotch,
   faEye,
-  faEyeSlash
+  faEyeSlash,
+  faMagnifyingGlass
 )
 
 // App bootstrap

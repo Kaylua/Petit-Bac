@@ -157,6 +157,9 @@ app.use(createOruga({ ...bulmaConfig }, OrugaComponentPlugins))
 // ✅  size="large"      variant="primary"
 ```
 
+### ⚠️ Oruga `o-input icon="..."` — icône mal positionnée
+La config Oruga globale dans `main.js` (`input: { rootClass: 'control', inputClass: 'input' }`) écrase la logique du thème Bulma qui ajoute `has-icons-left`/`has-icons-right` sur `.control` quand un icon est présent. Sans cette classe, `.icon.is-left` reste en flux normal au lieu d'être positionné en absolu sur l'input. Repositionner à la main en CSS (`.control { position: relative } .icon.is-left { position: absolute; left: ... }`) plutôt que de compter sur cette classe. Aussi : passer `class="x"` directement sur `<o-input>` atterrit sur le `<input>` natif, pas sur un wrapper — utiliser un `<div>` englobant si un style doit cibler le champ dans son ensemble (ex: `position: sticky`).
+
 ### ⚠️ Cache Vite stale après modification de morel-games-core
 Vite pre-bundle `morel-games-core` dans `node_modules/.vite/deps/` au premier démarrage. Modifier un fichier dans `morel-games-core-master/` APRÈS ce démarrage → le bundle servi est stale → erreurs runtime inexplicables (`X is not a function`).  
 **Remède :** tuer tous les serveurs Vite, supprimer `pitit-bac/front/node_modules/.vite/`, relancer.
