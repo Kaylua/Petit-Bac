@@ -24,6 +24,9 @@
                     </div>
                   </div>
                 </template>
+                <template #message="{ message }">
+                  <span v-if="message" v-html="message" />
+                </template>
                 <o-taginput
                   v-model="config.categories"
                   :data="filtered_suggestions"
@@ -455,11 +458,8 @@ export default {
       }
     },
     categories_field_message() {
-      if (this.master || this.categories_by_everyone) {
-        return (this.categories_by_everyone && !this.master
-          ? this.$t('<strong>Everyone can update categories.</strong>') + ' '
-          : '') +
-          this.$t('Write down the category you want, and press enter to add it; or use the suggestions link to enter pre-selected categories.')
+      if (this.categories_by_everyone && !this.master) {
+        return this.$t('<strong>Everyone can update categories.</strong>')
       }
       return ''
     }

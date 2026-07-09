@@ -176,7 +176,13 @@ Serveur → Client : `categories-by-everyone`, `catch-up-game-state`, `round-sta
 
 **Fix (`design-system.sass`, `.taginput .taginput-container .autocomplete`) :** `flex-basis: 100%` sur le wrapper `.autocomplete` (`flex: 1` dans le thème par défaut, se contente donc de l'espace restant sur la ligne courante). Un item flex avec `flex-basis: 100%` ne peut jamais partager sa ligne avec d'autres items dans un conteneur `flex-wrap`, il passe systématiquement à la ligne suivante, quel que soit le nombre de chips déjà présentes. Vérifié avec 9 catégories et avec 1 seule : le champ reste plein-largeur sur sa propre ligne dans les deux cas.
 
-> Les modifications détaillées fichier-par-fichier sont dans git (`git log`). Ce journal ne conserve que les décisions et événements notables entre sessions.
+### 2026-07-10 : suppression du texte d'aide superflu sous le champ catégories + bug HTML échappé découvert au passage
+
+**Demande utilisateur :** le texte d'aide "Écrivez la catégorie que vous désirez, et tapez entrée pour l'ajouter ; ou utilisez le lien Suggestions..." sous le champ catégories ne servait à rien (le placeholder du champ et le lien "Suggestions" sont déjà auto-explicatifs), remplissait l'écran pour rien. Supprimé de `categories_field_message()` (`GameConfiguration.vue`) et retiré la clé i18n devenue inutilisée de `fr.json`.
+
+**Conservé :** la note "Tout le monde peut modifier les catégories." (affichée uniquement aux joueurs non-maîtres quand `categories_by_everyone` est actif) reste affichée, c'est une info d'état utile, pas du remplissage.
+
+**Bug découvert au passage :** cette note s'affichait avec les balises `<strong>` littérales visibles (texte échappé, pas de mise en gras) une fois isolée sur sa propre ligne, ce qui la rendait très visible. Cause : `:message` sur `o-field` rend du texte brut, pas du HTML (piège déjà documenté dans une entrée précédente pour `&nbsp;`). Fix : template `#message` avec `v-html` au lieu de compter sur le rendu texte par défaut. Vérifié en simulant 2 joueurs (maître + non-maître), le gras s'affiche correctement.
 
 ### 2026-07-09 : optimisation du système de contexte Claude Code
 
