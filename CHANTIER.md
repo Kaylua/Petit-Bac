@@ -136,6 +136,18 @@ Fichier one-shot à donner à une instance Claude Code pour mettre en place le s
 
 `settings.local.json` : message du hook PostToolUse mis à jour pour rappeler les deux obligations (CHANTIER.md si décision notable, INDEX.md si structure change).
 
+### 2026-07-09 — Complétion exhaustive de INDEX.md
+
+Audit complet du projet vs INDEX.md : lecture de tous les fichiers source non encore indexés. Ajouts :
+
+- **Front :** `CircularProgress.vue`, `vite.config.js`, `index.html`, `.env` / `.env.production`, `locales/fr.json`, `locales/categories/`
+- **Back :** `src/index.js` (bootstrap HTTP, port 62868 via `PITIT_BAC_WS_PORT`), `src/server.js` (classe GameServer), `src/logging.js`
+- **morel-games-core :** `src/index.js` (barrel), `src/game/index.js` (barrel), `components/PlayerAction.vue`, `locales/fr.json`
+- **Nouvelles sections :** Commons (index.js + tests.js), Munin, Production, racine `pitit-bac/` (Makefile, .nvmrc, protocol.md)
+- **Démarrage rapide :** commandes Makefile ajoutées
+- **Nouveau piège :** cohérence port WS entre `PITIT_BAC_WS_PORT` (back) et `VITE_WS_URL` (front .env)
+- **Nouveau piège :** `commons/tests.js` — CJS uniquement (require), ne pas convertir en ESM sans adapter Mocha
+
 ### 2026-07-09 — Auto-réparation du hook dans CLAUDE.md
 
 `CLAUDE.md` : ajout d'une section "Bootstrap" — au démarrage de chaque session, Claude vérifie que le hook PostToolUse est présent dans `.claude/settings.local.json` et l'ajoute si absent. Garantit que INDEX.md et CHANTIER.md sont toujours alimentés même avec un `.claude` vide.
