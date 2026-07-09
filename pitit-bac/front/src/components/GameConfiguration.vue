@@ -58,54 +58,7 @@
             </div>
 
             <div class="column is-half">
-              <o-field
-                :label="$t('Rounds: {rounds}', { rounds: config.turns })"
-                class="no-extended-margin-top"
-              >
-                <o-slider
-                  size="medium"
-                  class="has-lots-of-ticks"
-                  :min="1"
-                  :max="20"
-                  :tooltip="false"
-                  :disabled="!master"
-                  v-model="config.turns"
-                  @change="update_game_configuration"
-                >
-                  <o-slider-tick v-for="val in [2, 4, 6, 8, 10, 12, 14, 16, 18]" :value="val" :key="val">
-                    {{ val }}
-                  </o-slider-tick>
-                </o-slider>
-              </o-field>
-
-              <o-field>
-                <template #label>
-                  <i18n-t keypath="Time limit for each round: {limit}">
-                    <template #limit>
-                      <span class="is-date-desktop">{{ actual_time }}</span>
-                      <span class="is-date-mobile">{{ actual_time_mobile }}</span>
-                    </template>
-                  </i18n-t>
-                </template>
-                <o-slider
-                  size="medium"
-                  class="has-lots-of-ticks"
-                  :min="15"
-                  :max="infinite_duration"
-                  :step="15"
-                  :tooltip="false"
-                  :disabled="!master"
-                  v-model="config.time"
-                  @change="update_game_configuration"
-                >
-                  <o-slider-tick v-for="val in [60, 120, 180, 240, 300, 360, 420, 480, 540]" :value="val" :key="val">
-                    {{ format_seconds(val) }}
-                  </o-slider-tick>
-                  <o-slider-tick :value="infinite_duration">&infin;</o-slider-tick>
-                </o-slider>
-              </o-field>
-
-              <div class="field">
+              <div class="field no-extended-margin-top">
                 <o-switch
                   :disabled="!master"
                   v-model="config.stopOnFirstCompletion"
@@ -114,6 +67,10 @@
                   {{ $t('Stop rounds as soon as the first player finishes') }}
                 </o-switch>
               </div>
+
+              <p class="config-defaults-hint">
+                {{ $t('{rounds} rounds, {time} per round by default — adjust this in advanced settings.', { rounds: config.turns, time: actual_time }) }}
+              </p>
             </div>
           </div>
         </section>
@@ -183,6 +140,52 @@
 
     <div v-show="show_advanced" class="message is-primary avanced-section">
       <div class="message-body">
+        <div class="columns">
+          <div class="column is-half">
+            <o-field :label="$t('Rounds')" class="no-extended-margin-top">
+              <NumberStepper
+                :model-value="config.turns"
+                :min="1"
+                :max="30"
+                :step="1"
+                :disabled="!master"
+                @update:modelValue="val => (config.turns = val)"
+                @change="update_game_configuration"
+              />
+            </o-field>
+          </div>
+
+          <div class="column is-half">
+            <o-field :label="$t('Time per category')" class="no-extended-margin-top">
+              <div class="time-per-category-field">
+                <NumberStepper
+                  v-if="!no_time_limit"
+                  :model-value="config.secondsPerCategory"
+                  :min="5"
+                  :max="120"
+                  :step="5"
+                  suffix="s"
+                  :disabled="!master"
+                  @update:modelValue="val => (config.secondsPerCategory = val)"
+                  @change="update_game_configuration"
+                />
+                <o-switch :disabled="!master" v-model="no_time_limit">
+                  {{ $t('No time limit') }}
+                </o-switch>
+              </div>
+            </o-field>
+            <p class="config-defaults-hint">
+              <i18n-t keypath="→ {categories_count} categories, {limit} per round">
+                <template #categories_count>{{ config.categories.length }}</template>
+                <template #limit>
+                  <span class="is-date-desktop">{{ actual_time }}</span>
+                  <span class="is-date-mobile">{{ actual_time_mobile }}</span>
+                </template>
+              </i18n-t>
+            </p>
+          </div>
+        </div>
+
         <div class="columns">
           <div class="column is-half">
             <o-field :message="$t('Each round\'s letter will be drawn from these letters.')">
@@ -291,9 +294,10 @@ import { useMorelStore } from 'morel-games-core'
 import { useGameStore } from '../store.js'
 import alphabetsData from '../../data/alphabets.json'
 import SummerDecor from './SummerDecor.vue'
+import NumberStepper from './NumberStepper.vue'
 
 export default {
-  components: { SummerDecor },
+  components: { SummerDecor, NumberStepper },
 
   data() {
     return {
@@ -302,7 +306,10 @@ export default {
       show_advanced: false,
       alphabets: alphabetsData,
       categories_edited: false,
-      suggested_categories: []
+      suggested_categories: [],
+      default_rounds: 6,
+      default_seconds_per_category: 20,
+      last_manual_seconds_per_category: 20
     }
   },
 
@@ -319,15 +326,53 @@ export default {
       return Array.prototype.concat.apply([], this.suggested_categories)
     },
 
+    // Le temps par round n'est plus une valeur saisie : il est dérivé
+    // localement (instantané, pas d'aller-retour serveur) du temps par
+    // catégorie et du nombre de catégories actuel. Le serveur recalcule la
+    // même formule de son côté (source de vérité pour le timer de la
+    // partie) — voir update_configuration() dans back/src/game.js.
+    seconds_per_category_or_default() {
+      return this.config.secondsPerCategory || this.default_seconds_per_category
+    },
+    round_time_is_infinite() {
+      return this.seconds_per_category_or_default >= this.infinite_duration
+    },
+    round_time_seconds() {
+      if (this.round_time_is_infinite) return this.infinite_duration
+      return Math.min(
+        Math.max(this.seconds_per_category_or_default * this.config.categories.length, 15),
+        this.infinite_duration - 1
+      )
+    },
     actual_time() {
-      return useGameStore().is_time_infinite
+      return this.round_time_is_infinite
         ? this.$t('infinite')
-        : this.format_seconds(this.config.time, true)
+        : this.format_seconds(this.round_time_seconds, true)
     },
     actual_time_mobile() {
-      return useGameStore().is_time_infinite
+      return this.round_time_is_infinite
         ? this.$t('infinite')
-        : this.format_seconds(this.config.time, true, true)
+        : this.format_seconds(this.round_time_seconds, true, true)
+    },
+
+    // Bascule "No time limit" — remplace l'ancien tick "∞" en bout de slider
+    // par un switch explicite. On retient la dernière valeur manuelle pour la
+    // restaurer si le maître décoche.
+    no_time_limit: {
+      get() {
+        return this.round_time_is_infinite
+      },
+      set(value) {
+        if (value) {
+          if (this.config.secondsPerCategory < this.infinite_duration) {
+            this.last_manual_seconds_per_category = this.config.secondsPerCategory
+          }
+          this.config.secondsPerCategory = this.infinite_duration
+        } else {
+          this.config.secondsPerCategory = this.last_manual_seconds_per_category || this.default_seconds_per_category
+        }
+        this.update_game_configuration()
+      }
     },
 
     can_start() {
@@ -382,6 +427,8 @@ export default {
           if ((init && this.config.categories.length === 0) || (!init && !this.categories_edited)) {
             this.config.categories = categories.default.default.categories
             this.config.alphabet = categories.default.default.alphabet
+            this.config.turns = this.default_rounds
+            this.config.secondsPerCategory = this.default_seconds_per_category
             setTimeout(() => {
               useMorelStore().update_game_configuration(this.config)
             }, init ? 1000 : 1)
@@ -497,6 +544,21 @@ label.switch span.control-label
 
 div.column.is-half div.field:not(:first-child):not(.no-extended-margin-top)
   margin-top: 3rem
+
+.config-defaults-hint
+  margin-top: 0.9rem
+  font-size: 0.85em
+  color: $grey
+  line-height: 1.4
+
+.time-per-category-field
+  display: flex
+  align-items: center
+  flex-wrap: wrap
+  gap: 0.9rem 1.2rem
+
+  +mobile
+    gap: 0.7rem
 
 div.field > span.o-tooltip
   display: inline-block

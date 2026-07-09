@@ -324,3 +324,74 @@ Le calque `scatter` desktop supposait un espace vide notable de chaque côté du
 **Icône palm en petit format peu lisible :** la première version du SVG palm (variant `icon`) utilisait 4 triangles pleins en éventail — à ~20px (mobile-top-bar) ça ne se lit pas comme un palmier, juste une tache. Redessiné en 4 traits (stroke, pas fill) façon feuilles fines ; toujours pas parfait en dessous de ~24px, donc la mobile-top-bar utilise `cocktail` (qui se lit bien même petit) plutôt que `palm`.
 
 **Vérification :** partie complète jouée avec 2 joueurs réels via Playwright (2 contextes navigateur, un slug de partie partagé), 0 erreur console sur les deux, écran de jeu (`Game.vue`) inspecté via `getComputedStyle`/`getBoundingClientRect` sur les éléments `.decor` pour confirmer le fix du piège n°1 avant/après.
+
+### 2026-07-09 — GameConfiguration : rounds/temps déplacés en advanced settings + temps auto-calculé
+
+**Demande utilisateur :** les sliders "Rounds" et "Time limit" encombraient l'écran principal de config. Déplacer dans "Advanced settings", avec des défauts sensés : 6 rounds fixes, et un temps par round calculé automatiquement (20s/catégorie), recalculé dynamiquement à l'ajout/suppression de catégories — sauf si le maître a modifié le slider de temps à la main, auquel cas il reste figé à sa valeur manuelle.
+
+**Implémentation (`GameConfiguration.vue`) :**
+- Nouveau flag `time_edited` (au même niveau que `categories_edited` existant, même logique de "dirty flag" jamais réinitialisé en cours de partie).
+- `compute_auto_time(categories_count)` : `categories_count * 20`, arrondi au pas du slider (15s), clampé entre 15s et `infinite_duration`.
+- `update_game_configuration()` (méthode partagée par presque tous les champs du formulaire) recalcule et écrase `config.time` à chaque appel tant que `!time_edited` — pas besoin de watcher dédié sur le nombre de catégories, cette méthode est déjà appelée à chaque changement de champ (categories, alphabet, scores, rounds…), donc le temps reste synchronisé "gratuitement".
+- Nouvelle méthode `on_time_changed()` (bindée sur `@change` du slider de temps, à la place de `update_game_configuration` direct) : pose `time_edited = true` **avant** d'appeler `update_game_configuration()`, sinon le recalcul automatique à l'intérieur écraserait immédiatement la valeur que le joueur vient de choisir à la main.
+- `load_suggestions(init)` : au même endroit où les catégories/alphabet par défaut sont posés pour une partie neuve, ajout de `config.turns = 6` (nouvelle constante `default_rounds`) et du calcul auto du temps initial.
+- Template : les deux `<o-field>` (Rounds, Time) déplacés du formulaire principal vers la section advanced (nouvelle ligne `.columns` au-dessus de celle Alphabet/Scores). Le slider de temps garde `@change="on_time_changed"` (pas `update_game_configuration`). Un texte d'aide (`.config-defaults-hint`, `v-if="!time_edited"`) sous le slider explique le calcul auto ; un résumé similaire ("X rounds, Y par round par défaut — modifiable dans les paramètres avancés.") remplace les sliders dans la colonne de droite de l'écran principal, à côté du switch "Stop rounds...".
+
+**Piège évité :** ne pas mettre le recalcul dans un `watch` sur `config` (qui ne se déclenche qu'au retour du serveur, avec un temps de latence) — le brancher directement dans `update_game_configuration()` le rend synchrone avec la saisie locale, cohérent avec le pattern déjà utilisé pour `categories_edited`.
+
+**Vérification :** testé via Playwright — valeur auto affichée correctement au chargement (8 catégories EN × 20s → arrondi à 165s = "2 minutes and 45 seconds"), le hint disparaît après un drag manuel du slider (`time_edited` passe à `true`), et le temps reste bien figé à la valeur manuelle après ajout d'une catégorie supplémentaire. 0 erreur console.
+
+### 2026-07-09 — Retour sur le slider de temps : passage à "temps par catégorie"
+
+**Demande utilisateur (suite immédiate du point précédent) :** au lieu d'un slider de temps total par round avec verrouillage manuel, exposer directement un slider "temps par catégorie" ; le temps total par round devient une valeur **toujours dérivée** (catégories × temps/catégorie), affichée dynamiquement, sans notion de "verrouillage" — il n'y a plus qu'une seule source de vérité (le temps par catégorie), donc `time_edited` n'a plus lieu d'être.
+
+**Décision architecture — dérivation côté serveur, pas côté client :** `back/src/game.js` (`update_configuration`) devient la seule source de vérité pour le calcul `time = secondsPerCategory × categories.length` (clampé 15s → `infinite_duration - 1`, avec `secondsPerCategory >= infinite_duration` comme sentinel "illimité", exactement comme l'ancien slider). Le champ `time` envoyé par le client est désormais ignoré et recalculé serveur ; ça évite tout désync si deux clients modifient la config en même temps (le maître qui bouge le slider pendant qu'un changement de catégories arrive d'ailleurs, etc.). `secondsPerCategory: 20` ajouté à la configuration par défaut du constructeur `Game`.
+
+**Front (`GameConfiguration.vue`) :**
+- Suppression complète de `time_edited`/`compute_auto_time`/`on_time_changed` (obsolètes avec ce modèle — il n'y a plus de "manuel vs auto", juste une seule valeur toujours dérivée).
+- Nouveaux computed `seconds_per_category_or_default`, `round_time_is_infinite`, `round_time_seconds` : recalculent la même formule que le back, **localement et instantanément** (pas d'attente d'aller-retour serveur), pour un retour visuel immédiat pendant qu'on bouge le slider ou qu'on ajoute/enlève une catégorie.
+- `actual_time`/`actual_time_mobile` branchés sur `round_time_seconds` (dérivé local) au lieu de `config.time` (valeur serveur, potentiellement en retard d'un aller-retour WS).
+- Slider "Time per category" : `min=5, max=infinite_duration, step=5`, ticks 10-80s + `∞`, bindé sur `config.secondsPerCategory`, `@change="update_game_configuration"` (méthode générique, plus besoin de handler dédié).
+- Nouveau texte dynamique sous le slider : `→ {categories_count} categories, {limit} per round`, toujours visible (recalculé à chaque frappe/ajout/suppression de catégorie).
+
+**Piège de test (pas un bug produit) :** `page.locator(...).press('Enter')` sur le champ du taginput Oruga ne confirmait pas toujours l'ajout d'une catégorie pendant les tests Playwright (dropdown d'autocomplétion qui intercepte l'event différemment selon si le keydown est émis au niveau de l'élément ou de la page). `page.keyboard.type(...)` puis `page.keyboard.press('Enter')` au niveau page fonctionne de façon fiable. Aucun rapport avec `ptitbac-commons`/l'app elle-même — juste une leçon pour les futurs tests Playwright sur ce composant.
+
+**Vérification :** partie complète jouée à 2 joueurs avec 3 catégories (Animal/Vegetal/Colour, suppression des 5 autres via Playwright) et le défaut 20s/catégorie → écran de config affiche bien "1 minute per round" avant lancement, partie démarrée sans erreur. Testé aussi le drag du slider (+4 crans de 5s) et l'ajout/suppression de catégories : le texte dynamique se met à jour instantanément et correctement dans tous les cas (8→9 catégories : "2 minutes and 40 seconds" → "3 minutes" à 20s/catégorie). Back redémarré pour appliquer le nouveau schéma de configuration (`secondsPerCategory`). 0 erreur console sur les deux joueurs.
+
+### 2026-07-09 — Slider "Time per category" cassé sur mobile → remplacement par des steppers +/-
+
+**Bug signalé (screenshot) :** les labels des ticks du slider "Time per category" (10s/20s/.../80s) se chevauchaient tous, illisibles. **Cause :** le slider gardait `max="infinite_duration"` (600) comme borne haute — hérité de l'ancien slider "temps total par round" où ça faisait sens (ticks 60-540 répartis sur toute la plage) — mais les ticks utiles du nouveau modèle "temps par catégorie" (10-80) ne représentent que ~13% de cette plage 5-600, donc tous les labels s'écrasaient au même endroit visuellement.
+
+**Retour UX plus large de l'utilisateur :** les sliders sont peu adaptés au tactile (cible de précision difficile à toucher du doigt), à corriger "pour toute la page", dans un esprit mobile-first.
+
+**Décision :** remplacement des sliders `Rounds` et `Time per category` par des **steppers +/-** (nouveau composant réutilisable `NumberStepper.vue`) — boutons de 48px (> 44px WCAG 2.5.5), pas de geste de glissé à précision fine requis, fonctionne aussi bien au clic qu'au tactile.
+
+- `NumberStepper.vue` : props `modelValue`, `min`, `max`, `step`, `suffix`, `disabled` ; émet `update:modelValue` en continu et `change` (pour déclencher l'envoi au serveur, cohérent avec le `@change` déjà utilisé partout ailleurs dans ce fichier).
+- Le tick "∞" du slider de temps (qui causait aussi le problème d'échelle) devient un **switch explicite "No time limit"**, plus lisible qu'un point caché en bout de course. Nouveau computed `no_time_limit` (getter/setter) dans `GameConfiguration.vue` : bascule `config.secondsPerCategory` vers/depuis `infinite_duration`, en gardant `last_manual_seconds_per_category` pour restaurer la dernière valeur choisie si le maître redécoche.
+- Les clés i18n `"Rounds: {rounds}"` et `"Time per category: {seconds}"` (qui affichaient la valeur dans le label) deviennent `"Rounds"` / `"Time per category"` tout court — la valeur est maintenant affichée par le stepper lui-même, pas besoin de la dupliquer dans le label.
+
+**Pas encore fait (hors scope de cette passe) :** la grille de scores (5 `o-input type="number"`) n'a pas été convertie en steppers — laissée telle quelle, ce sont des valeurs plus libres (peuvent être négatives, pas de bornes naturelles) où taper un nombre reste raisonnable au clavier tactile. À revisiter si retour utilisateur en ce sens.
+
+**Vérification :** testé au clic (Playwright) sur mobile (390px) — Rounds 6→8 (+2), Time per category 20s→5s (-3, clampé correctement au minimum), hint dynamique "8 categories, 40 seconds per round" à jour instantanément, toggle "No time limit" masque le stepper et affiche "infinite per round", et restaure bien 5s (dernière valeur manuelle) au dé-toggle. 0 erreur console.
+
+### 2026-07-09 — Langue française par défaut + piège majeur découvert : le sélecteur de langue n'a jamais fonctionné
+
+**Demande utilisateur :** "Je veux que l'app soit en français par défaut, pas en anglais." L'app démarrait avec `morelI18n.load_locale_from_browser()`, qui retombe sur `navigator.language` en l'absence de préférence stockée — anglais pour n'importe quel navigateur non francophone.
+
+**Fix demandé (`pitit-bac/front/src/main.js`) :** remplacé par `morelI18n.load_locale(localStorage.getItem('morel-locale') || 'fr')` — respecte un choix explicite déjà fait (sélecteur de langue), sinon force le français. Décision de ne PAS modifier `load_locale_from_browser()` dans `morel-games-core` (reste un comportement générique valide pour d'autres jeux basés sur ce framework) — le choix "français par défaut" est spécifique à Pitit Bac, donc géré côté `pitit-bac/front`.
+
+**Piège majeur découvert en testant ce changement — `morel-games-core-master/src/game/i18n.js` :**
+
+`_set_already_loaded_locale()` faisait `this.i18n.global.locale.value = locale`. Avec `createI18n({ legacy: true })` (utilisé ici), `i18n.global.locale` est une **chaîne simple**, pas un `ref` de la Composition API — `.value` dessus est `undefined`, et `quelque_chose.value = x` sur un primitif est un no-op silencieux (pas d'erreur, aucun effet). Confirmé en isolant le bug : `typeof i18n.global.locale === "string"`.
+
+**Conséquence réelle, au-delà de la demande initiale :** le sélecteur de langue (dropdown FR/EN dans le footer) **n'a jamais changé la langue affichée**, depuis toujours — pas seulement pour ce changement de défaut. Le seul cas où l'app semblait "fonctionner" en anglais était le tout premier rendu avant tout appel à `load_locale` (état initial `locale: 'en'` du constructeur `MorelI18n`), ce qui masquait complètement le bug.
+
+**Fix :** `this.i18n.global.locale = locale` (sans `.value`), même chose pour la comparaison `if (this.i18n.global.locale === locale ...)` dans `load_locale()`. Deux occurrences, un seul fichier.
+
+**Piège de rebuild :** ce fichier est dans `morel-games-core-master/src/`, pré-bundlé par Vite dans `node_modules/.vite/deps/` au premier démarrage (piège déjà documenté dans INDEX.md). Le serveur Vite qui tournait déjà depuis le début de la session servait encore l'ancien code après l'édit. Remède appliqué : tuer le process Vite, supprimer `pitit-bac/front/node_modules/.vite/`, relancer.
+
+**Vérification :**
+- Visite fraîche avec navigateur `en-US` simulé (Playwright, localStorage vide) → app entièrement en français dès le premier rendu, `<html lang="fr">`, 0 erreur console.
+- Bug isolé et confirmé avant fix : assignation directe `i18n.global.locale.value = 'fr'` → aucun effet visible. Après fix : `i18n.global.locale = 'fr'` → changement instantané et correct de toute l'UI.
+- `useMorelStore().set_locale('en')` (l'action exacte appelée par le sélecteur de langue) appelée directement → bascule tout l'app vers l'anglais correctement, confirmant que le sélecteur fonctionne réellement maintenant (le clic simulé via Playwright sur le dropdown Oruga teleporté restait capricieux en headless — probablement une limite de l'automatisation sur ce composant, pas un bug produit ; testé et confirmé au niveau de l'action qu'il déclenche).
+- Partie complète rejouée à 2 joueurs après le fix, 0 erreur console.

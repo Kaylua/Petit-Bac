@@ -22,6 +22,7 @@ export class Game {
       categories: [],
       stopOnFirstCompletion: true,
       turns: 4,
+      secondsPerCategory: 20,
       time: this.infinite_duration,
       alphabet: "",
       scores: {
@@ -364,14 +365,31 @@ export class Game {
       return isNaN(n) ? def : n;
     }
 
+    const categories = configuration.categories
+      .filter((a, b) => configuration.categories.indexOf(a) === b)
+      .map(c => c.toString().trim());
+
+    // Le temps par round n'est plus saisi directement : il est dérivé du temps
+    // alloué par catégorie (secondsPerCategory) et du nombre de catégories
+    // actuel. Le serveur est la seule source de vérité pour ce calcul (le
+    // "time" éventuellement envoyé par le client est ignoré) afin d'éviter
+    // tout désync si plusieurs joueurs modifient la config en même temps.
+    // secondsPerCategory >= infinite_duration reste le sentinel "illimité",
+    // exactement comme l'ancien slider "time" — sinon le round est borné à
+    // infinite_duration - 1 pour ne jamais atteindre accidentellement ce
+    // sentinel par multiplication (ex: 20 catégories × 60s = 1200s).
+    const seconds_per_category = Math.max(Math.abs(parseInt(configuration.secondsPerCategory) || 20), 1);
+    const time = seconds_per_category >= this.infinite_duration
+      ? this.infinite_duration
+      : Math.min(Math.max(seconds_per_category * categories.length, 15), this.infinite_duration - 1);
+
     // Else we update the internal configuration and send the update to everyone.
     this.configuration = {
-      categories: configuration.categories
-      .filter((a, b) => configuration.categories.indexOf(a) === b)
-      .map(c => c.toString().trim()),
+      categories,
       stopOnFirstCompletion: !!configuration.stopOnFirstCompletion,
       turns: Math.max(Math.abs(parseInt(configuration.turns) || 4), 1),
-      time: Math.max(Math.abs(parseInt(configuration.time) || 400), 15),
+      secondsPerCategory: seconds_per_category,
+      time,
       alphabet: configuration.alphabet || "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
       scores: {
         valid: num_or_default(configuration.scores.valid, 10),

@@ -32,6 +32,7 @@ Les chemins `src/...` sont relatifs à `pitit-bac/front/`.
 | Scores finaux | `src/components/GameEnd.vue` |
 | Timer circulaire CSS-driven (props: `value` 0–100, `label`) | `src/components/CircularProgress.vue` |
 | Motifs décoratifs SVG "summer vibes" (palmier, cocktail, soleil, confettis) — variants `hero`/`corner`, purement cosmétique | `src/components/SummerDecor.vue` |
+| Contrôle numérique +/- mobile-friendly (remplace les sliders Oruga pour Rounds/Time per category) | `src/components/NumberStepper.vue` |
 | Variables Bulma (couleurs, primary=#E64A19 orange été) | `src/assets/variables.scss` |
 | Overrides globaux composants UI (boutons, cartes, inputs, tags, panel, mobile) — partial Sass, importé par App.vue | `src/assets/design-system.sass` |
 | Config Vite (`preserveSymlinks` pour `file:`, `loadPaths` SCSS → node_modules) | `vite.config.js` |
@@ -177,3 +178,6 @@ Le back écoute sur le port défini par `PITIT_BAC_WS_PORT` (défaut : 62868). L
 
 ### `commons/tests.js` — CJS uniquement
 Les tests commons utilisent `require()` (CJS/Mocha legacy). Ne pas les convertir en ESM sans adapter le test runner.
+
+### ⚠️ vue-i18n `legacy: true` — `i18n.global.locale` est une string, pas un ref
+Avec `createI18n({ legacy: true })` (utilisé ici), `i18n.global.locale` est une chaîne simple. `i18n.global.locale.value = x` est un no-op silencieux (assignation sur un primitif, aucune erreur). Toujours écrire `i18n.global.locale = x` directement. Piège qui a rendu le sélecteur de langue totalement inopérant pendant longtemps sans qu'aucune erreur ne le signale — voir `morel-games-core-master/src/game/i18n.js`.

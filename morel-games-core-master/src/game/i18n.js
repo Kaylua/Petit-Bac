@@ -24,14 +24,19 @@ export const MorelI18n = class {
   }
 
   _set_already_loaded_locale(locale) {
-    this.i18n.global.locale.value = locale
+    // createI18n({ legacy: true }) expose `global.locale` comme une chaîne
+    // simple (pas un ref Composition API) — `.value = locale` s'assigne sur
+    // un primitif et ne fait donc RIEN silencieusement (pas d'erreur, pas
+    // d'effet). Piège découvert : le sélecteur de langue semblait exister
+    // mais ne changeait jamais réellement la langue affichée.
+    this.i18n.global.locale = locale
     document.querySelector('html').setAttribute('lang', locale)
     localStorage.setItem('morel-locale', locale)
     return locale
   }
 
   load_locale(locale) {
-    if (this.i18n.global.locale.value === locale || this.loaded_locales.includes(locale)) {
+    if (this.i18n.global.locale === locale || this.loaded_locales.includes(locale)) {
       return Promise.resolve(this._set_already_loaded_locale(locale))
     }
 
