@@ -1,6 +1,18 @@
 # Index & référence rapide — Petit Bac
 
+> **Statut :** Phase 2 terminée ✅ — Vue 3 / Oruga / Pinia / ESM. App fonctionnelle.
 > Lire ce fichier EN PREMIER. Si bug : section "Pièges" avant tout.
+
+## Fichiers racine notables
+
+| Fichier | Rôle |
+|---------|------|
+| `CLAUDE.md` | Instructions Claude Code (ordre de lecture, règles, hook bootstrap) |
+| `INDEX.md` | Ce fichier — carte du projet + pièges |
+| `CHANTIER.md` | Stack, architecture, décisions, journal |
+| `project-setup-template.md` | Template one-shot pour répliquer ce système sur d'autres projets |
+
+---
 
 ## Carte du projet
 
