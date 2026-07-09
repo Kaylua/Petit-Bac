@@ -2,6 +2,7 @@
   "name": "munin-http",
   "version": "1.0.0",
   "description": "Expose data to Munin from a Node HTTP server",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

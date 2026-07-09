@@ -2,9 +2,9 @@
   "name": "ptitbac-back",
   "version": "1.0.0",
   "description": "In-browser real-time “Petit Bac” game websocket backend",
+  "type": "module",
   "main": "index.js",
   "dependencies": {
-    "esm": "^3.2.25",
     "uuid": "^7.0.2",
     "websocket": "^1.0.31",
     "ptitbac-commons": "file:../commons",

@@ -1,5 +1,5 @@
 import { is_answer_valid, is_answer_accepted, compare_answers } from "ptitbac-commons";
-import { log_info } from "./logging";
+import { log_info } from "./logging.js";
 
 export class Game {
   constructor(slug, server) {

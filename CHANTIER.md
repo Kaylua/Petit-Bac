@@ -203,3 +203,17 @@ _pitit-bac/front/_
 - `src/components/Game.vue` : réécriture complète — `b-notification`/`b-field`/`b-input`/`b-button`/`b-tooltip` → Oruga ; `mapState` depuis `useMorelStore` + `useGameStore` ; `beforeDestroy` → `beforeUnmount`.
 - `src/components/GameVote.vue` : réécriture complète — `b-*` → `o-*` ; `<i18n path slot="">` → `<i18n-t keypath #slot>` ; `b-checkbox :value @input` → `o-checkbox :model-value @update:modelValue` ; icône `times` → `xmark` (FA6) ; `$store.dispatch("send_vote_update")` → `useGameStore().send_vote_update(...)` ; `$store.commit("set_sticky_players_list")` → `useGameStore().set_sticky_players_list(...)` ; `beforeDestroy` → `beforeUnmount` ; méthode `search_label()` pour éviter les `\"` dans les attributs HTML double-quotés.
 - `src/components/GameEnd.vue` : réécriture complète — `b-icon`/`b-notification`/`b-button` → Oruga ; `<i18n path slot="">` → `<i18n-t keypath #slot>` pour les suffixes ordinaux (1st, 2nd...) ; `mapState` Vuex → Pinia ; `$store.dispatch("ask_restart_game")` → `useGameStore().ask_restart_game()`.
+
+**Back — Migration ESM natif Node 22 (2026-07-09)**
+
+Le package `esm@3` crashait sur Node 22 (assertion native dans `node::fs::InternalModuleStat`). Le back et ses dépendances locales utilisaient déjà la syntaxe `import/export` — il suffisait de passer en ESM natif.
+
+- `pitit-bac/commons/index.js` : CJS → ESM (`require` → `import slugify from "slugify"` ; `exports.xxx =` → `export function xxx`)
+- `pitit-bac/commons/package.json` : ajout `"type": "module"` ; `npm install` dans ce dossier pour installer `slugify` localement (nécessaire car Node ESM résout les imports depuis le dossier source du package, pas depuis `back/node_modules/`)
+- `pitit-bac/munin/index.js` : `exports.Munin = class Munin` → `export class Munin`
+- `pitit-bac/munin/package.json` : ajout `"type": "module"`
+- `pitit-bac/back/package.json` : ajout `"type": "module"` ; suppression de la dépendance `esm` dans les scripts (le shim n'est plus utilisé)
+- `pitit-bac/back/index.js` : remplacement du wrapper CJS `require("esm")(module)` par `import './src/index.js'`
+- `pitit-bac/back/src/server.js` : ajout `import { fileURLToPath } from "url"` + `const __dirname = path.dirname(fileURLToPath(import.meta.url))` ; `require("../data/statistics.json")` → `JSON.parse(fs.readFileSync(new URL('../data/statistics.json', import.meta.url), 'utf8'))` ; `import { server as WebSocketServer } from "websocket"` → import default + destructuring (websocket est CJS, pas d'exports nommés en ESM natif) ; idem pour `uuid` ; imports locaux `"./game"` → `"./game.js"`, `"./logging"` → `"./logging.js"`
+- `pitit-bac/back/src/index.js` : `import { v4 as uuid } from "uuid"` → import default + destructuring ; imports locaux avec extension `.js`
+- `pitit-bac/back/src/game.js` : import local `"./logging"` → `"./logging.js"`

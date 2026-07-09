@@ -2,6 +2,7 @@
   "name": "ptitbac-commons",
   "version": "0.1.0",
   "description": "Common code for Ptitbac's client and server",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests.js"

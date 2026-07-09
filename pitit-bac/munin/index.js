@@ -2,7 +2,7 @@
  * This classes plugs into a http server and respond to Munin requests with
  * configured data.
  */
-exports.Munin = class Munin {
+export class Munin {
 
   /**
    * Creates a new Munin source.

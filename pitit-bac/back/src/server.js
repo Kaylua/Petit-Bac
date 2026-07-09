@@ -1,15 +1,20 @@
 import crypto from "crypto";
-
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
-import { v4 as uuidv4 } from "uuid";
-import { server as WebSocketServer } from "websocket";
+import uuid_pkg from "uuid";
+const { v4: uuidv4 } = uuid_pkg;
+
+import websocket from "websocket";
+const { server: WebSocketServer } = websocket;
 
 import { Munin } from "munin-http";
 
-import { Game } from "./game";
-import { log_info, log_err, log_debug } from "./logging";
+import { Game } from "./game.js";
+import { log_info, log_err, log_debug } from "./logging.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default class GameServer {
     constructor(http_server) {
@@ -28,7 +33,7 @@ export default class GameServer {
         this.setup_munin();
 
         try {
-          this.statistics = require("../data/statistics.json")
+          this.statistics = JSON.parse(fs.readFileSync(new URL('../data/statistics.json', import.meta.url), 'utf8'));
         }
         catch (e) {
           this.statistics = {};
