@@ -216,6 +216,37 @@ Sur mobile, le timer + bouton "J'ai fini" apparaissait EN BAS du formulaire (apr
 
 **Piège : `rgba($sass-var, alpha)` dans des CSS custom properties** : impossible d'interpoler une variable Sass dans un `var()` CSS. Solution : utiliser `rgba($primary, 0.38)` directement dans le SASS (compilé à build time), ou stocker la valeur dans un token Sass plutôt que CSS.
 
+### 2026-07-09 — Bug fix : leave_game() + cache Vite sur file: dependencies
+
+**Bug 1 — `configuration = {}` dans `leave_game()` → crash au rejoin**  
+Après leave, la config était vidée à `{}`. Au rejoin, `GameConfiguration.vue` s'affichait avant que le serveur n'envoie `config-updated`, tentait d'accéder à `configuration.scores.valid` → crash silencieux.  
+**Fix :** supprimer `this.configuration = {}` de `leave_game()`. Le serveur envoie `config-updated` dès le join — la valeur précédente est un fallback propre pendant ces 50ms.
+
+**Bug 2 (piège dev) — cache Vite pre-bundlé sur dépendances `file:`**  
+Vite pre-bundle `morel-games-core` au premier démarrage dans `node_modules/.vite/deps/`. Si le code source change APRÈS ce premier démarrage (ou si plusieurs instances Vite coexistent), les modules servis sont stale → `leave_game is not a function` en runtime même si le fichier est correct.  
+**Fix systémique :** après avoir modifié un fichier dans `morel-games-core-master/`, tuer TOUS les serveurs Vite et purger `pitit-bac/front/node_modules/.vite/` avant de relancer.
+
+### 2026-07-09 — Fix cohérence visuelle : Bulma 1.x CSS vars vs. palette summer
+
+**Problème découvert :** `@oruga-ui/theme-bulma/dist/theme.css` (Bulma 1.0.4) définit `--bulma-primary-h: 171deg` (turquoise) dans `:root`. Tous les composants Oruga utilisant `var(--bulma-primary)` ignoraient notre `$primary: #E64A19` SCSS (compilé statiquement) et restaient turquoise.
+
+**Composants affectés :**
+- **Slider** : rendu en `.slider .slider-fill` (pas `.o-slide__fill`), couleur = `var(--bulma-primary)` → turquoise
+- **Switch** : rendu en `.switch.control .check` (pas `.o-switch .o-switch__check`), checked = `var(--bulma-primary)` → turquoise
+- **CSS GameConfiguration.vue** : ciblait `.o-slide`, `.o-slide__track`, `.o-slide--disabled`, `.o-slide__thumb-wrapper` → aucun de ces sélecteurs n'existait dans le DOM
+
+**Fix :**
+1. `design-system.sass (:root)` : override des CSS vars Bulma 1.x — `--bulma-primary-h: 14deg`, `--bulma-primary-s: 80%`, `--bulma-primary-l: 50%`, + overrides directs `--bulma-switch-active-background-color` et `--bulma-slider-color` à `#E64A19`.
+2. Correction sélecteurs `GameConfiguration.vue` : `.o-slide*` → `.slider*`, `.o-slide--disabled` → `.is-disabled`, `.o-switch[disabled]` → `.switch.is-disabled`.
+3. `design-system.sass` : tags taginput stylés avec des chips peach chauds (`--bulma-tag-h: 14deg`, bg 88%), taginput container fond warm cream.
+
+**Pourquoi ces classes diffèrent :** `bulmaConfig` de `@oruga-ui/theme-bulma` mappe les classes internes Oruga vers des classes Bulma custom (`rootClass: "slider"`, `fillClass: "slider-fill"`, `rootClass: "switch control"`, `inputClass: "check"`). Le CSS Oruga générique (`.o-*`) n'est jamais rendu avec ce theme.
+
+**Piège supplémentaire — bouton `.delete` des tags taginput :**
+- Oruga injecte une icône FA (`fa-xmark`) à l'intérieur du `<button class="delete is-small">` Bulma → l'icône FA masque les pseudo-éléments `::before`/`::after` qui dessinent la croix blanche.
+- Bulma 0.9.4 (compilé dans App.vue, donc injecté APRÈS `theme-bulma/style.css` dans la cascade) overwrite le `background-color` du `.delete` avec `rgba(white, 0.2)` → cercle invisible sur fond clair.
+- Fix : `.taginput-container .tag .delete { background-color: rgba(90,46,0,.15) !important; &::before/after background-color: rgba(90,46,0,.65) !important; .icon { display: none } }`
+
 ### 2026-07-09 — Feature : bouton "Quitter le lobby"
 
 **Contexte :** Sur mobile, une fois dans un lobby (phase CONFIG), il n'y avait aucun moyen de revenir à l'écran d'accueil (saisie du pseudo).
@@ -229,3 +260,24 @@ Sur mobile, le timer + bouton "J'ai fini" apparaissait EN BAS du formulaire (apr
 - Traduction FR ajoutée dans `pitit-bac/front/locales/fr.json` : `"Leave": "Quitter"`.
 
 **Piège reset store :** Pinia `$reset()` n'est pas disponible dans tous les contextes (Options API stores). Réinitialisation manuelle champ par champ dans `leave_game()`.
+
+### 2026-07-09 — Refonte visuelle summer vibes v3 : logo custom, couleur coral, croix tags
+
+**Contexte :** Logo SVG vert script hors-thème, orange trop foncé/industriel (`#E64A19`), bouton Suggestions ressemblait à un simple lien, croix des tags invisibles.
+
+**Changements :**
+
+1. **Logo → titre texte custom** : les 3 occurrences de `<img src="./assets/logo.svg">` remplacées par `<span class="game-title">Pitit Bac</span>`. Gradient coral en `background-clip: text`, Fira Sans 800. CSS adapté dans App.vue (`pititbac-logo`, `init-logo`, `mobile-top-logo`).
+
+2. **Couleur primary : `#E64A19` → `#FF6B35`** (coral sunset plus lumineux, `$primary-dark` : `#BF360C` → `#E8581E`). CSS vars Bulma 1.x mis à jour : `--bulma-primary-h: 16deg`, `--bulma-primary-l: 60%`. Headers et gradients nettement plus "summer vibes".
+
+3. **Bouton "Suggestions"** : transformé en pill button (`background: rgba($primary, 0.10)`, `border: 1.5px solid rgba($primary, 0.30)`, `border-radius: 20px`). Sélecteur dans `GameConfiguration.vue`.
+
+4. **Croix × des tags — triple piège résolu :**
+   - Tentative 1 (session précédente) : `.icon { display: none }` + `::before/::after background !important` → croix invisible (SVG FA couvrait les pseudo-éléments, puis fond transparent Bulma 0.9.4).
+   - Tentative 2 : colorer le SVG via `color: currentColor` → SVG `fill=currentColor` ne se rend pas visuellement à 16px dans Chromium dans ce contexte.
+   - Tentative 3 : `content: '×'` dans `::before` → SASS encode le caractère unicode littéral → caractère corrompu en UTF-8 à la compilation.
+   - Tentative 4 : `content: '\D7'` (escape CSS) → SASS interprète l'escape et encode quand même mal.
+   - **Fix final** : `background-image: url("data:image/svg+xml,...")` avec un SVG × dessiné en path ASCII (deux diagonales `stroke='%235A1600'`). Zéro dépendance d'encodage, zéro pseudo-élément, zéro FA. Croix clairement visible en brun chaud sur fond peach.
+
+**Piège encodage SASS** : Les caractères unicode non-ASCII dans les strings SASS (y compris via `content: '\D7'`) peuvent être corrompus selon le chemin compilation Dart Sass → Vite → bundle. Ne jamais mettre de caractère non-ASCII dans `content` SASS. Préférer les SVG data URI (100% ASCII) pour tous les icônes CSS custom.

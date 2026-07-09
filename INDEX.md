@@ -155,6 +155,10 @@ app.use(createOruga({ ...bulmaConfig }, OrugaComponentPlugins))
 // ✅  size="large"      variant="primary"
 ```
 
+### ⚠️ Cache Vite stale après modification de morel-games-core
+Vite pre-bundle `morel-games-core` dans `node_modules/.vite/deps/` au premier démarrage. Modifier un fichier dans `morel-games-core-master/` APRÈS ce démarrage → le bundle servi est stale → erreurs runtime inexplicables (`X is not a function`).  
+**Remède :** tuer tous les serveurs Vite, supprimer `pitit-bac/front/node_modules/.vite/`, relancer.
+
 ### morel-games-core — éditer les sources, pas node_modules
 Dépendance locale `file:../../morel-games-core-master`. Modifier directement les fichiers dans `morel-games-core-master/src/`.
 

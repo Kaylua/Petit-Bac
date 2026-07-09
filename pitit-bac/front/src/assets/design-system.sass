@@ -13,6 +13,42 @@
   --card-shadow-lift: 0 12px 42px rgba(150, 45, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.07)
   --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1)
 
+  // ---- Bulma 1.x CSS vars override (theme-bulma embarque Bulma 1.0.4) ----
+  // La couleur primaire Bulma 1.0 est turquoise (#00d1b2) — on la remplace
+  // par notre coral sunset #FF6B35 pour que tous les composants Oruga soient cohérents.
+  --bulma-primary-h: 16deg
+  --bulma-primary-s: 100%
+  --bulma-primary-l: 60%
+  --bulma-primary: hsla(16deg, 100%, 60%, 1)
+  --bulma-primary-rgb: 255, 107, 53
+  --bulma-primary-invert-l: 100%
+  --bulma-primary-on-scheme-l: 21%
+  // Computed shades (repris du patron Bulma 1.0 — mêmes échelons de lightness)
+  --bulma-primary-00-l: 1%
+  --bulma-primary-05-l: 6%
+  --bulma-primary-10-l: 11%
+  --bulma-primary-15-l: 16%
+  --bulma-primary-20-l: 21%
+  --bulma-primary-25-l: 26%
+  --bulma-primary-30-l: 31%
+  --bulma-primary-35-l: 36%
+  --bulma-primary-40-l: 41%
+  --bulma-primary-45-l: 46%
+  --bulma-primary-50-l: 51%
+  --bulma-primary-55-l: 56%
+  --bulma-primary-60-l: 61%
+  --bulma-primary-65-l: 66%
+  --bulma-primary-70-l: 71%
+  --bulma-primary-75-l: 76%
+  --bulma-primary-80-l: 81%
+  --bulma-primary-85-l: 86%
+  --bulma-primary-90-l: 91%
+  --bulma-primary-95-l: 96%
+  --bulma-primary-100-l: 100%
+  // Switch et slider directs (pour les règles .is-primary hardcodées à #00d1b2)
+  --bulma-switch-active-background-color: #FF6B35
+  --bulma-slider-color: #FF6B35
+
 // ============================================================
 // BOUTONS
 // ============================================================
@@ -107,7 +143,7 @@
     overflow: hidden
 
 // ============================================================
-// TAGS (catégories)
+// TAGS (categories dans la modal suggestions)
 // ============================================================
 
 .tag:not(body)
@@ -117,17 +153,60 @@
 
   &.is-primary
     background: linear-gradient(135deg, $primary 0%, $primary-dark 100%)
+    color: white
 
   &.is-medium
     font-size: 0.9em
     padding: 0 0.9em
 
 // ============================================================
-// TAGINPUT
+// TAGINPUT (champ catégories)
 // ============================================================
 
 .taginput .taginput-container
   border-radius: 12px
+  background: rgba(255, 253, 249, 0.9) !important
+  border-color: $border !important
+
+  // Chips de catégories — warm peach
+  .tag
+    --bulma-tag-h: 14deg
+    --bulma-tag-s: 65%
+    --bulma-tag-background-l: 88%
+    --bulma-tag-color-l: 22%
+    border: 1.5px solid rgba(230, 74, 25, 0.28)
+    border-radius: 20px
+    font-weight: 600
+    gap: 0.25rem
+
+    // Bouton supprimer (×)
+    // Piège triple :
+    //   1. Oruga injecte une icône FA → SVG fill=currentColor ne rend pas à 16px
+    //   2. Bulma 0.9.4 overwrite background-color → transparent
+    //   3. Pseudo-éléments Bulma trop fins, unicode SASS a des pb d'encodage
+    // Fix final : SVG × en background-image (data URI ASCII), rien d'autre
+    .delete
+      flex-shrink: 0
+      background-color: rgba(140, 50, 5, 0.25) !important
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.5 1.5 8.5 8.5M8.5 1.5 1.5 8.5' stroke='%235A1600' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") !important
+      background-repeat: no-repeat !important
+      background-position: center !important
+      background-size: 8px 8px !important
+      transition: background-color 0.15s ease
+
+      &::before, &::after
+        display: none !important
+
+      &:hover
+        background-color: rgba(140, 50, 5, 0.42) !important
+
+      .icon
+        display: none !important
+
+    &.is-primary
+      background: linear-gradient(135deg, $primary 0%, $primary-dark 100%)
+      color: white
+      border-color: transparent
 
 // ============================================================
 // INPUTS
@@ -141,6 +220,40 @@
 
   &:focus
     background: rgba(255, 255, 255, 0.98)
+
+// ============================================================
+// SLIDER (Oruga → Bulma theme → rendu en .slider, PAS .o-slide)
+// ============================================================
+
+.slider
+  --bulma-slider-color: #{$primary}
+  --bulma-slider-thumb-border: 2px solid #{$primary}
+  --bulma-slider-background: rgba(230, 74, 25, 0.15)
+
+  .slider-fill
+    background: $primary !important
+
+  .slider-thumb
+    border-color: $primary !important
+    background: white !important
+
+  // override si variant="primary" est passé (Bulma 1.x hardcode #00d1b2)
+  .is-primary
+    --bulma-slider-color: #{$primary}
+
+// ============================================================
+// SWITCH (Oruga → Bulma theme → rendu en .switch.control, PAS .o-switch)
+// ============================================================
+
+.switch
+  --bulma-switch-active-background-color: #{$primary}
+
+  .check:checked
+    background: $primary !important
+
+// Override si variant="primary" est passé (Bulma 1.x hardcode #00d1b2)
+.switch.is-primary
+  --bulma-switch-active-background-color: #{$primary}
 
 // ============================================================
 // PANEL (liste joueurs)
@@ -160,13 +273,6 @@
   .panel-block
     background: var(--card-bg)
     border-color: var(--card-border) !important
-
-// ============================================================
-// SWITCH (Oruga)
-// ============================================================
-
-.o-switch .o-switch__check--checked
-  background: $primary !important
 
 // ============================================================
 // MOBILE — suppression border-radius + anti-zoom iOS

@@ -515,13 +515,25 @@ div.field > span.o-tooltip
     font-weight: normal !important
 
     a.suggestions-link-trigger
+      display: inline-flex
+      align-items: center
+      gap: 0.25rem
+      background: rgba($primary, 0.10)
+      border: 1.5px solid rgba($primary, 0.30)
+      border-radius: 20px
+      padding: 0.1rem 0.6rem
+      font-size: 0.82em
+      font-weight: 600
       color: $primary-dark !important
       cursor: pointer
       text-decoration: none !important
-      transition: opacity 0.15s ease
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease
+      white-space: nowrap
 
       &:hover
-        opacity: 0.75
+        background: rgba($primary, 0.18)
+        border-color: rgba($primary, 0.50)
+        transform: translateY(-1px)
 
   input.input[disabled]
     background: transparent
@@ -542,26 +554,28 @@ div.field > span.o-tooltip
     .autocomplete.control
       display: none
 
-  .o-slide
+  // Les sliders Oruga + Bulma theme rendent en .slider (et non .o-slide)
+  .slider
     &.has-lots-of-ticks
       +mobile
-        .o-slide__track
-          .o-slide__tick:nth-of-type(2n)
+        .slider-track
+          .slider-tick:nth-of-type(2n)
             display: none
 
-    &.o-slide--disabled
-      .o-slide__track
+    &.is-disabled
+      .slider-track
         opacity: 1 !important
         cursor: default !important
-        .o-slide__tick
+        .slider-tick
           background: transparent
 
-      .o-slide__thumb-wrapper
+      .slider-thumb-wrapper
         display: none
 
-  .o-switch[disabled]
+  // Les switchs Oruga + Bulma theme rendent en .switch.control (et non .o-switch)
+  .switch.is-disabled
     opacity: 1 !important
-    .o-switch__label
+    .control-label
       color: $dark
       cursor: default
 

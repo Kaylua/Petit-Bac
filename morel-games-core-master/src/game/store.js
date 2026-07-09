@@ -291,7 +291,6 @@ export const useMorelStore = defineStore('morel', {
       this.pseudonym = null
       this.master = false
       this.players = {}
-      this.configuration = {}
       this.locked = false
       this.lock_loading = false
       this.kick_reason = null

@@ -36,7 +36,7 @@
         v-if="phase !== 'PSEUDONYM'"
       >
         <div class="mobile-top-bar">
-          <img src="./assets/logo.svg" alt="" aria-hidden="true" class="mobile-top-logo" />
+          <span aria-hidden="true" class="mobile-top-logo game-title">Pitit Bac</span>
           <o-button
             v-if="phase === 'CONFIG'"
             size="small"
@@ -48,7 +48,7 @@
         <div class="columns layout-columns">
           <div class="column is-3">
             <div class="pititbac-logo">
-              <img src="./assets/logo.svg" alt="Pitit Bac" />
+              <span class="game-title">Pitit Bac</span>
             </div>
             <morel-players
               :master-confirm-message="
@@ -90,7 +90,7 @@
         <div class="columns">
           <div class="column is-half is-offset-3">
             <header class="init-logo">
-              <img src="./assets/logo.svg" alt="Pitit Bac" />
+              <span class="game-title">Pitit Bac</span>
             </header>
             <morel-ask-pseudonym />
           </div>
@@ -306,18 +306,19 @@ html.overflow, html.overflow body
   .help
     color: $grey-dark
 
+.game-title
+  font-family: "Fira Sans", sans-serif
+  font-weight: 800
+  letter-spacing: -0.025em
+  line-height: 1.05
+  background: linear-gradient(135deg, $primary 0%, $primary-dark 100%)
+  -webkit-background-clip: text
+  -webkit-text-fill-color: transparent
+  background-clip: text
+
 .pititbac-logo
   margin-top: .2rem
   margin-bottom: 2rem
-
-  &.is-mobile
-    +mobile
-      display: block
-      text-align: center
-
-      img
-        width: 90%
-        max-height: 4rem
 
   &:not(.is-mobile)
     +mobile
@@ -325,17 +326,23 @@ html.overflow, html.overflow body
     +tablet
       display: block
 
+  .game-title
+    font-size: 2.8rem
+    display: block
+    filter: drop-shadow(0 3px 10px rgba($primary, 0.22))
+
 .init-logo
   text-align: center
   margin-bottom: 3.5rem
   width: 100%
 
-  img
-    width: 70%
-    filter: drop-shadow(0 6px 20px rgba(160, 50, 0, 0.20))
+  .game-title
+    font-size: 5.5rem
+    display: block
+    filter: drop-shadow(0 6px 20px rgba($primary, 0.22))
 
     +mobile
-      width: 90%
+      font-size: 3.8rem
 
     @media (prefers-reduced-motion: no-preference)
       transition: transform 0.3s ease
@@ -360,10 +367,8 @@ html.overflow, html.overflow body
     margin-bottom: 0.4rem
 
   .mobile-top-logo
-    width: 55%
-    max-height: 3.4rem
-    object-fit: contain
-    filter: drop-shadow(0 4px 12px rgba(160, 50, 0, 0.18))
+    font-size: 2rem
+    filter: drop-shadow(0 3px 8px rgba($primary, 0.22))
 
 // Bouton "Quitter le lobby" — style ghost discret
 .leave-lobby-btn
