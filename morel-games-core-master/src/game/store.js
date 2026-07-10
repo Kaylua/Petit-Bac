@@ -220,6 +220,11 @@ export const useMorelStore = defineStore('morel', {
       _client.kick_player(player_uuid)
     },
 
+    end_game() {
+      if (!this.master) return
+      _client.end_game()
+    },
+
     update_game_configuration(configuration) {
       this.update_configuration(configuration)
       _client.send_config_update()
@@ -278,6 +283,7 @@ export const useMorelStore = defineStore('morel', {
 
     leave_game() {
       if (_client && _client.client) {
+        _client.leave_game().catch(() => {})
         _client.kicked = true
         _client.client_uuid = null
         _client.secret = null

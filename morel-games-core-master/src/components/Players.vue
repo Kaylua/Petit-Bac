@@ -34,6 +34,28 @@
         />
       </template>
     </div>
+
+    <morel-confirm-modal
+      v-model:active="kick_confirm_active"
+      variant="danger"
+      :title="kick_confirm.title"
+      :message="kick_confirm.message"
+      :help="kick_confirm.help"
+      :confirm-label="kick_confirm.confirmLabel"
+      :cancel-label="kick_confirm.cancelLabel"
+      @confirm="confirm_kick_player"
+    />
+
+    <morel-confirm-modal
+      v-model:active="master_confirm_active"
+      variant="warning"
+      :title="master_confirm.title"
+      :message="master_confirm.message"
+      :help="master_confirm.help"
+      :confirm-label="master_confirm.confirmLabel"
+      :cancel-label="master_confirm.cancelLabel"
+      @confirm="confirm_switch_master"
+    />
   </nav>
 </template>
 
@@ -55,6 +77,15 @@ export default {
     'master-confirm-help': { type: String, default: '' },
     'master-confirm-button-yes': { type: String, default: '' },
     'master-confirm-button-no': { type: String, default: '' }
+  },
+
+  data() {
+    return {
+      kick_confirm_active: false,
+      kick_confirm: { uuid: null, title: '', message: '', help: '', confirmLabel: '', cancelLabel: '' },
+      master_confirm_active: false,
+      master_confirm: { uuid: null, title: '', message: '', help: '', confirmLabel: '', cancelLabel: '' }
+    }
   },
 
   computed: {
@@ -82,30 +113,28 @@ export default {
       if (!player || !player.online) return
 
       const $t = this.$t.bind(this)
-      const message = this.replace_name(
-        this.masterConfirmMessage,
-        $t("<strong>{name}</strong> will be able to manage the game and its configuration. You'll lose those powers."),
-        player.pseudonym
-      )
-      const help = this.replace_name(
-        this.masterConfirmHelp,
-        $t("The game master cannot cheat, only manage the game. It can also kick players and lock the game."),
-        player.pseudonym
-      )
-      const title = this.replace_name(
-        this.masterConfirmTitle,
-        $t('Promote {name}?'),
-        player.pseudonym
-      )
-      const confirmText = this.replace_name(
-        this.masterConfirmButtonYes,
-        $t('Promote'),
-        player.pseudonym
-      )
 
-      if (window.confirm(`${title}\n\n${message.replace(/<[^>]+>/g, '')}\n${help.replace(/<[^>]+>/g, '')}\n\n${confirmText} / ${this.replace_name(this.masterConfirmButtonNo, $t('Stay Game Master'), player.pseudonym)}`)) {
-        useMorelStore().switch_master(uuid)
+      this.master_confirm = {
+        uuid,
+        title: this.replace_name(this.masterConfirmTitle, $t('Promote {name}?'), player.pseudonym),
+        message: this.replace_name(
+          this.masterConfirmMessage,
+          $t("<strong>{name}</strong> will be able to manage the game and its configuration. You'll lose those powers."),
+          player.pseudonym
+        ),
+        help: this.replace_name(
+          this.masterConfirmHelp,
+          $t('The game master cannot cheat, only manage the game. It can also kick players and lock the game.'),
+          player.pseudonym
+        ),
+        confirmLabel: this.replace_name(this.masterConfirmButtonYes, $t('Promote'), player.pseudonym),
+        cancelLabel: this.replace_name(this.masterConfirmButtonNo, $t('Stay Game Master'), player.pseudonym)
       }
+      this.master_confirm_active = true
+    },
+
+    confirm_switch_master() {
+      if (this.master_confirm.uuid) useMorelStore().switch_master(this.master_confirm.uuid)
     },
 
     kick_player(uuid) {
@@ -114,22 +143,26 @@ export default {
       if (!player || !player.online) return
 
       const $t = this.$t.bind(this)
-      const title = this.replace_name(
-        this.kickConfirmTitle,
-        $t('Kick {name}?'),
-        player.pseudonym
-      )
-      const message = this.replace_name(
-        this.kickConfirmMessage,
-        this.locked
-          ? $t('<strong>{name}</strong> will be unable to join as long as the game is locked.')
-          : $t('<strong>{name}</strong> will left the game, but will be able to re-join as the game is not locked.'),
-        player.pseudonym
-      )
 
-      if (window.confirm(`${title}\n\n${message.replace(/<[^>]+>/g, '')}`)) {
-        useMorelStore().kick_player(uuid)
+      this.kick_confirm = {
+        uuid,
+        title: this.replace_name(this.kickConfirmTitle, $t('Kick {name}?'), player.pseudonym),
+        message: this.replace_name(
+          this.kickConfirmMessage,
+          this.locked
+            ? $t('<strong>{name}</strong> will be unable to join as long as the game is locked.')
+            : $t('<strong>{name}</strong> will left the game, but will be able to re-join as the game is not locked.'),
+          player.pseudonym
+        ),
+        help: this.replace_name(this.kickConfirmHelp, '', player.pseudonym),
+        confirmLabel: this.replace_name(this.kickConfirmButtonYes, $t('Kick'), player.pseudonym),
+        cancelLabel: this.replace_name(this.kickConfirmButtonNo, $t('I changed my mind'), player.pseudonym)
       }
+      this.kick_confirm_active = true
+    },
+
+    confirm_kick_player() {
+      if (this.kick_confirm.uuid) useMorelStore().kick_player(this.kick_confirm.uuid)
     }
   },
 

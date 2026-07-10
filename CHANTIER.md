@@ -45,8 +45,8 @@ ProjetPetitBac/
 ## Protocole WebSocket
 
 ### Base (morel-games-core)
-Client → Serveur : `join-game`, `update-config`, `lock-game`, `switch-master`, `kick-player`
-Serveur → Client : `set-uuid`, `set-slug`, `set-master`, `player-join`, `player-left`, `config-updated`, `game-locked`, `player-ready`, `kick`, `set-server-runtime-identifier`
+Client → Serveur : `join-game`, `update-config`, `lock-game`, `switch-master`, `kick-player`, `leave-game`, `end-game`
+Serveur → Client : `set-uuid`, `set-slug`, `set-master`, `player-join`, `player-left`, `config-updated`, `game-locked`, `player-ready`, `kick`, `game-ended-by-master`, `set-server-runtime-identifier`
 
 ### Spécifique Petit Bac
 Client → Serveur : `start-game`, `send-answers`, `send-vote`, `vote-ready`, `restart`, `change-categories-by-everyone`
@@ -491,3 +491,34 @@ Le calque `scatter` desktop supposait un espace vide notable de chaque côté du
 **Piège de tooling (pas un bug produit) :** tentative initiale d'utiliser `̀-ͯ` (plage des diacritiques combinants) comme échappement ASCII dans le regex de `normalize_for_search`, plusieurs passes d'édition ont fini par écrire les caractères Unicode combinants littéraux dans le fichier source au lieu de la séquence d'échappement textuelle (perte probable au passage à travers plusieurs couches d'échappement shell/JS). Contourné en construisant les bornes du regex via `String.fromCharCode(0x0300)` / `String.fromCharCode(0x036f)`, garantit un fichier source 100 % ASCII pour cette regex, indépendamment de tout souci d'encodage d'outillage.
 
 **Vérification :** recherche testée sans accent ("celebrite" trouve "Célébrité⋅e"), sélection/désélection avec mise à jour immédiate du compteur, état "aucun résultat", scroll avec recherche sticky sur mobile (390px), partie complète rejouée à 2 joueurs. 0 erreur console partout.
+
+### 2026-07-10 : quitter à tout moment, terminer la partie (maître), modale de confirmation réutilisable (kick/promote/leave/end-game)
+
+**Demande utilisateur :** pouvoir quitter une partie à tout moment (pas seulement en lobby), permettre au maître de terminer la partie pour tout le monde, permettre au maître d'expulser des joueurs (déjà existant côté serveur), et une petite modale de confirmation pour ces 4 actions plutôt que `window.confirm()`.
+
+**Piège de robustesse identifié avant de coder :** un disconnect passif (fermeture d'onglet) ne fait que passer le joueur en `offline` (`Game.left()`, back), pour permettre une reconnexion. Réutiliser tel quel ce chemin pour un "Leave" volontaire aurait laissé un joueur fantôme "offline" indéfiniment dans la liste (jusqu'au `restart` suivant). **Fix :** nouvelle action WS `leave-game` → `Game.leave_voluntarily(uuid)` (back/src/game.js) qui appelle `this.left(uuid, true)` (force le forget, peu importe le verrou/l'état), réutilisant tel quel tout le pipeline déjà robuste (`check_for_round_end`, `check_for_vote_end`, `elect_random_master`).
+
+**"Terminer la partie" (`end-game` → `Game.end_game_by_master`, back/src/game.js), 3 précautions pour ne rien casser :**
+1. `clearTimeout(this.current_timeout)` avant de démanteler : sinon le timer de fin de manche en vol appelle `end_round()` sur une `Game` déjà supprimée de `running_games`.
+2. `this.state = "TERMINATED"` : sentinel qui fait échouer silencieusement toute méthode déclenchée en retard par un résidu (aucune ne matche cet état dans ses gardes `if (state !== ...)`).
+3. Diffusion de `game-ended-by-master` puis fermeture de chaque connexion (même pattern que `kick()`), avant `server.delete_game(slug)` qui nettoie déjà `uuid_to_game` pour tout futur message égaré (retombe sur `if (!game) return` dans `server.js`).
+
+**Modale de confirmation réutilisable :** `morel-games-core-master/src/components/ConfirmModal.vue` (nouveau), enregistré globalement comme `morel-confirm-modal`. `Players.vue` (kick + promote) avait déjà les props `kick-confirm-*`/`master-confirm-*` scaffoldées mais utilisait encore `window.confirm()` en interne (les props `help`/`button-yes`/`button-no` de kick n'étaient même pas branchées) — migré vers la modale, tous les props désormais utilisés. `App.vue` (pitit-bac) réutilise le même composant pour Leave et End Game (2 nouvelles instances).
+
+**`kick_reason` étendu à une 3e valeur `'ended'`** (en plus de `'locked'`/`'kicked'` existants) dans `AskPseudonym.vue`, message neutre (`is-warning`, pas `is-danger`) puisque ce n'est pas une sanction contre le joueur qui la reçoit.
+
+**Vérification :** app relancée réellement (2-3 onglets), Leave testé en CONFIG/ROUND_ANSWERS/ROUND_VOTES/END (le reste de la partie continue normalement, pas de joueur fantôme), End Game testé à ces mêmes moments (tous les clients renvoyés à l'accueil, aucune erreur console, aucun message résiduel d'un timer après coup), kick/promote testés avec la nouvelle modale (comportement identique à avant, juste l'UI qui change), rendu mobile vérifié (piège `teleport` déjà connu, appliqué dès la première version du composant).
+
+**Correctif immédiat (retour utilisateur avec screenshot mobile) :** le bouton "Terminer la partie" utilisait `variant="danger"` d'Oruga → bloc plein rouge Bulma par défaut, en rupture totale avec le thème été (pilules chaudes/corail). Fix : `variant` retiré, style forcé en pilule (`border-radius: 999px`) même famille que `leave-lobby-btn`, teinte rouge/corail sur fond clair au lieu d'un bloc plein. `.mobile-top-bar` repensée : logo puis rangée de pilules centrée en dessous (`flex-direction: column`), suppression du hack `position: absolute` fragile qui plaçait les boutons. **Leçon actée dans CLAUDE.md :** toute UI ajoutée doit être pensée mobile-first + thème été dès le départ, pas juste avec les variants Oruga par défaut.
+
+**2e passe (retour utilisateur) :** `ConfirmModal.vue` avait aussi 2 problèmes mobile : (1) footer avec 2 boutons côte à côte en `flex:1`, texte serré/retourne à la ligne sur 390px avec des libellés longs ("J'ai changé d'avis") ; (2) header plat neutre, aucune cohérence avec le thème été des 3 autres modales (Suggestions/Presets/Scores). Fix : footer empilé en pleine largeur sous `+mobile` (`flex-direction: column-reverse`, confirm au-dessus, min-height 44px), repasse en ligne dès `+tablet` ; en-tête stylé en gradient corail (`design-system.sass`, classe `.confirm-modal-card`, override global côté pitit-bac, le composant du core `morel-games-core` reste neutre). Contrairement aux 3 autres modales, celle-ci reste une carte compacte centrée même sur mobile (`width: min(92vw, 420px)`), pas de passage plein écran : un prompt oui/non n'a pas besoin de toute la hauteur d'écran. Textes des modales Leave/End Game également réduits au strict nécessaire (demande explicite : trop de texte).
+
+**3e passe (retour utilisateur, ergonomie mobile) :** Quitter/Terminer la partie déplacés de la top-bar vers une barre fixée en bas de l'écran sur mobile (`.mobile-bottom-actions`, `position: fixed; bottom: 0`, zone du pouce, plus atteignable qu'en haut ; `env(safe-area-inset-bottom)` pour la zone home-indicator iOS). Marge basse de `#app` augmentée en mobile pour que cette barre ne recouvre pas le footer. **Bug annexe corrigé au passage :** le bouton desktop "Terminer la partie" gardait encore `variant="danger"` (bloc plein rouge Bulma) suite à un `replace_all` qui n'avait matché que la version mobile (indentation différente) lors du fix précédent — corrigé en `icon-left="xmark"` comme la version mobile, cohérence rétablie sur les deux.
+
+### 2026-07-10 : pill "Suggestions" coupée sur mobiles étroits (`GameConfiguration.vue`)
+
+**Symptôme (screenshot) :** le bord droit du pill "🍍 Suggestions" (en-tête du champ Catégories) était rogné par l'écran sur certains mobiles.
+
+**Cause :** la ligne label+pill est un `.columns.is-mobile` avec un split Bulma fixe `is-8`/`is-4` (66%/33%), alors que le pill a `white-space: nowrap`. Sur les écrans les plus étroits, "🍍 Suggestions" ne tient pas dans 33% de largeur ; comme il ne peut pas passer à la ligne (nowrap) ni rétrécir, il déborde de sa colonne et se fait couper par l'`overflow: hidden` du `.message` parent au lieu de simplement wrapper.
+
+**Fix :** nouvelle classe `categories-label-row` sur ce `.columns.is-mobile`, avec sur mobile uniquement (`+mobile`) : `display: flex` + `flex-wrap: wrap`, chaque colonne reprenant sa largeur naturelle (`width: auto`) au lieu du pourcentage Bulma fixe, la colonne libellé en `flex: 1 1 auto` (absorbe l'espace restant), le pill en largeur de contenu. Résultat : le pill garde sa taille intacte et passe simplement à la ligne suivante si la place manque, au lieu d'être tronqué.

@@ -7,6 +7,7 @@
   "create a new game": "créer une nouvelle partie",
   "You cannot join this game because it's locked.": "Vous ne pouvez pas rejoindre cette partie car elle est verrouillée.",
   "You got kicked out of the game.": "Vous avez été expulsé⋅e de cette partie.",
+  "The game master ended this game for everyone.": "Le maître du jeu a mis fin à cette partie pour tout le monde.",
   "Create a new game": "Créer une nouvelle partie",
 
   "(you)": "(vous)",
@@ -27,6 +28,8 @@
   "You can lock the game with the lock icon above the share game button.": "Vous pouvez verrouiller la partie grâce à l'icône en forme de cadenas au dessus du bouton de partage de la partie.",
   "Kick": "Expulser",
   "I changed my mind": "J'ai changé d'avis",
+  "Confirm": "Confirmer",
+  "Cancel": "Annuler",
 
   "Share game": "Partager la partie",
   "Copy game link": "Copier le lien",

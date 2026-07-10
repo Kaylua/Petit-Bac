@@ -55,6 +55,7 @@ Les chemins `src/...` sont relatifs à `pitit-bac/front/`.
 | Page pseudo/join | `components/AskPseudonym.vue` |
 | Liste joueurs + kick | `components/Players.vue` |
 | Icône action joueur avec tooltip Oruga (utilisée dans Players.vue) | `components/PlayerAction.vue` |
+| Modale de confirmation générique réutilisable (`morel-confirm-modal`), utilisée par kick/promote (Players.vue) et par Leave/End Game (pitit-bac App.vue) | `components/ConfirmModal.vue` |
 | Partage lien / verrou | `components/ShareGame.vue` |
 | Sélecteur langue | `components/LocaleSwitcher.vue` |
 | Traductions FR du core (chaînes morel-* communes) | `../locales/fr.json` |

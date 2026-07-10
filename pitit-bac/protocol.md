@@ -90,6 +90,30 @@ Asks the server to kick a specific player. If the sender is not master, the mess
 }
 ```
 
+## `leave-game`
+
+The client voluntarily leaves the game, at any point (config, during a round, vote, or end screen).
+
+```json
+{}
+```
+
+Unlike closing the connection without this message (a raw disconnect, which only marks the player offline
+so it can reconnect later), this always forgets the player entirely: they're removed from the players list
+for good, regardless of the game's lock state, and will show up as a brand new player if they join again.
+
+## `end-game`
+
+Asks the server to end the game for everyone, at any point (config, during a round, vote, or end screen).
+If the sender is not master, the message is ignored.
+
+```json
+{}
+```
+
+Every other player receives `game-ended-by-master`, then the game is destroyed. This is different from
+`restart`, which keeps everyone in a fresh `CONFIG` state instead of dissolving the game.
+
 ## `change-categories-by-everyone`
 
 Changes whether everyone can edit the categories and not only the game master.
@@ -472,6 +496,16 @@ Indicates that the game ended and that the client should display the final score
 ## `game-restarted`
 
 Indicates that the game is restarted. The client will go back to the configuration screen.
+
+```json
+{}
+```
+
+## `game-ended-by-master`
+
+Indicates that the game master ended the game for everyone. The client should go back to the pseudonym
+screen, showing a message explaining the game was ended by its master (as opposed to `kick`, which is
+about a single player being removed). The server closes the connection right after sending this message.
 
 ```json
 {}

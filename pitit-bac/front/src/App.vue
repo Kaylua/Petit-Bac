@@ -36,6 +36,24 @@
       </o-notification>
     </div>
 
+    <morel-confirm-modal
+      v-model:active="leave_confirm_active"
+      variant="danger"
+      :title="$t('Leave the game?')"
+      :message="phase === 'CONFIG' ? $t('You will leave the lobby.') : $t('You will leave the game.')"
+      :confirm-label="$t('Leave')"
+      @confirm="confirm_leave_lobby"
+    />
+
+    <morel-confirm-modal
+      v-model:active="end_game_confirm_active"
+      variant="danger"
+      :title="$t('End the game')"
+      :message="$t('Every player will be disconnected and sent back to the home screen.')"
+      :confirm-label="$t('End the game')"
+      @confirm="confirm_end_game"
+    />
+
     <main>
       <div
         class="container"
@@ -44,13 +62,6 @@
       >
         <div class="mobile-top-bar">
           <span aria-hidden="true" class="mobile-top-logo game-title"><SummerDecor variant="icon" motif="cocktail" />Pitit Bac</span>
-          <o-button
-            v-if="phase === 'CONFIG'"
-            size="small"
-            icon-left="angle-left"
-            class="leave-lobby-btn"
-            @click="leave_lobby"
-          >{{ $t('Leave') }}</o-button>
         </div>
         <div class="columns layout-columns">
           <div class="column is-3">
@@ -72,13 +83,20 @@
               :class="{ 'is-sticky': sticky_players_list }"
             />
             <morel-share-game />
-            <div class="leave-lobby-desktop" v-if="phase === 'CONFIG'">
+            <div class="leave-lobby-desktop">
               <o-button
                 size="small"
                 icon-left="angle-left"
                 class="leave-lobby-btn"
-                @click="leave_lobby"
+                @click="open_leave_confirm"
               >{{ $t('Leave') }}</o-button>
+              <o-button
+                v-if="master"
+                size="small"
+                icon-left="xmark"
+                class="end-game-btn"
+                @click="open_end_game_confirm"
+              >{{ $t('End the game') }}</o-button>
             </div>
           </div>
           <div class="column is-9">
@@ -87,6 +105,22 @@
             <GameVote v-else-if="phase === 'ROUND_VOTES'"></GameVote>
             <GameEnd v-else-if="phase === 'END'"></GameEnd>
           </div>
+        </div>
+
+        <div class="mobile-bottom-actions">
+          <o-button
+            size="small"
+            icon-left="angle-left"
+            class="leave-lobby-btn"
+            @click="open_leave_confirm"
+          >{{ $t('Leave') }}</o-button>
+          <o-button
+            v-if="master"
+            size="small"
+            icon-left="xmark"
+            class="end-game-btn"
+            @click="open_end_game_confirm"
+          >{{ $t('End the game') }}</o-button>
         </div>
       </div>
 
@@ -145,9 +179,17 @@ export default {
 
   components: { GameConfiguration, Game, GameVote, GameEnd, SummerDecor },
 
+  data() {
+    return {
+      leave_confirm_active: false,
+      end_game_confirm_active: false
+    }
+  },
+
   computed: {
     ...mapState(useMorelStore, {
       phase: state => state.phase,
+      master: state => state.master,
       loading: state => state.loading,
       loading_reason: state => state.loading_reason,
       error: state => state.error,
@@ -166,8 +208,18 @@ export default {
   },
 
   methods: {
-    leave_lobby() {
+    open_leave_confirm() {
+      this.leave_confirm_active = true
+    },
+    confirm_leave_lobby() {
       useMorelStore().leave_game()
+    },
+    open_end_game_confirm() {
+      if (!this.master) return
+      this.end_game_confirm_active = true
+    },
+    confirm_end_game() {
+      useMorelStore().end_game()
     },
     removeNotification(id) {
       useMorelStore().remove_notification(id)
@@ -269,7 +321,10 @@ html.overflow, html.overflow body
   padding-top: 60px
 
   +mobile
-    padding: 1.2rem 0 2rem 0
+    // Marge basse augmentée : laisse la place à .mobile-bottom-actions,
+    // fixée en bas de l'écran (Quitter / Terminer la partie), pour ne pas
+    // qu'elle recouvre le footer.
+    padding: 1.2rem 0 calc(4.6rem + env(safe-area-inset-bottom))
 
   +tablet
     padding: 1.6rem 1rem
@@ -437,11 +492,8 @@ html.overflow, html.overflow body
 
   +mobile
     display: flex
-    align-items: center
     justify-content: center
-    position: relative
-    min-height: 3.8rem
-    padding: 0 1rem
+    padding: 0.6rem 1rem 0.2rem
     margin-bottom: 0.4rem
 
   .mobile-top-logo
@@ -453,31 +505,71 @@ html.overflow, html.overflow body
       width: 0.7em
       height: 0.7em
 
-// Bouton "Quitter le lobby" : style ghost discret
-.leave-lobby-btn
+// Barre d'actions (Quitter / Terminer la partie) fixée en bas de l'écran sur
+// mobile : zone du pouce, plus accessible qu'en haut (demande explicite,
+// pattern mobile classique pour des actions secondaires/destructrices).
+// `env(safe-area-inset-bottom)` évite la zone home-indicator iOS.
+.mobile-bottom-actions
+  display: none
+
+  +mobile
+    display: flex
+    justify-content: center
+    gap: 0.6rem
+    position: fixed
+    left: 0
+    right: 0
+    bottom: 0
+    z-index: 30
+    padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom))
+    background: rgba(255, 249, 240, 0.92)
+    backdrop-filter: blur(10px)
+    -webkit-backdrop-filter: blur(10px)
+    border-top: 1px solid rgba(200, 140, 70, 0.25)
+    box-shadow: 0 -4px 16px rgba(150, 45, 0, 0.08)
+
+    .button
+      flex: 1
+      max-width: 220px
+
+// Boutons ronds "pilule" discrets, même famille visuelle (Leave = neutre,
+// End Game = même forme mais teinte corail/danger pour bien le distinguer
+// sans casser l'ambiance été, pas de bloc plein Bulma "is-danger")
+.leave-lobby-btn,
+.end-game-btn
   font-size: 0.82em !important
   font-weight: 500 !important
+  border-radius: 999px !important
+  box-shadow: none !important
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important
+
+.leave-lobby-btn
   color: #5a3a1a !important
   background: rgba(255, 248, 238, 0.9) !important
   border-color: rgba(200, 140, 70, 0.35) !important
-  border-radius: 10px !important
-  box-shadow: none !important
-  transition: background 0.15s ease, color 0.15s ease !important
 
   &:hover
     background: rgba(255, 228, 178, 0.5) !important
     color: $primary-dark !important
     border-color: rgba($primary, 0.4) !important
 
-+mobile
-  .mobile-top-bar .leave-lobby-btn
-    position: absolute
-    left: 1rem
+.end-game-btn
+  color: #B3261E !important
+  background: rgba(255, 232, 227, 0.9) !important
+  border-color: rgba(211, 47, 47, 0.35) !important
 
-// Bouton quitter : sidebar desktop uniquement
+  &:hover
+    background: rgba(255, 205, 195, 0.6) !important
+    color: #8C1D18 !important
+    border-color: rgba(211, 47, 47, 0.55) !important
+
+// Boutons quitter / terminer la partie : sidebar desktop uniquement
 .leave-lobby-desktop
   margin-top: 1.2rem
-  text-align: center
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: 0.5rem
 
   +mobile
     display: none

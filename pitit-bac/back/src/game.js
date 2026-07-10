@@ -458,6 +458,37 @@ export class Game {
     this.kick(target_uuid, false);
   }
 
+  // Voluntary departure: unlike a raw disconnect (which only marks the
+  // player offline so it can reconnect), this always forgets the player
+  // entirely, regardless of the game's lock state or phase, so it doesn't
+  // linger forever as an "offline" ghost in the players list.
+  leave_voluntarily(uuid) {
+    this.left(uuid, true);
+  }
+
+  end_game_by_master(uuid) {
+    if (this.master_player_uuid !== uuid) return;
+
+    this.log("Game ended by the master.");
+
+    // Prevent any in-flight timer (round timeout, deletion task) from
+    // acting on this Game instance after it's been torn down.
+    if (this.current_timeout) {
+      clearTimeout(this.current_timeout);
+      this.current_timeout = null;
+    }
+    this.halt_deletion_process();
+    this.state = "TERMINATED";
+
+    this.online_players().filter(player => player.connection !== null).forEach(player => {
+      this.server.send_message(player.connection, "game-ended-by-master", {}).then(() => {
+        player.connection.close();
+      });
+    });
+
+    this.server.delete_game(this.slug);
+  }
+
   start(connection, uuid) {
     if (!this.is_valid_player(uuid)) return;
     if (this.master_player_uuid !== uuid) return; // Nope

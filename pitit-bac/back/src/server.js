@@ -295,6 +295,16 @@ export default class GameServer {
                 game.kick_by_master(user_uuid, message.kick.uuid);
                 break;
 
+            case "leave-game":
+                if (!game) return;
+                game.leave_voluntarily(user_uuid);
+                break;
+
+            case "end-game":
+                if (!game) return;
+                game.end_game_by_master(user_uuid);
+                break;
+
             case "start-game":
                 if (!game) return;
                 game.start(connection, user_uuid);

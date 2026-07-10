@@ -35,11 +35,14 @@
     </p>
 
     <slot name="error" v-bind:reason="kick_reason">
-      <div v-if="kick_reason" class="message is-danger kick-reason">
+      <div v-if="kick_reason" class="message kick-reason" :class="kick_reason === 'ended' ? 'is-warning' : 'is-danger'">
         <div class="message-body">
           <p>
             <template v-if="kick_reason === 'locked'">
               {{ $t("You cannot join this game because it's locked.") }}
+            </template>
+            <template v-else-if="kick_reason === 'ended'">
+              {{ $t('The game master ended this game for everyone.') }}
             </template>
             <template v-else>
               {{ $t("You got kicked out of the game.") }}

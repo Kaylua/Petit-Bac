@@ -1,5 +1,20 @@
 # Instructions Claude : Projet Petit Bac
 
+## ⚠️ RÈGLE N°1, AVANT TOUTE AUTRE CHOSE : mobile-first + thème "summer vibes"
+
+Cette règle a été répétée plusieurs fois suite à des retours utilisateur mécontents (boutons/modales livrés qui rendaient mal sur mobile ou cassaient l'ambiance été). Elle prime sur toute autre considération de style pour CE projet.
+
+**`pitit-bac/front` est utilisé à ≈99% sur mobile.** Chaque décision de layout/CSS doit être pensée MOBILE D'ABORD, desktop ensuite (jamais l'inverse, jamais "je fais desktop et j'adapte après"). Direction artistique imposée : "été / cocktail / plage" — chaud (corail/orange, `variables.scss`), formes arrondies/pilules, animations légères (`prefers-reduced-motion` respecté), motifs `SummerDecor.vue` (voir `CHANTIER.md` refontes v2 à v5 pour le detail). Un élément fonctionnel mais avec un style Bulma/Oruga par défaut (ex: `variant="danger"` = bloc plein rouge générique) est considéré **non conforme**, pas juste perfectible.
+
+**Checklist avant de considérer TERMINÉ tout changement touchant `pitit-bac/front` (composant, bouton, modale, écran) :**
+1. Est-ce que je me suis calé sur un composant déjà stylé du projet (`leave-lobby-btn`, les modales de `GameConfiguration.vue`, `SummerDecor.vue`...) plutôt que sur le rendu par défaut Oruga/Bulma ?
+2. Est-ce que j'ai raisonné layout mobile (~390-400px) EN PREMIER, desktop ensuite (pas l'inverse) ?
+3. Est-ce que j'ai vérifié le rendu réel (`npm run build` ne suffit PAS, ça valide juste la compilation, pas le rendu visuel — lancer le serveur et regarder, ou demander à l'utilisateur de valider sur son mobile) ?
+
+Si la réponse à l'une de ces 3 questions est non, le travail n'est pas fini.
+
+---
+
 ## Bootstrap (vérifier au démarrage de chaque session)
 
 Vérifier que `.claude/settings.local.json` contient bien le hook PostToolUse ci-dessous. S'il est absent, l'ajouter avant toute autre action.

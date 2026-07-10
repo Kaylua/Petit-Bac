@@ -312,6 +312,31 @@
   backdrop-filter: blur(6px)
   -webkit-backdrop-filter: blur(6px)
 
+// Modale de confirmation (morel-confirm-modal : quitter / terminer la partie /
+// kick / promotion). Reste une carte compacte centrée même sur mobile
+// (contrairement aux modales de contenu long comme "Suggestions", qui elles
+// passent en plein écran), un dialogue oui/non n'a pas besoin de tout l'écran.
+div.modal-card.confirm-modal-card
+  width: min(92vw, 420px) !important
+  max-width: min(92vw, 420px) !important
+  border-radius: 18px !important
+  overflow: hidden !important
+
+  .modal-card-head
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%)
+    border-bottom: none
+
+    .modal-card-title
+      color: white
+      font-weight: 700
+
+  .modal-card-body
+    padding: 1.25rem 1.5rem
+
+  .modal-card-foot
+    background-color: #fff9f3
+    border-top: none
+
 // Vue applique les classes d'état de transition sur l'élément racine du
 // <o-modal> (celui en v-show, un simple conteneur flex qui englobe à la fois
 // `.modal-background` et `.modal-card`) et détecte la fin de la transition

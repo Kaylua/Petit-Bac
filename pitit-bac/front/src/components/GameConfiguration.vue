@@ -12,7 +12,7 @@
                 :message="categories_field_message"
               >
                 <template #label>
-                  <div class="columns is-mobile">
+                  <div class="columns is-mobile categories-label-row">
                     <div class="column is-8 categories-label-count">
                       {{ $t('Categories') }}
                       <span class="categories-count" v-if="config.categories.length">{{ config.categories.length }}</span>
@@ -686,6 +686,30 @@ div.field > div.tooltip
     display: none
 
 .game-configuration
+  // Le split Bulma is-8/is-4 fixe peut être trop étroit pour le pill
+  // "Suggestions" (white-space: nowrap) sur les mobiles les plus étroits,
+  // le bout du texte se fait alors couper par l'overflow:hidden du .message
+  // parent au lieu de passer à la ligne. Fix : sur mobile, la ligne devient
+  // un flex qui peut wrapper, chaque colonne reprenant sa largeur naturelle
+  // au lieu du pourcentage fixe (le pill garde alors sa largeur intacte,
+  // quitte à passer sous le libellé si la place manque).
+  .categories-label-row
+    +mobile
+      display: flex !important
+      flex-wrap: wrap
+      row-gap: 0.4rem
+
+      > .column
+        width: auto !important
+        max-width: 100% !important
+        flex: 0 0 auto !important
+
+      > .categories-label-count
+        flex: 1 1 auto !important
+
+      > .suggestions-link
+        text-align: left !important
+
   .categories-label-count
     display: flex
     align-items: center

@@ -151,6 +151,12 @@ export const MorelClient = class {
     this.kicked = true
   }
 
+  message_in_game_ended_by_master() {
+    this.store.set_kick_reason('ended')
+    this.store.set_phase('PSEUDONYM')
+    this.kicked = true
+  }
+
   message_in_set_slug({ slug }) {
     this.store.action_set_slug(slug)
   }
@@ -210,5 +216,13 @@ export const MorelClient = class {
     return this.send_message('kick-player', {
       kick: { uuid: player_uuid }
     })
+  }
+
+  leave_game() {
+    return this.send_message('leave-game', {})
+  }
+
+  end_game() {
+    return this.send_message('end-game', {})
   }
 }
