@@ -3,12 +3,9 @@
     <div class="column is-9 answers-column">
       <o-notification :active="true" :closable="false" class="answers-intro">
         <SummerDecor variant="icon" motif="sun" />
-        <i18n-t keypath="Fill all categories with words or phrases beginning with the letter {letter}, then submit your answers using the finish button." tag="span">
+        <i18n-t keypath="Fill all categories with words or phrases beginning with the letter {letter}." tag="span">
           <template #letter><strong>{{ letter }}</strong></template>
         </i18n-t>
-        <span v-if="stop_on_first_completion">
-          {{ $t('The first player to finish interrupts all the others!') }}
-        </span>
       </o-notification>
 
       <div class="answers-form">
@@ -35,6 +32,7 @@
       <div class="box inner-time-and-button">
         <h3>{{ round_label }}</h3>
         <CircularProgress :value="percent_time" :label="letter"></CircularProgress>
+        <p class="time-left-numeric" v-if="!is_time_infinite">{{ time_left_display }}</p>
         <div class="field">
           <o-tooltip
             :multiline="!we_finished"
@@ -100,6 +98,13 @@ export default {
       return this.is_time_infinite
         ? 100
         : 100 - Math.floor((this.time_left / this.total_time) * 100)
+    },
+
+    time_left_display() {
+      const seconds = Math.max(this.time_left, 0)
+      const minutes = Math.floor(seconds / 60)
+      const remaining_seconds = seconds - minutes * 60
+      return `${minutes}:${remaining_seconds.toString().padStart(2, '0')}`
     },
 
     round_label() {
@@ -252,7 +257,15 @@ export default {
 
     .circular-progress
       margin-top: 1.6rem
-      margin-bottom: 1.8rem
+      margin-bottom: 0.6rem
+
+    .time-left-numeric
+      margin: 0 0 1.8rem
+      font-size: 1.25em
+      font-weight: 700
+      font-variant-numeric: tabular-nums
+      letter-spacing: 0.02em
+      color: $primary-dark
 
     .field
       width: 100%
@@ -272,7 +285,7 @@ export default {
       position: unset
       width: 100%
       display: grid
-      grid-template-areas: "progress info" "progress button"
+      grid-template-areas: "progress info" "progress time" "progress button"
       grid-template-columns: auto 1fr
       column-gap: 1rem
       row-gap: 0.5rem
@@ -290,6 +303,12 @@ export default {
         grid-area: progress
         font-size: 5em
         margin: 0
+
+      .time-left-numeric
+        grid-area: time
+        margin: 0
+        font-size: 1.1em
+        align-self: start
 
       .field
         grid-area: button

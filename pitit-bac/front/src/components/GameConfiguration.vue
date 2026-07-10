@@ -74,9 +74,10 @@
                 </o-switch>
               </div>
 
-              <p class="config-defaults-hint">
-                {{ $t('{rounds} rounds, {time} per round by default, adjust this in advanced settings.', { rounds: config.turns, time: actual_time }) }}
-              </p>
+              <div class="config-stats">
+                <span class="config-stat-chip">{{ turns_summary }}</span>
+                <span class="config-stat-chip">{{ seconds_per_category_summary }}</span>
+              </div>
             </div>
           </div>
         </section>
@@ -407,6 +408,18 @@ export default {
         : this.format_seconds(this.round_time_seconds, true, true)
     },
 
+    // Résumé compact affiché sur l'écran principal (pas de calcul du temps
+    // total par round ici, juste les deux réglages bruts) : nombre de tours
+    // et temps par catégorie, tels qu'actuellement configurés.
+    turns_summary() {
+      return this.$tc('{n} round | {n} rounds', this.config.turns)
+    },
+    seconds_per_category_summary() {
+      return this.round_time_is_infinite
+        ? this.$t('No time limit')
+        : this.$t('{seconds}s per category', { seconds: this.seconds_per_category_or_default })
+    },
+
     // Bascule "No time limit", remplace l'ancien tick "∞" en bout de slider
     // par un switch explicite. On retient la dernière valeur manuelle pour la
     // restaurer si le maître décoche.
@@ -624,6 +637,27 @@ div.column.is-half div.field:not(:first-child):not(.no-extended-margin-top)
   font-size: 0.85em
   color: $grey
   line-height: 1.4
+
+// Résumé "X tours · Ys / catégorie" sur l'écran principal — chips pilule
+// courtes, cohérentes avec les autres accents pastille de l'app (boutons
+// Suggestions/Presets), plus modernes qu'une phrase de texte grise.
+.config-stats
+  display: flex
+  flex-wrap: wrap
+  gap: 0.5rem
+  margin-top: 0.9rem
+
+.config-stat-chip
+  display: inline-flex
+  align-items: center
+  padding: 0.35rem 0.85rem
+  border-radius: 999px
+  background: rgba($primary, 0.10)
+  border: 1.5px solid rgba($primary, 0.22)
+  color: $primary-dark
+  font-size: 0.8em
+  font-weight: 700
+  white-space: nowrap
 
 .time-per-category-field
   display: flex

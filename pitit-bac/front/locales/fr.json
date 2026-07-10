@@ -21,7 +21,8 @@
   "Decrease": "Diminuer",
   "Increase": "Augmenter",
   "→ {categories_count} categories, {limit} per round": "→ {categories_count} catégories, {limit} par tour",
-  "{rounds} rounds, {time} per round by default, adjust this in advanced settings.": "{rounds} tours, {time} par tour par défaut, modifiable dans les paramètres avancés.",
+  "{n} round | {n} rounds": "{n} tour | {n} tours",
+  "{seconds}s per category": "{seconds}s / catégorie",
   "{minutes} and {seconds}": "{minutes} et {seconds}",
   "{n} minute | {n} minutes": "{n} minute | {n} minutes",
   "{n}s | {n}s": "{n}s | {n}s",
@@ -95,7 +96,7 @@
   "Starting soon…": "Début imminent…",
   "Brace yourself, the next round starts in a few seconds…": "Préparez-vous, le prochain tour débute dans quelque secondes…",
 
-  "Fill all categories with words or phrases beginning with the letter {letter}, then submit your answers using the finish button.": "Remplissez toutes les catégories avec des mots ou expressions commençant par la lettre {letter}, puis envoyez vos réponses à l'aide du bouton.",
+  "Fill all categories with words or phrases beginning with the letter {letter}.": "Remplissez toutes les catégories avec des mots ou expressions commençant par la lettre {letter}.",
   "The first player to finish interrupts all the others!": "Le premier joueur qui termine interrompt tous les autres !",
   "You must enter a word or phrase beginning with the letter {letter}.": "Vous devez entrer un mot ou une phrase commençant par la lettre {letter}.",
   "First round": "Premier tour",

@@ -139,6 +139,16 @@
     border-color: rgba($primary, 0.25) !important
     color: #2D1B00 !important
 
+  // Sans variant de couleur, le texte hérite de la couleur de scheme par
+  // défaut du thème Bulma, qui bascule en clair via
+  // `@media (prefers-color-scheme: dark)` (même piège que les tooltips,
+  // voir plus haut). Le fond reste lui figé sur --card-bg (toujours clair),
+  // d'où un texte quasi blanc sur fond quasi blanc chez un visiteur en dark
+  // mode système. Fix : texte forcé en dur, sauf pour les variants qui ont
+  // leur propre fond sombre/coloré et ont besoin d'un texte clair (is-dark).
+  &:not(.is-dark):not(.is-primary):not(.is-link):not(.is-info):not(.is-success):not(.is-warning):not(.is-danger)
+    color: #2D1B00 !important
+
   .media-content
     overflow: hidden
 
