@@ -15,9 +15,9 @@
         <button
           class="button"
           :class="[size ? 'is-' + size : '', type ? 'is-' + type : '']"
-          :aria-label="$t(labelButton)"
           @click="start_game"
         >
+          <span>{{ $t(labelButton) }}</span>
           <o-icon icon="chevron-right"></o-icon>
         </button>
       </p>

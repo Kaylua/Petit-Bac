@@ -129,10 +129,10 @@
         class="container"
         :class="{ 'is-loading': has_fullscreen_message }"
       >
+        <SummerDecor variant="hero-vivid" />
         <div class="columns">
           <div class="column is-half is-offset-3">
             <header class="init-logo">
-              <SummerDecor variant="hero" />
               <span class="game-title">Pitit Bac</span>
               <p class="init-tagline">{{ $t('The word game for your summer nights') }}</p>
             </header>
@@ -453,18 +453,46 @@ html.overflow, html.overflow body
 .init-logo
   position: relative
   text-align: center
-  margin-bottom: 3.5rem
+  margin-bottom: 2.4rem
   width: 100%
+  padding-top: 1.5rem
+
+  // Halo lumineux derrière le titre, façon spotlight, pour renforcer le
+  // pop de la typo blanche sur le dégradé (esprit "hero" moderne)
+  &::before
+    content: ""
+    position: absolute
+    z-index: 0
+    top: -2rem
+    left: 50%
+    width: 480px
+    height: 320px
+    transform: translateX(-50%)
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 70%)
+    pointer-events: none
+
+    +mobile
+      width: 320px
+      height: 220px
 
   .game-title
     position: relative
     z-index: 1
-    font-size: 5.5rem
+    font-size: 7.4rem
+    font-weight: 900
+    letter-spacing: -0.045em
     display: block
-    filter: drop-shadow(0 6px 20px rgba($primary, 0.22))
+    // Sur le fond vivid, le gradient corail "clippé dans le texte" perd tout
+    // contraste : blanc plein + ombre portée chaude à la place, plus proche
+    // de la typo "poster" de design.md
+    color: #FFFBF3
+    background: none
+    -webkit-text-fill-color: initial
+    text-shadow: 0 8px 28px rgba(120, 20, 0, 0.4), 0 2px 0 rgba(120, 20, 0, 0.15)
+    filter: none
 
     +mobile
-      font-size: 3.8rem
+      font-size: 4.8rem
 
     @media (prefers-reduced-motion: no-preference)
       transition: transform 0.3s ease
@@ -475,13 +503,35 @@ html.overflow, html.overflow body
   .init-tagline
     position: relative
     z-index: 1
-    margin-top: 0.6rem
-    font-size: 1.15rem
-    font-weight: 500
-    color: #8A4B12
+    display: inline-flex
+    align-items: center
+    gap: 0.5em
+    margin-top: 1rem
+    padding: 0.5em 1.1em
+    border-radius: 999px
+    background: rgba(255, 255, 255, 0.22)
+    border: 1px solid rgba(255, 255, 255, 0.4)
+    backdrop-filter: blur(8px)
+    -webkit-backdrop-filter: blur(8px)
+    font-size: 1rem
+    font-weight: 700
+    color: #FFFBF3
+    text-shadow: 0 2px 8px rgba(120, 20, 0, 0.25)
 
     +mobile
-      font-size: 0.95rem
+      font-size: 0.85rem
+      padding: 0.45em 0.9em
+
+    &::before
+      content: ""
+      width: 7px
+      height: 7px
+      border-radius: 50%
+      background: #FFF3C4
+      flex-shrink: 0
+
+      @media (prefers-reduced-motion: no-preference)
+        animation: pulseDot 2s ease-in-out infinite
 
 // ============================================================
 // BARRE MOBILE HAUT (logo + bouton quitter)
@@ -603,11 +653,65 @@ html.overflow, html.overflow body
 
 // ============================================================
 // PAGE D'ACCUEIL
+// Inspiré de design.md (fond dégradé chaud, hiérarchie typo bold/tight
+// tracking, carte "verre dépoli", CTA pilule) : on garde l'esprit (structure,
+// contraste, formes) mais pas le contenu (jeux de cartes casino, Tailwind),
+// adapté à la vraie page (logo + saisie du pseudo) et à la palette été
+// existante plutôt qu'au jaune/orange casino du fichier source.
 // ============================================================
 
 .ask-pseudonym
   @media (prefers-reduced-motion: no-preference)
     animation: fadeInUp 0.45s ease 0.08s both
+
+  // Pas de carte : deux essais de "panneau" (dégradé peint, verre dépoli
+  // flouté+bordure blanche) ont tous les deux lu "vieillot" quel que soit
+  // le traitement — le cadre/bordure/flou lui-même était le problème, pas
+  // sa couleur. Le champ et le bouton flottent directement sur le dégradé
+  // vivid : juste de l'espacement et une ombre douce sous chaque élément.
+  max-width: 420px
+  margin: 0 auto
+
+  +tablet
+    max-width: 460px
+
+  .label
+    color: #FFFBF3
+    font-weight: 700
+    font-size: 0.85rem
+    letter-spacing: 0.04em
+    margin-bottom: 0.7rem !important
+    text-shadow: 0 2px 8px rgba(120, 20, 0, 0.3)
+
+  .field.has-addons
+    display: flex
+    flex-direction: column
+    gap: 0.9rem
+
+    .control
+      width: 100%
+
+    .input
+      border-radius: 999px !important
+      height: 3.5rem
+      padding-left: 1.5rem
+      font-size: 1.05rem
+      background: #FFFFFF
+      border: none
+      box-shadow: 0 10px 28px rgba(90, 15, 0, 0.22)
+      transition: box-shadow 0.2s ease
+
+      &:focus
+        box-shadow: 0 10px 28px rgba(90, 15, 0, 0.22), 0 0 0 3px rgba(255, 255, 255, 0.6)
+
+    .button
+      width: 100%
+      height: 3.5rem
+      border-radius: 999px !important
+      font-size: 1.05rem
+      font-weight: 700
+      gap: 0.5rem
+      box-shadow: 0 10px 28px rgba(90, 15, 0, 0.3) !important
 
 // ============================================================
 // FOOTER
@@ -631,6 +735,14 @@ html.overflow, html.overflow body
     color: lighten($primary, 20%)
   100%
     color: $dark
+
+@keyframes pulseDot
+  0%, 100%
+    opacity: 0.5
+    transform: scale(1)
+  50%
+    opacity: 1
+    transform: scale(1.25)
 
 @keyframes fadeInUp
   from

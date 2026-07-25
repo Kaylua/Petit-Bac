@@ -31,7 +31,7 @@ Les chemins `src/...` sont relatifs à `pitit-bac/front/`.
 | Vote sur les réponses | `src/components/GameVote.vue` |
 | Scores finaux | `src/components/GameEnd.vue` |
 | Timer circulaire CSS-driven (props: `value` 0–100, `label`) | `src/components/CircularProgress.vue` |
-| Motifs décoratifs SVG "summer vibes" (palmier, cocktail, soleil, confettis), variants `hero`/`corner`, purement cosmétique | `src/components/SummerDecor.vue` |
+| Motifs décoratifs SVG "summer vibes" (palmier, cocktail, soleil, confettis), variants `hero`/`corner`/`scatter`/`hero-vivid` (fond plein écran dégradé + motifs pour l'écran d'accueil, `position: fixed; z-index: -1`), purement cosmétique | `src/components/SummerDecor.vue` |
 | Contrôle numérique +/- mobile-friendly (remplace les sliders Oruga pour Rounds/Time per category) | `src/components/NumberStepper.vue` |
 | Variables Bulma (couleurs, primary=#E64A19 orange été) | `src/assets/variables.scss` |
 | Overrides globaux composants UI (boutons, cartes, inputs, tags, panel, mobile), partial Sass, importé par App.vue | `src/assets/design-system.sass` |

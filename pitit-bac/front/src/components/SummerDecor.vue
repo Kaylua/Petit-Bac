@@ -81,6 +81,61 @@
       <span class="decor decor-dot is-d"></span>
     </template>
 
+    <template v-else-if="variant === 'hero-vivid'">
+      <!-- Palmier (viewBox élargi : les palmes montent au-delà de "0 0 120 120",
+           un viewBox trop juste les rognait au rendu, très visible en grand) -->
+      <svg class="decor-vivid decor-vivid-a" viewBox="-14 -14 148 148" fill="none">
+        <path d="M60 110 C58 80 58 55 60 35" stroke="#0B5D4A" stroke-width="5" stroke-linecap="round" />
+        <path d="M60 40 C40 32 24 34 10 22 C28 18 44 22 58 34" fill="#00BFA5" />
+        <path d="M60 38 C42 22 30 14 22 -2 C42 4 54 16 60 32" fill="#0B5D4A" />
+        <path d="M60 36 C68 16 78 6 84 -8 C70 2 60 14 56 30" fill="#00BFA5" />
+        <path d="M62 40 C82 30 98 30 114 16 C96 16 80 22 62 34" fill="#0B5D4A" />
+        <path d="M60 44 C78 42 92 48 108 44 C94 54 78 54 60 48" fill="#00BFA5" />
+      </svg>
+      <!-- Cocktail (viewBox élargi vers le haut : la paille dépasse de "0 0 100 120") -->
+      <svg class="decor-vivid decor-vivid-b" viewBox="0 -14 100 134" fill="none">
+        <path d="M20 14 L50 54 L80 14 Z" fill="#FFF8F3" stroke="#E8581E" stroke-width="4" stroke-linejoin="round" />
+        <line x1="50" y1="54" x2="50" y2="96" stroke="#E8581E" stroke-width="4" stroke-linecap="round" />
+        <line x1="32" y1="108" x2="68" y2="108" stroke="#E8581E" stroke-width="4" stroke-linecap="round" />
+        <line x1="50" y1="96" x2="50" y2="108" stroke="#E8581E" stroke-width="4" stroke-linecap="round" />
+        <circle cx="38" cy="26" r="7" fill="#FFC93C" stroke="#E8581E" stroke-width="2.5" />
+        <line x1="70" y1="8" x2="86" y2="-10" stroke="#00BFA5" stroke-width="4" stroke-linecap="round" />
+      </svg>
+      <!-- Pastèque (demi-cercle plein, pas un arc plat : l'ancienne version
+           avait un rayon ~2x trop grand par rapport à la corde, ce qui
+           n'affichait qu'un fin croissant au lieu d'une vraie tranche) -->
+      <svg class="decor-vivid decor-vivid-d" viewBox="0 0 100 60" fill="none">
+        <path d="M2 54 A48 48 0 0 1 98 54 Z" fill="#0B5D4A" />
+        <path d="M10 54 A40 40 0 0 1 90 54 Z" fill="#FFF8F3" />
+        <path d="M18 54 A32 32 0 0 1 82 54 Z" fill="#FF6B35" />
+        <circle cx="36" cy="36" r="2.8" fill="#2D1B00" />
+        <circle cx="50" cy="26" r="2.8" fill="#2D1B00" />
+        <circle cx="64" cy="36" r="2.8" fill="#2D1B00" />
+        <circle cx="50" cy="44" r="2.8" fill="#2D1B00" />
+      </svg>
+      <!-- Soleil (un seul sur tout l'écran, cf. celui du variant hero retiré du template plus haut) -->
+      <svg class="decor-vivid decor-vivid-e" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="18" fill="#FFC93C" />
+        <g stroke="#FFC93C" stroke-width="5" stroke-linecap="round">
+          <line x1="50" y1="6" x2="50" y2="20" />
+          <line x1="50" y1="80" x2="50" y2="94" />
+          <line x1="6" y1="50" x2="20" y2="50" />
+          <line x1="80" y1="50" x2="94" y2="50" />
+          <line x1="18.8" y1="18.8" x2="28.6" y2="28.6" />
+          <line x1="71.4" y1="71.4" x2="81.2" y2="81.2" />
+          <line x1="18.8" y1="81.2" x2="28.6" y2="71.4" />
+          <line x1="71.4" y1="28.6" x2="81.2" y2="18.8" />
+        </g>
+      </svg>
+
+      <!-- Petites bulles pour meubler le vide entre le titre et le bas de
+           l'écran (sinon grand aplat orange nu au milieu sur mobile) -->
+      <span class="decor-dot is-a"></span>
+      <span class="decor-dot is-b"></span>
+      <span class="decor-dot is-c"></span>
+      <span class="decor-dot is-d"></span>
+    </template>
+
     <template v-else-if="variant === 'corner'">
       <svg class="decor decor-palm-small" viewBox="0 0 120 120" fill="none">
         <path d="M60 110 C58 80 58 55 60 35" stroke="#0B5D4A" stroke-width="5" stroke-linecap="round" />
@@ -171,7 +226,7 @@ export default {
     variant: {
       type: String,
       default: 'hero',
-      validator: (v) => ['hero', 'corner', 'scatter', 'icon'].includes(v)
+      validator: (v) => ['hero', 'hero-vivid', 'corner', 'scatter', 'icon'].includes(v)
     },
     motif: {
       type: String,
@@ -297,6 +352,166 @@ export default {
       &.is-d
         top: -3.4rem
         right: 28%
+
+  // Fond plein écran de l'accueil : dégradé "été chaud" + motifs en couleur
+  // flottants (esprit design.md §1-2, ré-adapté à la palette et aux motifs
+  // été du projet plutôt qu'aux symboles de cartes)
+  &.is-hero-vivid
+    position: fixed
+    inset: 0
+    // z-index explicite : contrairement aux autres variants (icônes en
+    // gouttière/coin qui restent dans des zones vides), celui-ci pose un
+    // fond plein écran par-dessus tout le viewport. Sans ce -1, un élément
+    // position:fixed passe par défaut AU-DESSUS du contenu statique
+    // (.columns non positionné) dans l'ordre d'empilement, recouvrant le
+    // formulaire (piège rencontré en implémentant ce variant).
+    z-index: -1
+    overflow: hidden
+    // Étalé sur 100% (pas de background-size > 100%) : un premier essai
+    // avec 130% + drift condensait les 3/4 des teintes hors-champ, ne
+    // laissant visible qu'un plateau orange quasi uniforme au repos (piège
+    // rencontré, corrigé en gardant la taille réelle du dégradé).
+    // Grain superposé (même technique que le dégradé html global) : évite
+    // l'effet "aplat plat" d'un dégradé seul, look "mesh gradient" moderne.
+    // Dernier stop remonté de #A62E0A (brun terne, "sale" une fois mélangé
+    // au halo jaune) à $primary-dark : dégradé plus court, moins de teintes
+    // trop proches qui se brouillent entre elles dans le bas de l'écran.
+    background-image: linear-gradient(180deg, #FFF3B0 0%, #FFC93C 22%, #FF9142 48%, $primary 72%, $primary-dark 100%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Ccircle cx='2' cy='2' r='2' fill='%23FFFFFF' fill-opacity='0.22'/%3E%3C/svg%3E")
+    background-repeat: no-repeat, repeat
+    background-size: 100% 100%, 48px 48px
+
+    // Halos flous colorés (même technique que .ambient-blobs) : cassent la
+    // monotonie du dégradé dans la moitié basse, très peu de coût (2
+    // pseudo-éléments, pas de DOM en plus) pour un effet "profondeur" net
+    &::before, &::after
+      content: ""
+      position: absolute
+      border-radius: 50%
+      filter: blur(50px)
+      pointer-events: none
+
+    // Teal en bas (contraste complémentaire net sur le rouge-orange foncé)
+    &::before
+      width: 60vw
+      height: 60vw
+      min-width: 320px
+      min-height: 320px
+      bottom: -20vw
+      left: -18vw
+      background: $accent-teal
+      opacity: 0.22
+
+    // Jaune remonté en haut (renforce la zone déjà claire du dégradé au
+    // lieu de se mélanger à l'orange foncé du bas où il tournait "sale")
+    &::after
+      width: 44vw
+      height: 44vw
+      min-width: 240px
+      min-height: 240px
+      top: -12vw
+      right: -12vw
+      background: $accent-yellow
+      opacity: 0.3
+
+    // Vrais motifs été en couleur (palmier/cocktail/pastèque/soleil, mêmes
+    // illustrations que les variants hero/scatter), PAS des silhouettes
+    // monochromes blanches : plus fidèle à l'identité visuelle du projet et
+    // beaucoup plus lisible/vivant sur le dégradé
+    .decor-vivid
+      position: absolute
+      filter: drop-shadow(0 10px 24px rgba(60, 10, 0, 0.28))
+
+    // Icônes posées ENTIÈREMENT à l'intérieur du viewport (pas de bord
+    // négatif façon "bleed") : les essais précédents laissaient dépasser
+    // les motifs hors-cadre, perçu comme "rogné" alors que c'était un choix
+    // de cadrage voulu, pas un bug — ici on montre la forme complète
+    .decor-vivid-a
+      width: 200px
+      height: 200px
+      top: 1.4rem
+      left: 1.2rem
+      transform: rotate(-14deg)
+
+      +mobile
+        width: 128px
+        height: 128px
+        top: 0.8rem
+        left: 0.6rem
+
+    .decor-vivid-b
+      width: 138px
+      height: 166px
+      top: 1.4rem
+      right: 1.4rem
+      transform: rotate(6deg)
+
+      +mobile
+        width: 88px
+        height: 106px
+        top: 0.8rem
+        right: 0.6rem
+
+    .decor-vivid-d
+      width: 190px
+      height: 114px
+      bottom: 1.6rem
+      right: 1.6rem
+
+      +mobile
+        width: 128px
+        height: 77px
+        bottom: 0.8rem
+        right: 0.6rem
+
+    .decor-vivid-e
+      width: 170px
+      height: 170px
+      top: 3%
+      left: calc(50% - 85px)
+      opacity: 0.85
+
+      +mobile
+        width: 110px
+        height: 110px
+        left: calc(50% - 55px)
+
+    // Lunettes + agrume retirés : mal placés (à cheval sur le bord de la
+    // carte, à moitié masqués) et jugés moche/inutiles à l'usage. On garde
+    // 4 motifs francs (palmier/cocktail/soleil/pastèque) plutôt que de
+    // multiplier des éléments moyens.
+    //
+    // Bulles réparties dans la zone libre SOUS la carte (~52-72% de la
+    // hauteur), avant le footer (~75%+) : jamais sous la carte (invisibles,
+    // gâchées) ni sur le texte du footer (illisible)
+    .decor-dot
+      width: 12px
+      height: 12px
+      opacity: 0.5
+
+      &.is-a
+        top: 54%
+        left: 8%
+      &.is-b
+        top: 58%
+        right: 10%
+      &.is-c
+        top: 66%
+        left: 16%
+      &.is-d
+        top: 70%
+        right: 18%
+
+    @media (prefers-reduced-motion: no-preference)
+      .decor-vivid-a
+        animation: floatBig1 9s ease-in-out infinite
+      .decor-vivid-b
+        animation: floatBig2 6.5s ease-in-out infinite 0.4s
+      .decor-vivid-d
+        animation: floatBig1 9.5s ease-in-out infinite 2s
+      .decor-vivid-e
+        animation: floatBig2 11s ease-in-out infinite
+      .decor-dot
+        animation: decorFloat 6s ease-in-out infinite
 
   &.is-corner
     .decor-palm-small
@@ -452,4 +667,24 @@ export default {
     transform: translateY(0)
   50%
     transform: translateY(-10px)
+
+// Flottement des gros motifs de fond de l'accueil (is-hero-vivid), dédiées
+// pour ne pas toucher aux animations partagées ci-dessus utilisées par
+// d'autres écrans (sidebar, calque ambiant global). Amplitude volontairement
+// modérée : les icônes sont maintenant posées entièrement dans le cadre
+// (plus de bleed sur les bords), une trop grande amplitude les repousserait
+// hors champ pendant une partie du cycle
+@keyframes floatBig1
+  0%, 100%
+    transform: rotate(-14deg) translateY(0) scale(1)
+  50%
+    transform: rotate(-8deg) translateY(-18px) scale(1.06)
+
+@keyframes floatBig2
+  0%, 100%
+    transform: translateY(0) scale(1)
+  50%
+    transform: translateY(-16px) scale(1.05)
+
+
 </style>
